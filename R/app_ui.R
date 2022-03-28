@@ -391,9 +391,6 @@ app_ui <- function(request) {
                  ) # end of tabPanel
       ) # end of navbarMenu
     ) # end of navbarPage
-    
-    
-    
   )
 }
 
