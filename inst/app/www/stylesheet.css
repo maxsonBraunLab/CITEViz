@@ -1,1 +1,40 @@
- 
+/****** Overall site formatting ******/
+header div{
+  margin: 0 !important;
+  padding-left: 1rem; 
+  padding-right: 1rem;
+}
+
+footer {
+  background-image: linear-gradient(to right, #004F6E, #8D1D58);
+  color: white;
+  opacity: 0.97;
+  font-size: 85%;
+  width: 100%; 
+  text-align: center; 
+  padding: 0.4rem 0 0.4rem 0;
+  position: fixed;
+  bottom: 0;
+  z-index: 1000;
+}
+
+
+/****** Landing/Welcome Page ******/
+
+#beta_testing_banner {
+  border: 2px solid gray; 
+  border-radius: 5px;
+  background-color: whitesmoke; 
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  padding: 1rem 1rem 0 1rem;
+}
+
+noscript div {
+  border: 2px solid gray; 
+  border-radius: 5px;
+  background-color: whitesmoke; 
+  margin-top: 0.1rem;
+  margin-bottom: 1.2rem;
+  padding: 1rem 1rem 0 1rem;
+}
