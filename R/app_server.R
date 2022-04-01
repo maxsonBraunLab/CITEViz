@@ -159,6 +159,101 @@ app_server <- function( input, output, session ) {
     return(base_palette(num_colors))
   }
   
+  
+#create gate objects from user input selections depending on if the user is front-gating or back-gating
+#' Title
+#'
+#' @param is_front_gating 
+#' @param assay_count_data 
+#' @param gate_counter 
+#' @param reactive_gate_list 
+#' @param reactive_selected_gate 
+#' @param reactive_last_buttons_clicked 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+  create_gate_from_input <- function(is_front_gating = TRUE, assay_count_data, gate_counter, reactive_gate_list, reactive_selected_gate, reactive_last_buttons_clicked) {
+    # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for front and backgating
+    # So for front-gating, an example of an input from a UI element would be input$Assay. The corresponding input in the backgating page would be input$Assay_bg. the suffix for the backgating UI elements is "_bg"
+    ui_input_suffix <- ""
+    
+    sel <- NA_character_
+    brushed_coords <- NA_character_
+    input_cells <- list()
+    input_coords <- data.frame()
+
+    # front-gating logic
+    if (is_front_gating == TRUE) {
+      # get plotly event data
+      sel <- event_data("plotly_selected", source = "C")
+      brushed_coords <- event_data("plotly_brushed", source = "C")
+
+      # Check for Gate object. If one does not exists, create initial input for first gate.
+      if (length(reactive_gate_list) == 0 | reactive_last_buttons_clicked$second_to_last == "reset_button" | reactive_last_buttons_clicked$second_to_last == "clear_all_gates_button") {
+        input_cells <- list(rownames(assay_count_data))
+        input_coords <- data.frame(x = assay_count_data[,1], y = assay_count_data[,2])
+      }
+      else {
+        #set up inputs to gate object if there is already a gate object
+        # if user has not selected a previous gate from datatable to re-gate from
+        if (is.null(input$gating_pg_table_rows_selected)) {
+          input_cells <- reactive_gate_list[[paste0("gate_", gate_counter - 1)]]@subset_cells
+          input_coords <- data.frame(x = brushed_coords$x, y = brushed_coords$y)
+        }
+        # else if user has selected a previous gate from datatable that they want to re-gate from
+        else {
+          input_cells <- reactive_gate_list[[reactive_selected_gate]]@subset_cells
+          input_coords <- reactive_gate_list[[reactive_selected_gate]]@subset_coords
+        }
+      }
+    }
+    # back-gating logic
+    else {
+      ui_input_suffix <- "_bg"
+
+      # get plotly event data and input cell data
+      sel <- event_data("plotly_selected", source = "D")
+      brushed_coords <- event_data("plotly_brushed", source = "D")
+      input_cells <- list(rownames(count_data))
+      input_coords <- data.frame(x = count_data[,1], y = count_data[,2])
+    }
+
+    #assign values to variables
+    assay_name <- input[[paste0("Assay", ui_input_suffix)]]
+    subset_cells <- list(sel$customdata)
+    subset_coords <- data.frame(x = assay_count_data[sel$customdata,1], y = assay_count_data[sel$customdata,2])
+    x_axis <- input[[paste0("x_feature", ui_input_suffix)]]
+    y_axis <- input[[paste0("y_feature", ui_input_suffix)]]
+    gate_coords <- list(x = c(brushed_coords$x), y = c(brushed_coords$y))
+    name_subset_cells <- input[[paste0("cell_subset_name", ui_input_suffix)]]
+    num_input_cells <- length(unlist(input_cells))
+    num_subset_cells <- length(unlist(subset_cells))
+    total_num_cells_in_sample <- length(rownames(assay_count_data))
+    pct_subset_from_previous <- 100 * num_subset_cells / num_input_cells
+    pct_subset_from_total <- 100 * num_subset_cells / total_num_cells_in_sample
+
+    # construct Gate object
+    gate_obj <- Gate(counter = gate_counter,
+                    assay_name = assay_name,
+                    input_cells = input_cells,
+                    input_coords = input_coords,
+                    subset_cells = subset_cells,
+                    subset_coords = subset_coords,
+                    x_axis = x_axis,
+                    y_axis = y_axis,
+                    gate_coords = gate_coords,
+                    name_subset_cells = name_subset_cells,
+                    num_input_cells = num_input_cells,
+                    num_subset_cells = num_subset_cells,
+                    total_num_cells_in_sample = total_num_cells_in_sample,
+                    pct_subset_from_previous = pct_subset_from_previous,
+                    pct_subset_from_total = pct_subset_from_total)
+    return(gate_obj)
+  }
+  
+  
   #' Title
   #'
   #' @param gating_reactiveValues 
@@ -175,7 +270,6 @@ app_server <- function( input, output, session ) {
     })
     return(reactive_gate_list)
   }
-  
   
   #create gating dataframe
   #' Title
@@ -847,59 +941,18 @@ app_server <- function( input, output, session ) {
         # get plotly event data
         sel <- event_data("plotly_selected", source = "C")
         brushed_coords <- event_data("plotly_brushed", source = "C")
-        
+
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive() + 1)
         counter_reactive(counter)
-        
-        # Check for Gate object. If one does not exists, create initial input for first gate.
-        if (length(gate_list()) == 0 | last_buttons_clicked$second_to_last == "reset_button" | last_buttons_clicked$second_to_last == "clear_all_gates_button") {
-          input_cells <- list(rownames(count_data))
-          input_coords <- data.frame(x = count_data[,1], y = count_data[,2])
-        } 
-        else {
-          #set up inputs to gate object if there is already a gate object
-          # if user has not selected a previous gate from datatable to re-gate from
-          if (is.null(input$gating_pg_table_rows_selected)) {
-            input_cells <- gate_list()[[paste0("gate_", counter - 1)]]@subset_cells
-            input_coords <- data.frame(x = brushed_coords$x, y = brushed_coords$y)
-          }
-          # else if user has selected a previous gate from datatable that they want to re-gate from
-          else {
-            input_cells <- gate_list()[[selected_gate()]]@subset_cells
-            input_coords <- gate_list()[[selected_gate()]]@subset_coords
-          }
-        }
-        
-        assay_name <- input$Assay
-        subset_cells <- list(sel$customdata)
-        subset_coords <- data.frame(x = count_data[sel$customdata,1], y = count_data[sel$customdata,2])
-        x_axis <- input$x_feature
-        y_axis <- input$y_feature
-        gate_coords <- list(x = c(brushed_coords$x), y = c(brushed_coords$y))
-        name_subset_cells <- input$cell_subset_name
-        num_input_cells <- length(unlist(input_cells))
-        num_subset_cells <- length(unlist(subset_cells))
-        total_num_cells_in_sample <- length(rownames(count_data))
-        pct_subset_from_previous <- 100 * num_subset_cells / num_input_cells
-        pct_subset_from_total <- 100 * num_subset_cells / total_num_cells_in_sample
-        
-        gate_reactive_values[[paste0("gate_", counter)]] <- Gate(counter = counter,
-                                                                 assay_name = assay_name,
-                                                                 input_cells = input_cells,
-                                                                 input_coords = input_coords,
-                                                                 subset_cells = subset_cells,
-                                                                 subset_coords = subset_coords,
-                                                                 x_axis = x_axis,
-                                                                 y_axis = y_axis,
-                                                                 gate_coords = gate_coords,
-                                                                 name_subset_cells = name_subset_cells,
-                                                                 num_input_cells = num_input_cells,
-                                                                 num_subset_cells = num_subset_cells,
-                                                                 total_num_cells_in_sample = total_num_cells_in_sample,
-                                                                 pct_subset_from_previous = pct_subset_from_previous,
-                                                                 pct_subset_from_total = pct_subset_from_total)
-        
+
+        # create gate object based on UI input
+        gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(is_front_gating = TRUE,
+                                                                                   assay_count_data = count_data,
+                                                                                   gate_counter = counter,
+                                                                                   reactive_gate_list = gate_list(),
+                                                                                   reactive_selected_gate = selected_gate(),
+                                                                                   reactive_last_buttons_clicked = last_buttons_clicked)
       }) #end of gating logic for events triggered by clicking gate button
       
       
@@ -1182,42 +1235,18 @@ app_server <- function( input, output, session ) {
         # get plotly event data
         sel <- event_data("plotly_selected", source = "D")
         brushed_coords <- event_data("plotly_brushed", source = "D")
-        
+
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive_bg() + 1)
         counter_reactive_bg(counter)
         
-        input_cells <- list(rownames(count_data))
-        input_coords <- data.frame(x = count_data[,1], y = count_data[,2])
-        assay_name <- input$Assay_bg
-        subset_cells <- list(sel$customdata)
-        subset_coords <- data.frame(x = count_data[sel$customdata,1], y = count_data[sel$customdata,2])
-        x_axis <- input$x_feature_bg
-        y_axis <- input$y_feature_bg
-        gate_coords <- list(x = c(brushed_coords$x), y = c(brushed_coords$y))
-        name_subset_cells <- input$cell_subset_name_bg
-        num_input_cells <- length(unlist(input_cells))
-        num_subset_cells <- length(unlist(subset_cells))
-        total_num_cells_in_sample <- length(rownames(count_data))
-        pct_subset_from_previous <- 100 * num_subset_cells / num_input_cells
-        pct_subset_from_total <- 100 * num_subset_cells / total_num_cells_in_sample
-        
-        gate_reactive_values_bg[[paste0("gate_", counter)]] <- Gate(counter = counter,
-                                                                    assay_name = assay_name,
-                                                                    input_cells = input_cells,
-                                                                    input_coords = input_coords,
-                                                                    subset_cells = subset_cells,
-                                                                    subset_coords = subset_coords,
-                                                                    x_axis = x_axis,
-                                                                    y_axis = y_axis,
-                                                                    gate_coords = gate_coords,
-                                                                    name_subset_cells = name_subset_cells,
-                                                                    num_input_cells = num_input_cells,
-                                                                    num_subset_cells = num_subset_cells,
-                                                                    total_num_cells_in_sample = total_num_cells_in_sample,
-                                                                    pct_subset_from_previous = pct_subset_from_previous,
-                                                                    pct_subset_from_total = pct_subset_from_total)
-        
+        # create gate object based on UI input
+        gate_reactive_values_bg[[paste0("gate_", counter)]] <- create_gate_from_input(is_front_gating = FALSE,
+                                                                                     assay_count_data = count_data,
+                                                                                     gate_counter = counter,
+                                                                                     reactive_gate_list = gate_list_bg(),
+                                                                                     reactive_selected_gate = selected_gate_bg(),
+                                                                                     reactive_last_buttons_clicked = last_buttons_clicked_bg)
       }) #end of gating logic for events triggered by clicking gate button
       
       
