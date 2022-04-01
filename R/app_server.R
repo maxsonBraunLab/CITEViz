@@ -160,10 +160,10 @@ app_server <- function( input, output, session ) {
   }
   
   
-#create gate objects from user input selections depending on if the user is front-gating or back-gating
+#create gate objects from user input selections depending on if the user is forward-gating or back-gating
 #' Title
 #'
-#' @param is_front_gating 
+#' @param is_forward_gating 
 #' @param assay_count_data 
 #' @param gate_counter 
 #' @param reactive_gate_list 
@@ -174,9 +174,9 @@ app_server <- function( input, output, session ) {
 #' @export
 #'
 #' @examples
-  create_gate_from_input <- function(is_front_gating = TRUE, assay_count_data, gate_counter, reactive_gate_list, reactive_selected_gate, reactive_last_buttons_clicked) {
-    # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for front and backgating
-    # So for front-gating, an example of an input from a UI element would be input$Assay. The corresponding input in the backgating page would be input$Assay_bg. the suffix for the backgating UI elements is "_bg"
+  create_gate_from_input <- function(is_forward_gating = TRUE, assay_count_data, gate_counter, reactive_gate_list, reactive_selected_gate, reactive_last_buttons_clicked) {
+    # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for forward and backgating
+    # So for forward-gating, an example of an input from a UI element would be input$Assay. The corresponding input in the backgating page would be input$Assay_bg. the suffix for the backgating UI elements is "_bg"
     ui_input_suffix <- ""
     
     sel <- NA_character_
@@ -184,8 +184,8 @@ app_server <- function( input, output, session ) {
     input_cells <- list()
     input_coords <- data.frame()
 
-    # front-gating logic
-    if (is_front_gating == TRUE) {
+    # forward-gating logic
+    if (is_forward_gating == TRUE) {
       # get plotly event data
       sel <- event_data("plotly_selected", source = "C")
       brushed_coords <- event_data("plotly_brushed", source = "C")
@@ -947,7 +947,7 @@ app_server <- function( input, output, session ) {
         counter_reactive(counter)
 
         # create gate object based on UI input
-        gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(is_front_gating = TRUE,
+        gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(is_forward_gating = TRUE,
                                                                                    assay_count_data = count_data,
                                                                                    gate_counter = counter,
                                                                                    reactive_gate_list = gate_list(),
@@ -1241,7 +1241,7 @@ app_server <- function( input, output, session ) {
         counter_reactive_bg(counter)
         
         # create gate object based on UI input
-        gate_reactive_values_bg[[paste0("gate_", counter)]] <- create_gate_from_input(is_front_gating = FALSE,
+        gate_reactive_values_bg[[paste0("gate_", counter)]] <- create_gate_from_input(is_forward_gating = FALSE,
                                                                                      assay_count_data = count_data,
                                                                                      gate_counter = counter,
                                                                                      reactive_gate_list = gate_list_bg(),
