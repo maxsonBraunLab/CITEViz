@@ -55,8 +55,8 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
       # get plotly event data and input cell data
       sel <- event_data("plotly_selected", source = "D")
       brushed_coords <- event_data("plotly_brushed", source = "D")
-      input_cells <- list(rownames(count_data))
-      input_coords <- data.frame(x = count_data[,1], y = count_data[,2])
+      input_cells <- list(rownames(assay_count_data))
+      input_coords <- data.frame(x = assay_count_data[,1], y = assay_count_data[,2])
     }
 
     #assign values to variables
