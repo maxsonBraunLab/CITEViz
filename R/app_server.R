@@ -708,6 +708,197 @@ app_server <- function( input, output, session ) {
     })  #end of clustering observed wrapper 
     
     
+    # ------- ***** Co-Expression ***** ----------
+    
+    ### choose assay for x and y axes and then display dropdowns
+    
+    observe({
+      
+      # ----- update/render UI elements -----
+      
+      updateSelectInput(
+        #session = session,
+        inputId = "reduction_expr",
+        choices = sort(names(myso@reductions)),
+        selected = dplyr::last(sort(names(myso@reductions)))
+      )
+      
+      output$Assay_x_axis = renderUI({
+        selectInput(inputId = "Assay_x_axis",
+                    label = "Choose assay for x-axis colorscale:",
+                    choices = sort(names(myso@assays)),
+                    selected = sort(names(myso@assays))[1]
+        )
+      })
+      
+      output$Assay_y_axis = renderUI({
+        selectInput(inputId = "Assay_y_axis",
+                    label = "Choose assay for y-axis colorscale:",
+                    choices = sort(names(myso@assays)),
+                    selected = sort(names(myso@assays))[1]
+        )
+      })
+      
+      
+      output$x_axis_feature = renderUI({
+        req(input$Assay_x_axis)
+        feature_path <- paste0('myso@assays$', input$Assay_x_axis, '@data')
+        selectInput(inputId = "x_axis_feature",
+                    label = "Choose feature for x-axis colorscale:",
+                    choices = rownames(eval(parse(text=feature_path))),
+                    selected = rownames(eval(parse(text=feature_path)))[1]
+        )
+      })
+      
+      output$y_axis_feature = renderUI({
+        req(input$Assay_y_axis)
+        feature_path <- paste0('myso@assays$', input$Assay_y_axis, '@data')
+        selectInput(inputId = "y_axis_feature",
+                    label = "Choose feature for y-axis colorscale:",
+                    choices = rownames(eval(parse(text=feature_path))),
+                    selected = rownames(eval(parse(text=feature_path)))[2]
+        )
+      })
+      
+      
+      # ----- 1D gene/ADT expression reactive reduction graph -----
+      expr_reduc_plot_1d <- eventReactive(
+        list(
+          #list of input events that can trigger reactive 
+          input$rds_input_file,
+          input$reduction_expr,
+          input$x_axis_feature
+        ), 
+        {
+          req(input$rds_input_file, input$reduction_expr, input$x_axis_feature)
+          
+          #create string for reduction to plot
+          reduc <- input$reduction_expr
+          
+          #selected metadata to color clusters by
+          color_x <- input$x_axis_feature
+          
+          SeuratObject::DefaultAssay(myso) <- input$Assay_x_axis
+          count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+          
+          # #interpolate the base color palette so that exact number of colors in custom palette is 3 (for no, low, and high expression values).
+          # custom_palette <- colorRampPalette(c("#E4E4E4", "darkmagenta"))(length(unique(count_data[,input$x_axis_feature])))
+          
+          #create dataframe from reduction selected
+          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+          
+          #create list containing all column names of cell_data
+          cell_col <- colnames(cell_data)
+          
+          #show plot
+          plotly::plot_ly(cell_data, 
+                          x = ~cell_data[,1], y = ~cell_data[,2],
+                          customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
+                          #colors = custom_palette,
+                          type = "scatter", 
+                          mode = "markers",
+                          marker = list(size = 3,
+                                        color = ~count_data[, color_x], 
+                                        colorbar = list(title = color_x,
+                                                        len = 0.5),
+                                        colorscale = "Viridis",
+                                        reversescale = TRUE)) %>%
+
+            config(toImageButtonOptions = list(format = "png",
+                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+            ) %>%
+            #Layout changes the aesthetic of the plot
+            layout(
+              title = toupper(reduc),
+              xaxis = list(title = cell_col[1]),
+              yaxis = list(title = cell_col[2]),
+              dragmode = "select")
+            #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+      })
+      
+      
+      # ----- 2D gene/ADT expression reactive reduction graph -----
+      expr_reduc_plot_2d <- eventReactive(
+        list(
+          #list of input events that can trigger reactive plot
+          input$rds_input_file,
+          input$reduction_expr,
+          input$x_axis_feature,
+          input$y_axis_feature
+        ), 
+        {
+          req(input$rds_input_file, input$reduction_expr, input$x_axis_feature, input$y_axis_feature)
+          
+          #create string for reduction to plot
+          reduc <- input$reduction_expr
+          
+          #selected metadata to color clusters by
+          color_x <- input$x_axis_feature
+          color_y <- input$y_axis_feature
+          
+          SeuratObject::DefaultAssay(myso) <- input$Assay_x_axis
+          count_data_x <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+          
+          SeuratObject::DefaultAssay(myso) <- input$Assay_y_axis
+          count_data_y <- SeuratObject::FetchData(object = myso, vars = color_y, slot = "data")
+          
+          #create dataframe from reduction selected
+          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+          
+          #create list containing all column names of cell_data
+          cell_col <- colnames(cell_data)
+          
+          #show plot
+          plotly::plot_ly(cell_data,
+                          x = ~cell_data[,1], y = ~cell_data[,2],
+                          customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
+                          type = "scatter",
+                          mode = "markers",
+                          marker = list(size = 3,
+                                        color = ~count_data_x[, color_x],
+                                        colorbar = list(title = color_x,
+                                                        len = 0.5, 
+                                                        yanchor = "bottom"),
+                                        colorscale = "Reds"),
+                          opacity = 1) %>%
+            
+            add_markers(x = ~cell_data[,1], y = ~cell_data[,2],
+                        marker = list(size=3,
+                                      color = ~count_data_y[, color_y],
+                                      colorbar = list(title = color_y,
+                                                      len = 0.5,
+                                                      yanchor = "top"),
+                                      colorscale = "Blues",
+                                      reversescale = TRUE #essential for how plotly works
+                                      ),
+                        opacity = 0.5) %>%
+
+          config(toImageButtonOptions = list(format = "png",
+                                             scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+          ) %>%
+            #Layout changes the aesthetic of the plot
+            layout(
+              showlegend = FALSE,
+              title = toupper(reduc),
+              xaxis = list(title = cell_col[1]),
+              yaxis = list(title = cell_col[2]),
+              dragmode = "select") 
+            #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+      })
+      
+      
+      #render reactive reduction plots
+      output$exploration_reduct_1d <- renderPlotly({
+        expr_reduc_plot_1d()
+      })
+      
+      output$exploration_reduct_2d <- renderPlotly({
+        expr_reduc_plot_2d()
+      })
+      
+    })  # belongs to OBSERVE WRAPPER for co-expression tab
+    
+    
     # ---------- ***** Gating ***** ----------
     observe({
       

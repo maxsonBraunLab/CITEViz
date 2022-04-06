@@ -184,6 +184,7 @@ app_ui <- function(request) {
       ), #end of tabPanel
       
       
+
       # ---------- UI Clustering tab ---------- 
       tabPanel("Clustering", 
                
@@ -240,6 +241,53 @@ app_ui <- function(request) {
                    br()
                  ) #end of mainPanel
                ) #end of sidebarLayout
+      ), #end of tabPanel
+      
+      
+      # ---------- UI Co-expression tab ----------
+      tabPanel("Co-Expression",
+               
+               h3(strong("Co-Expression"), style = "margin-top: 0;"),
+               p("This page contains cluster plots colored by co-expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+               
+               #container for sidebar panel and main panel
+               sidebarLayout(
+                 sidebarPanel(
+                   width = 3,
+                   selectInput("reduction_expr", 
+                               label = "Select reduction data to plot",
+                               choices = c(""),
+                               selected = ""),
+                   uiOutput("Assay_x_axis"),
+                   uiOutput("x_axis_feature"),
+                   uiOutput("Assay_y_axis"),
+                   uiOutput("y_axis_feature")
+                 ), #end of sidebarPanel
+                 
+                 mainPanel(
+                   width = 9,
+                   style = "padding-top: 0.6rem; padding-bottom: 12rem;",
+                   fluidRow(
+                     column(6,
+                            plotly::plotlyOutput(outputId = "exploration_reduct_1d")),
+                     column(6,
+                            plotly::plotlyOutput(outputId = "exploration_reduct_2d"))
+                   ),
+                   
+                   # br(), #html line break
+                   # br(),
+                   # br(),
+                   br(), #html line break
+                   br(),
+                   br()
+                   
+                  
+                 ) #end of mainPanel
+                
+               ) #end of sidebarLayout
+               
+              
+               
       ), #end of tabPanel
       
       
