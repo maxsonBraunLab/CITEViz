@@ -353,6 +353,155 @@ app_server <- function( input, output, session ) {
     })  #end of clustering observed wrapper 
     
     
+    # ------- ***** Expression (1D) ***** ----------
+    observe({
+      
+      # ----- update/render UI elements -----
+      updateSelectInput(
+        session = session,
+        inputId = "reduction_expr_1d",
+        choices = sort(names(myso@reductions)),
+        selected = dplyr::last(sort(names(myso@reductions)))
+      )
+      
+      output$Assay_1d = renderUI({
+        selectInput(inputId = "Assay_1d",
+                    label = "Choose assay to color reduction plot by:",
+                    choices = sort(names(myso@assays)),
+                    selected = sort(names(myso@assays))[1]
+        )
+      })
+      
+      output$feature_1d = renderUI({
+        req(input$Assay_1d)
+        feature_path <- paste0('myso@assays$', input$Assay_1d, '@data')
+        selectInput(inputId = "feature_1d",
+                    label = "Choose feature to view expression levels for:",
+                    choices = rownames(eval(parse(text=feature_path))),
+                    selected = rownames(eval(parse(text=feature_path)))[1]
+        )
+      })
+      
+      # ----- 1D gene/ADT expression reactive reduction graph -----
+      expr_reduc_plot_1d <- eventReactive(
+        list(
+          #list of input events that can trigger reactive 
+          input$rds_input_file,
+          input$reduction_expr_1d,
+          input$feature_1d
+        ), 
+        {
+          req(input$rds_input_file, input$reduction_expr_1d, input$Assay_1d, input$feature_1d)
+          
+          #create string for reduction to plot
+          reduc <- input$reduction_expr_1d
+          
+          #selected feature to color clusters by
+          color_x <- input$feature_1d
+          
+          SeuratObject::DefaultAssay(myso) <- input$Assay_1d
+          count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+          
+          #create dataframe from reduction selected
+          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+          
+          #create list containing all column names of cell_data
+          cell_col <- colnames(cell_data)
+          
+          #show plot
+          plotly::plot_ly(cell_data, 
+                          x = ~cell_data[,1], y = ~cell_data[,2],
+                          customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
+                          #colors = custom_palette,
+                          type = "scatter", 
+                          mode = "markers",
+                          marker = list(size = 3,
+                                        color = ~count_data[, color_x], 
+                                        colorbar = list(title = color_x,
+                                                        len = 0.5),
+                                        colorscale = "Viridis",
+                                        reversescale = TRUE),
+                          source = "expression_1d_plot") %>%
+            
+            config(toImageButtonOptions = list(format = "png",
+                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+            ) %>%
+            #Layout changes the aesthetic of the plot
+            layout(
+              title = toupper(reduc),
+              xaxis = list(title = cell_col[1]),
+              yaxis = list(title = cell_col[2]),
+              dragmode = "select") %>% #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+        
+            event_register("plotly_selected")
+          })
+      
+      
+      # ----- render reactive reduction plots -----
+      output$exploration_reduct_1d <- renderPlotly({
+        expr_reduc_plot_1d()
+      })
+      
+      
+      # ----- datatable of expression for cells selected in plotly -----
+      # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
+      output$expression_pg_selected <- DT::renderDT(server = FALSE, {
+        req(input$rds_input_file, input$Assay_1d, input$feature_1d)
+        
+        #selected feature to color clusters by
+        color_x <- input$feature_1d
+        
+        SeuratObject::DefaultAssay(myso) <- input$Assay_1d
+        count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+
+        # num_cells_selected <- nrow(count_data)
+        num_cells_expressing <- count_data %>%
+          dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
+          nrow()
+        
+        # num_cells_expressing_subset <- num_cells_expressing
+        
+        # # get num of cells selected by user
+        # selected_cell_barcodes <- event_data("plotly_selected", source = "expression_1d_plot")$customdata
+        # if (!is.null(selected_cell_barcodes)) {
+        #   count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
+        #   num_cells_selected <- nrow(count_data_subset)
+        #   # get number of cells expressing a feature (ADT, gene, etc)
+        #   num_cells_expressing_subset <- data.frame(count_data_subset) %>%
+        #     dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
+        #     nrow()
+        # }
+        
+        #num_cells_selected <- nrow(event_data("plotly_selected", source = "expression_1d_plot")$customdata)
+        
+        # get total num of cells in sample
+        num_cells_total <- nrow(count_data)
+        
+        #convert count_data for selected cells into a dataframe
+        selected_counts_df <- data.frame(Feature = color_x,
+                                         Num_Cells_Expressing = num_cells_expressing,
+                                         # Percent_of_Selected = 100 * (num_cells_expressing_subset / num_cells_selected),
+                                         Percent_of_Total_Sample = 100 * num_cells_expressing / num_cells_total)
+
+        selected_counts_dt <- DT::datatable(selected_counts_df, 
+                                    rownames = TRUE,
+                                    selection = "none", #make it so no rows can be selected (bc we currently have no need to select rows)
+                                    extensions = c("Buttons", "Scroller", "FixedColumns"),
+                                    options = list(deferRender = TRUE,
+                                                   scroller = TRUE,
+                                                   scrollY = 400,
+                                                   scrollX = TRUE,
+                                                   dom = "lfrtipB",
+                                                   buttons = c("copy", "print"),
+                                                   fixedColumns = list(leftColumns = 1)
+                                    )
+        ) 
+        if (is.null(selected_counts_dt)) "Brushed points appear here (double-click to clear)" else selected_counts_dt
+      })
+      
+    }) # belongs to OBSERVE WRAPPER for expression tab
+    
+    
     # ------- ***** Co-Expression ***** ----------
     
     ### choose assay for x and y axes and then display dropdowns
@@ -362,8 +511,8 @@ app_server <- function( input, output, session ) {
       # ----- update/render UI elements -----
       
       updateSelectInput(
-        #session = session,
-        inputId = "reduction_expr",
+        session = session,
+        inputId = "reduction_expr_2d",
         choices = sort(names(myso@reductions)),
         selected = dplyr::last(sort(names(myso@reductions)))
       )
@@ -383,8 +532,7 @@ app_server <- function( input, output, session ) {
                     selected = sort(names(myso@assays))[1]
         )
       })
-      
-      
+
       output$x_axis_feature = renderUI({
         req(input$Assay_x_axis)
         feature_path <- paste0('myso@assays$', input$Assay_x_axis, '@data')
@@ -406,76 +554,62 @@ app_server <- function( input, output, session ) {
       })
       
       
-      # ----- 1D gene/ADT expression reactive reduction graph -----
-      expr_reduc_plot_1d <- eventReactive(
-        list(
-          #list of input events that can trigger reactive 
-          input$rds_input_file,
-          input$reduction_expr,
-          input$x_axis_feature
-        ), 
-        {
-          req(input$rds_input_file, input$reduction_expr, input$x_axis_feature)
-          
-          #create string for reduction to plot
-          reduc <- input$reduction_expr
-          
-          #selected metadata to color clusters by
-          color_x <- input$x_axis_feature
-          
-          SeuratObject::DefaultAssay(myso) <- input$Assay_x_axis
-          count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
-          
-          # #interpolate the base color palette so that exact number of colors in custom palette is 3 (for no, low, and high expression values).
-          # custom_palette <- colorRampPalette(c("#E4E4E4", "darkmagenta"))(length(unique(count_data[,input$x_axis_feature])))
-          
-          #create dataframe from reduction selected
-          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
-          
-          #create list containing all column names of cell_data
-          cell_col <- colnames(cell_data)
-          
-          #show plot
-          plotly::plot_ly(cell_data, 
-                          x = ~cell_data[,1], y = ~cell_data[,2],
-                          customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
-                          #colors = custom_palette,
-                          type = "scatter", 
-                          mode = "markers",
-                          marker = list(size = 3,
-                                        color = ~count_data[, color_x], 
-                                        colorbar = list(title = color_x,
-                                                        len = 0.5),
-                                        colorscale = "Viridis",
-                                        reversescale = TRUE)) %>%
-
-            config(toImageButtonOptions = list(format = "png",
-                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-            ) %>%
-            #Layout changes the aesthetic of the plot
-            layout(
-              title = toupper(reduc),
-              xaxis = list(title = cell_col[1]),
-              yaxis = list(title = cell_col[2]),
-              dragmode = "select")
-            #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
-      })
+      # ----- Bilinear interpolation function -----
+      # takes in a given x and y coordinate, the dimension of a square grid, and four values representing the base red, green, or blue (RGB) color values (0-255) of the four quadrants of the square grid
+      # returns the bilinear interpolated red, green, or blue value (0-255) of the given input coordinates (x,y)
+      get_bilinear_val <- function(x,y,ngrid,quad11,quad21,quad12,quad22){
+        temp_val <- quad11*(ngrid-x)*(ngrid-y) + quad21*x*(ngrid-y) + quad12*(ngrid-x)*y + quad22*x*y
+        bilinear_val <- temp_val / (ngrid*ngrid)
+        return(bilinear_val)
+      }
       
       
-      # ----- 2D gene/ADT expression reactive reduction graph -----
+      # ----- Create 2D color matrix legend for gene/ADT coexpression -----
+      get_color_matrix_df <- function(ngrid = 16) {
+        color_matrix_df <- expand.grid(x_value = 0:ngrid, y_value = 0:ngrid)
+        color10 = c(255,0,0) # numeric vector of RGB values for red quadrant of 2d color matrix
+        color01 = c(0,0,255) # numeric vector of RGB values for blue quadrant of 2d color matrix
+        color00 = c(217,217,217) # numeric vector of RGB values for light gray quadrant of 2d color matrix
+        color11 = c(255,0,255) # numeric vector of RGB values for pink/violet quadrant of 2d color matrix
+        color_matrix_df$R <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[1], color10[1], color01[1], color11[1])
+        color_matrix_df$G <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[2], color10[2], color01[2], color11[2])
+        color_matrix_df$B <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[3], color10[3], color01[3], color11[3])
+        color_matrix_df$hex_color_mix <- rgb(color_matrix_df$R, color_matrix_df$G, color_matrix_df$B, maxColorValue = 255)
+      
+        return(color_matrix_df)
+      }
+      
+      create_2d_color_legend <- function() {
+        ngrid <- 16
+        
+        # color_matrix_df = color_matrix_df[, c("x_value", "y_value", "cMix")]
+        color_matrix_df <- get_color_matrix_df(ngrid)
+        
+        #show plot of 2D color legend
+        color_matrix_df %>%
+          ggplot2::ggplot(aes(x = x_value, y = y_value)) + 
+          geom_tile(fill = color_matrix_df$hex_color_mix) +
+          labs(x = input$x_axis_feature, y = input$y_axis_feature) +
+          scale_x_continuous(breaks = c(0, ngrid), label = c("low", "high")) + 
+          scale_y_continuous(breaks = c(0, ngrid), label = c("low", "high")) 
+      }
+      
+      
+      # ----- 2D gene/ADT coexpression reactive reduction graph -----
+      
       expr_reduc_plot_2d <- eventReactive(
         list(
           #list of input events that can trigger reactive plot
           input$rds_input_file,
-          input$reduction_expr,
+          input$reduction_expr_2d,
           input$x_axis_feature,
           input$y_axis_feature
         ), 
         {
-          req(input$rds_input_file, input$reduction_expr, input$x_axis_feature, input$y_axis_feature)
+          req(input$rds_input_file, input$reduction_expr_2d, input$x_axis_feature, input$y_axis_feature)
           
           #create string for reduction to plot
-          reduc <- input$reduction_expr
+          reduc <- input$reduction_expr_2d
           
           #selected metadata to color clusters by
           color_x <- input$x_axis_feature
@@ -483,9 +617,13 @@ app_server <- function( input, output, session ) {
           
           SeuratObject::DefaultAssay(myso) <- input$Assay_x_axis
           count_data_x <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+          # extract only the count values as a vector from the original count data dataframe
+          count_data_x <- count_data_x[[color_x]]
           
           SeuratObject::DefaultAssay(myso) <- input$Assay_y_axis
           count_data_y <- SeuratObject::FetchData(object = myso, vars = color_y, slot = "data")
+          # extract only the count values as a vector from the original count data dataframe
+          count_data_y <- count_data_y[[color_y]]
           
           #create dataframe from reduction selected
           cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
@@ -493,52 +631,98 @@ app_server <- function( input, output, session ) {
           #create list containing all column names of cell_data
           cell_col <- colnames(cell_data)
           
-          #show plot
-          plotly::plot_ly(cell_data,
+          # map gene expression values to 2d color grid
+          ngrid <- 16
+          color_matrix_df <- get_color_matrix_df(ngrid)
+          coexpression_df <- data.frame(x_value = round(ngrid * count_data_x / max(count_data_x)),
+                                        y_value = round(ngrid * count_data_y / max(count_data_y)))
+          coexpression_umap_df <- cbind(coexpression_df, cell_data) #combine umap reduction data with expression data
+          mapped_df <- dplyr::left_join(coexpression_umap_df, color_matrix_df) # map hex color codes to interpolated gene expression values in merged data and create a new data frame
+          
+          
+          # create UMAP that colors by expression levels
+          plotly::plot_ly(mapped_df,
+                          source = "expression_2d_plot",
                           x = ~cell_data[,1], y = ~cell_data[,2],
                           customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                           type = "scatter",
                           mode = "markers",
                           marker = list(size = 3,
-                                        color = ~count_data_x[, color_x],
-                                        colorbar = list(title = color_x,
-                                                        len = 0.5, 
-                                                        yanchor = "bottom"),
-                                        colorscale = "Reds"),
-                          opacity = 1) %>%
-            
-            add_markers(x = ~cell_data[,1], y = ~cell_data[,2],
-                        marker = list(size=3,
-                                      color = ~count_data_y[, color_y],
-                                      colorbar = list(title = color_y,
-                                                      len = 0.5,
-                                                      yanchor = "top"),
-                                      colorscale = "Blues",
-                                      reversescale = TRUE #essential for how plotly works
-                                      ),
-                        opacity = 0.5) %>%
-
-          config(toImageButtonOptions = list(format = "png",
-                                             scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-          ) %>%
+                                        color = ~mapped_df$hex_color_mix
+                                        )) %>%
+           
+            config(toImageButtonOptions = list(format = "png",
+                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+            ) %>%
             #Layout changes the aesthetic of the plot
             layout(
               showlegend = FALSE,
               title = toupper(reduc),
               xaxis = list(title = cell_col[1]),
               yaxis = list(title = cell_col[2]),
-              dragmode = "select") 
-            #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+              dragmode = "select") %>% #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+            
+            event_register("plotly_selected")
       })
       
       
-      #render reactive reduction plots
-      output$exploration_reduct_1d <- renderPlotly({
-        expr_reduc_plot_1d()
-      })
+      # ----- render reactive reduction plots -----
+      output$color_legend_2d <- renderPlot({ create_2d_color_legend() })
+      output$exploration_reduct_2d <- renderPlotly({ expr_reduc_plot_2d() })
       
-      output$exploration_reduct_2d <- renderPlotly({
-        expr_reduc_plot_2d()
+      
+      # ----- datatable of expression for cells selected in plotly -----
+      # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
+      output$coexpression_pg_selected <- DT::renderDT(server = FALSE, {
+        req(input$rds_input_file, input$reduction_expr_2d, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
+        
+        #create string for reduction to plot
+        reduc <- input$reduction_expr_2d
+        
+        #selected metadata to color clusters by
+        color_x <- input$x_axis_feature
+        color_y <- input$y_axis_feature
+        
+        SeuratObject::DefaultAssay(myso) <- input$Assay_x_axis
+        count_data_x <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
+
+        SeuratObject::DefaultAssay(myso) <- input$Assay_y_axis
+        count_data_y <- SeuratObject::FetchData(object = myso, vars = color_y, slot = "data")
+       
+        num_cells_expressing_x <- count_data_x %>%
+          dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
+          nrow()
+          
+        num_cells_expressing_y <- count_data_y %>%
+          dplyr::filter(eval(parse(text = paste0("`", color_y, "`"))) > 0) %>%
+          nrow()
+        
+        # get total num of cells in sample
+        num_cells_total_x <- nrow(count_data_x)
+        num_cells_total_y <- nrow(count_data_y)
+        
+        # convert count_data for selected cells into a dataframe
+        selected_counts_df <- data.frame(Feature1 = color_x,
+                                         Feature2 = color_y,
+                                         Num_Cells_Expressing_Feat1 = num_cells_expressing_x,
+                                         Num_Cells_Expressing_Feat2 = num_cells_expressing_y,
+                                         Percent_of_Total_Sample_Feat1 = 100 * num_cells_expressing_x / num_cells_total_x,
+                                         Percent_of_Total_Sample_Feat2 = 100 * num_cells_expressing_y / num_cells_total_y)
+
+        selected_counts_dt <- DT::datatable(selected_counts_df, 
+                                    rownames = TRUE,
+                                    selection = "none", #make it so no rows can be selected (bc we currently have no need to select rows)
+                                    extensions = c("Buttons", "Scroller", "FixedColumns"),
+                                    options = list(deferRender = TRUE,
+                                                   scroller = TRUE,
+                                                   scrollY = 400,
+                                                   scrollX = TRUE,
+                                                   dom = "lfrtipB",
+                                                   buttons = c("copy", "print"),
+                                                   fixedColumns = list(leftColumns = 1)
+                                                   )
+                                    ) 
+        if (is.null(selected_counts_dt)) "Brushed points appear here (double-click to clear)" else selected_counts_dt
       })
       
     })  # belongs to OBSERVE WRAPPER for co-expression tab

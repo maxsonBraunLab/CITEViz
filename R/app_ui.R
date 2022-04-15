@@ -244,51 +244,101 @@ app_ui <- function(request) {
       ), #end of tabPanel
       
       
-      # ---------- UI Co-expression tab ----------
-      tabPanel("Co-Expression",
-               
-               h3(strong("Co-Expression"), style = "margin-top: 0;"),
-               p("This page contains cluster plots colored by co-expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
-               
-               #container for sidebar panel and main panel
-               sidebarLayout(
-                 sidebarPanel(
-                   width = 3,
-                   selectInput("reduction_expr", 
-                               label = "Select reduction data to plot",
-                               choices = c(""),
-                               selected = ""),
-                   uiOutput("Assay_x_axis"),
-                   uiOutput("x_axis_feature"),
-                   uiOutput("Assay_y_axis"),
-                   uiOutput("y_axis_feature")
-                 ), #end of sidebarPanel
+      
+      # ---------- UI Data exploration navbar menu ---------- 
+      navbarMenu("Data Exploration",
                  
-                 mainPanel(
-                   width = 9,
-                   style = "padding-top: 0.6rem; padding-bottom: 12rem;",
-                   fluidRow(
-                     column(6,
-                            plotly::plotlyOutput(outputId = "exploration_reduct_1d")),
-                     column(6,
-                            plotly::plotlyOutput(outputId = "exploration_reduct_2d"))
-                   ),
-                   
-                   # br(), #html line break
-                   # br(),
-                   # br(),
-                   br(), #html line break
-                   br(),
-                   br()
-                   
-                  
-                 ) #end of mainPanel
-                
-               ) #end of sidebarLayout
-               
-              
-               
-      ), #end of tabPanel
+                 # ---------- UI Single expression tab ----------
+                 tabPanel("Expression",
+                          
+                          h3(strong("Expression"), style = "margin-top: 0;"),
+                          p("This page contains cluster plots colored by expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                          
+                          #container for sidebar panel and main panel
+                          sidebarLayout(
+                            sidebarPanel(
+                              width = 3,
+                              selectInput("reduction_expr_1d", 
+                                          label = "Select reduction data to plot",
+                                          choices = c(""),
+                                          selected = ""),
+                              uiOutput("Assay_1d"),
+                              uiOutput("feature_1d")
+                            ), #end of sidebarPanel
+                            
+                            mainPanel(
+                              width = 9,
+                              style = "padding-top: 0.6rem; padding-bottom: 12rem;",
+                              fluidRow(
+                                column(6,
+                                       plotly::plotlyOutput(outputId = "exploration_reduct_1d"))
+                              ),
+                              
+                              br(), #html line break
+                              
+                              #show plot selection coordinates here
+                              fluidRow(
+                                column(12,
+                                       DT::DTOutput("expression_pg_selected")) #print metadata of selected cells 
+                              ),
+                              br(), #html line break
+                              br(),
+                              br()
+                              
+                            ) #end of mainPanel
+                          ) #end of sidebarLayout
+                          
+                          ), #end of tabPanel
+      
+      
+                # ---------- UI Co-expression tab ----------
+                tabPanel("Co-Expression",
+                         
+                         h3(strong("Co-Expression"), style = "margin-top: 0;"),
+                         p("This page contains cluster plots colored by co-expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                         
+                         #container for sidebar panel and main panel
+                         sidebarLayout(
+                           sidebarPanel(
+                             width = 3,
+                             selectInput("reduction_expr_2d", 
+                                         label = "Select reduction data to plot",
+                                         choices = c(""),
+                                         selected = ""),
+                             uiOutput("Assay_x_axis"),
+                             uiOutput("x_axis_feature"),
+                             uiOutput("Assay_y_axis"),
+                             uiOutput("y_axis_feature")
+                           ), #end of sidebarPanel
+                           
+                           mainPanel(
+                             width = 9,
+                             style = "padding-top: 0.6rem; padding-bottom: 12rem;",
+                             fluidRow(
+                               column(6,
+                                      plotly::plotlyOutput(outputId = "exploration_reduct_2d")),
+                               column(6,
+                                      plotOutput(outputId = "color_legend_2d",
+                                                 width = "50%", height = "50%"))
+                             ),
+                             
+                             br(), #html line break
+                             
+                             #show plot selection coordinates here
+                             fluidRow(
+                               column(12,
+                                      DT::DTOutput("coexpression_pg_selected")) #print metadata of selected cells 
+                             ),
+          
+                             br(), #html line break
+                             br(),
+                             br()
+                             
+                           ) #end of mainPanel
+                         ) #end of sidebarLayout
+                ) #end of tabPanel
+      ), # end of navbarMenu
+      
       
       
       # ---------- UI Gating navbar menu ---------- 
