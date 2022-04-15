@@ -270,7 +270,7 @@ app_ui <- function(request) {
                               width = 9,
                               style = "padding-top: 0.6rem; padding-bottom: 12rem;",
                               fluidRow(
-                                column(6,
+                                column(8,
                                        plotly::plotlyOutput(outputId = "exploration_reduct_1d"))
                               ),
                               
@@ -315,11 +315,11 @@ app_ui <- function(request) {
                              width = 9,
                              style = "padding-top: 0.6rem; padding-bottom: 12rem;",
                              fluidRow(
-                               column(6,
+                               column(8,
                                       plotly::plotlyOutput(outputId = "exploration_reduct_2d")),
-                               column(6,
+                               column(4,
                                       plotOutput(outputId = "color_legend_2d",
-                                                 width = "50%", height = "50%"))
+                                                 width = "225px", height = "225px"))
                              ),
                              
                              br(), #html line break
