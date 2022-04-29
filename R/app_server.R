@@ -5,6 +5,35 @@
 #' 
 #' @import shiny
 #' 
+#' @importFrom base library  
+#' @importFrom base is.null 
+#' @importFrom base readRDS
+#' @importFrom base options
+#' @importFrom base typeof
+#' @importFrom base length 
+#' @importFrom base names
+#' @importFrom base grep
+#' @importFrom base colnames
+#' @importFrom base lapply 
+#' @importFrom base eval
+#' @importFrom base parse
+#' @importFrom base unique
+#' @importFrom base quantile 
+#' @importFrom base toupper
+#' @importFrom base sort
+#' @importFrom base nrow
+#' @importFrom base paste0 
+#' @importFrom base rownames 
+#' @importFrom base round 
+#' @importFrom base max  
+#' @importFrom base cbind
+#' @importFrom base c
+#' @importFrom base as.integer 
+#' @importFrom base do.call 
+#' @importFrom base saveRDS 
+#' @importFrom graphics layout
+#' 
+#' 
 #' @noRd
 app_server <- function( input, output, session ) {
   
