@@ -248,7 +248,7 @@ app_ui <- function(request) {
       
       
       # ---------- UI Data exploration navbar menu ---------- 
-      navbarMenu("Data Exploration",
+      navbarMenu("Feature Expression",
                  
                  # ---------- UI Single expression tab ----------
                  tabPanel("Expression",
