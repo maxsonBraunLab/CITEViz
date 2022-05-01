@@ -59,7 +59,7 @@ get_color_matrix_df <- function(ngrid = 16) {
 #' @export
 #'
 #' @examples
-create_2d_color_legend <- function(input) {
+create_2d_color_legend <- function(input, myso) {
   #selected metadata to color clusters by
   color_x <- input$x_axis_feature
   color_y <- input$y_axis_feature
