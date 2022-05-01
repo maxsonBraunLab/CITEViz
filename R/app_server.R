@@ -103,7 +103,7 @@ app_server <- function( input, output, session ) {
     reduction_validation <- reactive({ 
       validate(
         need(
-          length(myso@reductions) > 0,
+          length(SeuratObject::Reductions(myso)) > 0,
           message = "Seurat object does not contain reductions. Please check input RDS file."
         )
       )
@@ -120,8 +120,8 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "color_qa",
-        choices = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")]),
-        selected = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")])[1]
+        choices = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")]),
+        selected = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- QA distribution plot -----
@@ -142,15 +142,15 @@ app_server <- function( input, output, session ) {
         )
         
         #creates list of x-coordinates for quantiles of data. 
-        quant <- quantile(x = myso@meta.data[,params[1]],
+        quant <- quantile(x = myso[[]][,params[1]],
                           probs = c(0.5,0.75,0.95),
                           na.rm = TRUE)
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
         
         #generate base plot template with features that all QA distribution plots will have
-        base_distrib_plot <- myso@meta.data %>%
+        base_distrib_plot <- myso[[]] %>%
           ggplot2::ggplot(aes(x = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
           labs(fill = color, color = color) + 
           theme(plot.title = element_text(hjust=0.5)) +
@@ -203,15 +203,15 @@ app_server <- function( input, output, session ) {
         #instead of switch and hardcoded values, try colnames() of the input data so user can select whatever cols are in their data
         
         #creates list of x-coordinates for quantiles of data. 
-        quant <- quantile(x = myso@meta.data[,params[1]],
+        quant <- quantile(x = myso[[]][,params[1]],
                           probs = c(0.5,0.75,0.95),
                           na.rm = TRUE)
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
         
         #generate base plot template with features that all QA boxplots will have
-        base_box_plot <- myso@meta.data %>%
+        base_box_plot <- myso[[]] %>%
           ggplot2::ggplot(aes(x = eval(parse(text = color)), y = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
           labs(fill = color, color = color) + 
           geom_boxplot(alpha = 0.5, width=0.5) + 
@@ -257,16 +257,16 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "reduction",
-        choices = sort(names(myso@reductions)),
-        selected = dplyr::last(sort(names(myso@reductions)))
+        choices = sort(SeuratObject::Reductions(myso)),
+        selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       
       #changes selectInput "color" dropdown contents to include all metadata in Seurat Object
       updateSelectInput(
         session = session,
         inputId = "color1",
-        choices = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")]),
-        selected = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")])[1]
+        choices = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")]),
+        selected = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Reactive 2D reduction graph -----
@@ -280,10 +280,10 @@ app_server <- function( input, output, session ) {
         color <- input$color1
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
         
         #create dataframe from reduction selected
-        cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+        cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
         
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
@@ -292,7 +292,7 @@ app_server <- function( input, output, session ) {
         plotly::plot_ly(cell_data, 
                         x = ~cell_data[,1], y = ~cell_data[,2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
-                        color = ~eval(parse(text = paste0("myso@meta.data$", color))), #color by selected metadata in object; need to incorporate 
+                        color = ~eval(parse(text = paste0("myso[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors = custom_palette,
                         type = "scatter", 
                         mode = "markers",
@@ -324,10 +324,10 @@ app_server <- function( input, output, session ) {
         color <- input$color1
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
         
         #create dataframe from reduction selected
-        cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+        cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
         
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
@@ -336,7 +336,7 @@ app_server <- function( input, output, session ) {
         plotly::plot_ly(cell_data, 
                         x = ~cell_data[,1], y = ~cell_data[,2], z = ~cell_data[,3],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
-                        color = ~eval(parse(text = paste0("myso@meta.data$", color))), #color by selected metadata in object; need to incorporate 
+                        color = ~eval(parse(text = paste0("myso[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors =  custom_palette,
                         type = "scatter3d", 
                         mode = "markers",
@@ -362,7 +362,7 @@ app_server <- function( input, output, session ) {
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$cluster_pg_selected <- DT::renderDT(server = FALSE, {
         #currently returns every column of metadata dataframe. May want to select specific columns in the future
-        selected_metadata_df <- myso@meta.data[event_data("plotly_selected", source = "A")$customdata, ]
+        selected_metadata_df <- myso[[]][event_data("plotly_selected", source = "A")$customdata, ]
         cluster_dt <- DT::datatable(selected_metadata_df, 
                                     rownames = TRUE,
                                     selection = "none", #make it so no rows can be selected (bc we currently have no need to select rows)
@@ -389,21 +389,21 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "reduction_expr_1d",
-        choices = sort(names(myso@reductions)),
-        selected = dplyr::last(sort(names(myso@reductions)))
+        choices = sort(SeuratObject::Reductions(myso)),
+        selected = dplyr::last(sort(names(SeuratObject::Reductions(myso))))
       )
       
       output$Assay_1d = renderUI({
         selectInput(inputId = "Assay_1d",
                     label = "Choose assay to color reduction plot by:",
-                    choices = sort(names(myso@assays)),
-                    selected = sort(names(myso@assays))[1]
+                    choices = sort(SeuratObject::Assays(object = myso)),
+                    selected = sort(SeuratObject::Assays(object = myso))[1]
         )
       })
       
       output$feature_1d = renderUI({
         req(input$Assay_1d)
-        feature_path <- paste0('myso@assays$', input$Assay_1d, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_1d, '")')
         selectInput(inputId = "feature_1d",
                     label = "Choose feature to view expression levels for:",
                     choices = rownames(eval(parse(text=feature_path))),
@@ -432,7 +432,7 @@ app_server <- function( input, output, session ) {
           count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
           
           #create dataframe from reduction selected
-          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+          cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
           
           #create list containing all column names of cell_data
           cell_col <- colnames(cell_data)
@@ -542,29 +542,29 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "reduction_expr_2d",
-        choices = sort(names(myso@reductions)),
-        selected = dplyr::last(sort(names(myso@reductions)))
+        choices = sort(SeuratObject::Reductions(myso)),
+        selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       
       output$Assay_x_axis = renderUI({
         selectInput(inputId = "Assay_x_axis",
                     label = "Choose assay for x-axis colorscale:",
-                    choices = sort(names(myso@assays)),
-                    selected = sort(names(myso@assays))[1]
+                    choices = sort(SeuratObject::Assays(object = myso)),
+                    selected = sort(SeuratObject::Assays(object = myso))[1]
         )
       })
       
       output$Assay_y_axis = renderUI({
         selectInput(inputId = "Assay_y_axis",
                     label = "Choose assay for y-axis colorscale:",
-                    choices = sort(names(myso@assays)),
-                    selected = sort(names(myso@assays))[1]
+                    choices = sort(SeuratObject::Assays(object = myso)),
+                    selected = sort(SeuratObject::Assays(object = myso))[1]
         )
       })
 
       output$x_axis_feature = renderUI({
         req(input$Assay_x_axis)
-        feature_path <- paste0('myso@assays$', input$Assay_x_axis, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_x_axis, '")')
         selectInput(inputId = "x_axis_feature",
                     label = "Choose feature for x-axis colorscale:",
                     choices = rownames(eval(parse(text=feature_path))),
@@ -574,7 +574,7 @@ app_server <- function( input, output, session ) {
       
       output$y_axis_feature = renderUI({
         req(input$Assay_y_axis)
-        feature_path <- paste0('myso@assays$', input$Assay_y_axis, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_y_axis, '")')
         selectInput(inputId = "y_axis_feature",
                     label = "Choose feature for y-axis colorscale:",
                     choices = rownames(eval(parse(text=feature_path))),
@@ -614,7 +614,7 @@ app_server <- function( input, output, session ) {
           count_data_y <- count_data_y[[color_y]]
           
           #create dataframe from reduction selected
-          cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+          cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
           
           #create list containing all column names of cell_data
           cell_col <- colnames(cell_data)
@@ -655,7 +655,7 @@ app_server <- function( input, output, session ) {
       
       
       # ----- render reactive reduction plots -----
-      output$color_legend_2d <- renderPlot({ create_2d_color_legend(input = input) })
+      output$color_legend_2d <- renderPlot({ create_2d_color_legend(input = input, myso = myso) })
       output$exploration_reduct_2d <- renderPlotly({ expr_reduc_plot_2d() })
       
       
@@ -720,13 +720,13 @@ app_server <- function( input, output, session ) {
       output$Assay <- renderUI({
         selectInput(inputId = "Assay",
                     label = "Choose assay:",
-                    choices = sort(names(myso@assays)),
-                    selected = sort(names(myso@assays))[1])
+                    choices = sort(SeuratObject::Assays(object = myso)),
+                    selected = sort(SeuratObject::Assays(object = myso))[1])
       })
       
       output$x_feature <- renderUI({
         req(input$Assay)
-        feature_path <- paste0('myso@assays$', input$Assay, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay, '")')
         selectInput(
           inputId = "x_feature",
           label = "Choose x-axis feature:",
@@ -736,7 +736,7 @@ app_server <- function( input, output, session ) {
       
       output$y_feature <- renderUI({
         req(input$Assay)
-        feature_path <- paste0('myso@assays$', input$Assay, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay, '")')
         selectInput(
           inputId = "y_feature",
           label = "Choose y-axis feature:",
@@ -748,14 +748,14 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "reduction_g",
-        choices = sort(names(myso@reductions)),
-        selected = dplyr::last(sort(names(myso@reductions)))
+        choices = sort(SeuratObject::Reductions(myso)),
+        selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       updateSelectInput(
         session = session,
         inputId = "color2",
-        choices = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")]),
-        selected = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")])[1]
+        choices = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")]),
+        selected = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Last-clicked buttons tracker -----
@@ -875,10 +875,10 @@ app_server <- function( input, output, session ) {
         color <- input$color2
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
         
         #create dataframe from reduction selected
-        cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+        cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
         
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
@@ -894,7 +894,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (is.null(selected_cells)) {
-          plotly_color_list <- c(paste0("myso@meta.data$", color), custom_palette)
+          plotly_color_list <- c(paste0("myso[[]]$", color), custom_palette)
         } 
         else {
           plotly_color_list <- c("rownames(cell_data) %in% selected_cells", 'c("grey", "black")')
@@ -1062,13 +1062,13 @@ app_server <- function( input, output, session ) {
       output$Assay_bg <- renderUI({
         selectInput(inputId = "Assay_bg",
                     label = "Choose assay:",
-                    choices = sort(names(myso@assays)),
-                    selected = sort(names(myso@assays))[1])
+                    choices = sort(SeuratObject::Assays(object = myso)),
+                    selected = sort(SeuratObject::Assays(object = myso))[1])
       })
       
       output$x_feature_bg <- renderUI({
         req(input$Assay_bg)
-        feature_path <- paste0('myso@assays$', input$Assay_bg, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_bg, '")')
         selectInput(
           inputId = "x_feature_bg",
           label = "Choose x-axis feature:",
@@ -1078,7 +1078,7 @@ app_server <- function( input, output, session ) {
       
       output$y_feature_bg <- renderUI({
         req(input$Assay_bg)
-        feature_path <- paste0('myso@assays$', input$Assay_bg, '@data')
+        feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_bg, '")')
         selectInput(
           inputId = "y_feature_bg",
           label = "Choose y-axis feature:",
@@ -1090,14 +1090,14 @@ app_server <- function( input, output, session ) {
       updateSelectInput(
         session = session,
         inputId = "reduction_bg",
-        choices = sort(names(myso@reductions)),
-        selected = dplyr::last(sort(names(myso@reductions)))
+        choices = sort(SeuratObject::Reductions(myso)),
+        selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       updateSelectInput(
         session = session,
         inputId = "color2_bg",
-        choices = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")]),
-        selected = colnames(myso@meta.data[lapply(myso@meta.data, class) %in% c("factor", "character")])[1]
+        choices = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")]),
+        selected = colnames(myso[[]][lapply(myso[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Last-clicked buttons tracker -----
@@ -1184,11 +1184,11 @@ app_server <- function( input, output, session ) {
         color <- input$color2_bg
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-        custom_palette <- get_palette(length(unique(myso@meta.data[[color]])))
-        plotly_color_list <- c(paste0("myso@meta.data$", color), custom_palette)
+        custom_palette <- get_palette(length(unique(myso[[]][[color]])))
+        plotly_color_list <- c(paste0("myso[[]]$", color), custom_palette)
         
         #creates dataframe from reduction selected
-        cell_data <- data.frame(eval(parse(text = paste0("myso@reductions$", reduc, "@cell.embeddings"))))
+        cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso, reduction = '", reduc, "')"))))
         
         #creates list containing all column names of cell_data
         cell_col <- colnames(cell_data)
