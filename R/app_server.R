@@ -799,7 +799,7 @@ app_server <- function( input, output, session ) {
           
           #generate dataframe for custom colorscale for contour plot, where each hex color code is mapped to a specific z-value between 0 and 1 (inclusive)
           #colorscale needs to be in this format for Plotly's add_histogram2dcontour(colorscale = ...) parameter
-          gating_color_scale <- data.frame(
+          customColorScale <- data.frame(
             z = c(0.0, 0.20, 0.40, 0.60, 0.80, 1.0),
             col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
           )
@@ -814,7 +814,7 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
+              add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = customColorScale, 
                                      contours = list(coloring='heatmap')) %>%
               add_markers(x = count_data[,input$x_feature],
                           y = count_data[,input$y_feature],
@@ -831,7 +831,7 @@ app_server <- function( input, output, session ) {
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
             }
             else if (!is.null(input$gating_pg_table_rows_selected)) {
-              selected_cell_barcodes <- gate_list()[[selected_gate()]]@subset_cells[[1]]
+              selected_cell_barcodes <- GetData(gate_list()[[selected_gate()]], "subset_cells")[[1]]
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
             }
             base_scatterplot <- plotly::plot_ly(count_data_subset,
@@ -839,7 +839,7 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data_subset),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = gating_color_scale, 
+              add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = customColorScale, 
                                      contours = list(coloring='heatmap')) %>%
               add_markers(x = count_data_subset[,input$x_feature], 
                           y = count_data_subset[,input$y_feature], 
@@ -887,7 +887,7 @@ app_server <- function( input, output, session ) {
         selected_cells <- NULL
         
         if (!is.null(input$gating_pg_table_rows_selected)) {
-          selected_cells <- gate_list()[[selected_gate()]]@subset_cells[[1]]
+          selected_cells <- GetData(gate_list()[[selected_gate()]], "subset_cells")[[1]]
         }
         else {
           selected_cells <- event_data("plotly_selected", source = "C")$customdata
@@ -990,7 +990,7 @@ app_server <- function( input, output, session ) {
         cell_edit_data <- input$gating_pg_table_cell_edit
         gate_id <- reactive_gating_df()$Gate_ID[cell_edit_data$row]
         # [input$gating_pg_table_cell_edit$row, 1]
-        gate_reactive_values[[gate_id]]@name_subset_cells <- cell_edit_data$value
+        gate_reactive_values[[gate_id]] <- SetSubsetName(gate_reactive_values[[gate_id]], cell_edit_data$value)
       })
       
       # when a datatable row is selected, set the selected_gate reactive value to the gate that was selected in the datatable
@@ -1003,17 +1003,17 @@ app_server <- function( input, output, session ) {
         updateSelectInput(
           session = session,
           inputId = "Assay",
-          selected = gate_list()[[selected_gate()]]@assay_name
+          selected = GetData(gate_list()[[selected_gate()]], "assay_name")
         )
         updateSelectInput(
           session = session,
           inputId = "x_feature",
-          selected = gate_list()[[selected_gate()]]@x_axis
+          selected = GetData(gate_list()[[selected_gate()]], "x_axis")
         )
         updateSelectInput(
           session = session,
           inputId = "y_feature",
-          selected = gate_list()[[selected_gate()]]@y_axis
+          selected = GetData(gate_list()[[selected_gate()]], "y_axis")
         )
       })
       
@@ -1136,11 +1136,6 @@ app_server <- function( input, output, session ) {
           #code to execute when one of the above input events occurs
           req(input$x_feature_bg, input$y_feature_bg)
           
-          gating_color_scale <- data.frame(
-            z = c(0.0, 0.20, 0.40, 0.60, 0.80, 1.0),
-            col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
-          )
-
           SeuratObject::DefaultAssay(myso) <- input$Assay_bg
           count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
           selected_cell_barcodes <- NULL
@@ -1149,7 +1144,7 @@ app_server <- function( input, output, session ) {
             selected_cell_barcodes <- event_data("plotly_selected", source = "D")$customdata
           }
           else {
-            selected_cell_barcodes <- gate_list_bg()[[selected_gate_bg()]]@subset_cells[[1]]
+            selected_cell_barcodes <- GetData(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
           }
           
           plotly::plot_ly(count_data,
@@ -1159,15 +1154,16 @@ app_server <- function( input, output, session ) {
                           color = rownames(count_data) %in% selected_cell_barcodes, #color cells by whether they're in the selection or not
                           colors = c("grey", "black")) %>% 
             add_histogram2dcontour(showscale = FALSE, ncontours = 10,
-                                   colorscale = gating_color_scale,
-                                   contours = list(coloring='heatmap'),
-                                   color = I("black"),
+                                   colorscale = NULL,
+                                   contours = list(coloring='none'),
+                                   color = I("magenta3"),
                                    size = I(1.5)) %>%
             add_markers(x = count_data[,input$x_feature_bg],
                         y = count_data[,input$y_feature_bg],
                         marker = list(size=2),
-                        alpha = 1) %>%
-            config(toImageButtonOptions = list(format = "png", scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+                        alpha = 0.6) %>%
+            config(toImageButtonOptions = list(format = "png",
+                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
             layout(
@@ -1288,7 +1284,7 @@ app_server <- function( input, output, session ) {
       observeEvent(input$gating_pg_table_bg_cell_edit, {
         cell_edit_data <- input$gating_pg_table_bg_cell_edit
         gate_id <- reactive_gating_df_bg()$Gate_ID[cell_edit_data$row]
-        gate_reactive_values_bg[[gate_id]]@name_subset_cells <- cell_edit_data$value
+        gate_reactive_values_bg[[gate_id]] <- SetSubsetName(gate_reactive_values_bg[[gate_id]], cell_edit_data$value)
       })
       
       # when a datatable row is selected, set the selected_gate_bg reactive value to the gate that was selected in the datatable
@@ -1301,17 +1297,17 @@ app_server <- function( input, output, session ) {
         updateSelectInput(
           session = session,
           inputId = "Assay_bg",
-          selected = gate_list_bg()[[selected_gate_bg()]]@assay_name
+          selected = gGetData(ate_list_bg()[[selected_gate_bg()]], "assay_name")
         )
         updateSelectInput(
           session = session,
           inputId = "x_feature_bg",
-          selected = gate_list_bg()[[selected_gate_bg()]]@x_axis
+          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "x_axis")
         )
         updateSelectInput(
           session = session,
           inputId = "y_feature_bg",
-          selected = gate_list_bg()[[selected_gate_bg()]]@y_axis
+          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "y_axis")
         )
       })
       

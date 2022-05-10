@@ -89,4 +89,31 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
         total_num_cells_in_sample = total_num_cells_in_sample, 
         pct_subset_from_previous = pct_subset_from_previous, 
         pct_subset_from_total = pct_subset_from_total)
-  }
+}
+
+#' Slot Accessor Method
+#'
+#' @param gate_obj 
+#' @param slot_name 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+GetData <- function(gate_obj, slot_name) {
+  return(slot(gate_obj, slot_name))
+}
+
+#' Set Cell Subset Name
+#'
+#' @param gate_obj 
+#' @param new_name 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+SetSubsetName <- function(gate_obj, new_name) {
+  slot(gate_obj, "name_subset_cells") <- new_name
+  return(gate_obj)
+}

@@ -185,25 +185,25 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
     if (!is.null(gate_obj)) {
       temp_gating_df <- add_row(temp_gating_df,
                                 Gate_ID = gate_name_string,
-                                Assay_Name = gate_obj@assay_name,
-                                X_Axis = gate_obj@x_axis,
-                                Y_Axis = gate_obj@y_axis,
-                                Subset_Name = gate_obj@name_subset_cells,
-                                Num_Input_Cells = gate_obj@num_input_cells,
-                                Num_Subset_Cells = gate_obj@num_subset_cells,
+                                Assay_Name = GetData(gate_obj,"assay_name"),
+                                X_Axis = GetData(gate_obj,"x_axis"),
+                                Y_Axis = GetData(gate_obj,"y_axis"),
+                                Subset_Name = GetData(gate_obj,"name_subset_cells"),
+                                Num_Input_Cells = GetData(gate_obj,"num_input_cells"),
+                                Num_Subset_Cells = GetData(gate_obj,"num_subset_cells"),
                                 
-                                Total_Cells_in_Sample = gate_obj@total_num_cells_in_sample,
-                                Percent_Subsetted_From_Previous = gate_obj@pct_subset_from_previous,
-                                Percent_Subsetted_From_Total = gate_obj@pct_subset_from_total,
+                                Total_Cells_in_Sample = GetData(gate_obj,"total_num_cells_in_sample"),
+                                Percent_Subsetted_From_Previous = GetData(gate_obj,"pct_subset_from_previous"),
+                                Percent_Subsetted_From_Total = GetData(gate_obj,"pct_subset_from_total"),
                                 
-                                Input_Cells = gate_obj@input_cells,
-                                Input_X_Coordinates = list(gate_obj@input_coords$x),
-                                Input_Y_Coordinates = list(gate_obj@input_coords$y),
-                                Subset_Cells = gate_obj@subset_cells,
-                                Subset_X_Coordinates = list(gate_obj@subset_coords$x),
-                                Subset_Y_Coordinates = list(gate_obj@subset_coords$y),
-                                Gate_X_Coordinates = list(gate_obj@gate_coords$x),
-                                Gate_Y_Coordinates = list(gate_obj@gate_coords$y)
+                                Input_Cells = GetData(gate_obj,"input_cells"),
+                                Input_X_Coordinates = list(GetData(gate_obj,"input_coords")$x),
+                                Input_Y_Coordinates = list(GetData(gate_obj,"input_coords")$y),
+                                Subset_Cells = GetData(gate_obj,"subset_cells"),
+                                Subset_X_Coordinates = list(GetData(gate_obj,"subset_coords")$x),
+                                Subset_Y_Coordinates = list(GetData(gate_obj,"subset_coords")$y),
+                                Gate_X_Coordinates = list(GetData(gate_obj,"gate_coords")$x),
+                                Gate_Y_Coordinates = list(GetData(gate_obj,"gate_coords")$y)
       )
     }
     return(temp_gating_df)
