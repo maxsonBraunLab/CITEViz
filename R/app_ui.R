@@ -128,7 +128,7 @@ app_ui <- function(request) {
                hr(style = "border-top: 3px solid whitesmoke;"),
                
                h3(strong("Resources")),
-               p("Consider using the", a('Maxson-Braun Lab’s pipeline', href="https://github.com/maxsonBraunLab/cite_seq"), "to generate a Seurat object (saved as an .rds file) that can be uploaded into this app for further data analysis."), 
+               p("Consider using the", a("Maxson-Braun Lab's pipeline", href="https://github.com/maxsonBraunLab/cite_seq"), "to generate a Seurat object (saved as an .rds file) that can be uploaded into this app for further data analysis."), 
                p("If you are researching white blood cells, please see the following", a("Human Immune Cell Marker Guide", href="https://media.cellsignal.com/www/pdfs/science/pathways/Immune-Cell-Markers-Human.pdf"), "reproduced courtesy of", a("Cell Signaling Technology, Inc.", href="https://www.cellsignal.com")), 
                
                hr(style = "border-top: 3px solid whitesmoke;"),
@@ -138,7 +138,7 @@ app_ui <- function(request) {
                tags$blockquote("Thai Nguyen, Wesley Rosales, Anjali Panikar, John Cheney and Garth Kong (2021). CITE-Viz: Reproducing the Flow Cytometry Workflow. Version 0.1.0. <put final hyperlink here>", style = "font-family: monospace;"),
                
                h5(strong("Acknowledgements")), 
-               p('The development team would like to express sincere gratitude to this project’s principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to', a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
+               p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
                p("Furthermore, the development team would like to thank faculty and advisors of the Bioinformatics and Genomics Masters Program at the University of Oregon, expressly, Dr. Leslie Coonrod, Dr. Stacey Wagner, Pete Batzel and Jason Sydes for their extensive time spent providing countless resources and much-appreciated wisdom in all things bioinformatics."),
                br(),
                br(), 
