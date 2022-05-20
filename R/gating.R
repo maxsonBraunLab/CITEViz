@@ -9,15 +9,6 @@
 #' @param reactive_selected_gate 
 #' @param reactive_last_buttons_clicked 
 #'
-#' @importFrom base data.frame
-#' @importFrom base length 
-#' @importFrom base list 
-#' @importFrom base rownames 
-#' @importFrom base is.null
-#' @importFrom base paste0
-#' @importFrom base unlist
-#' 
-#' 
 #' 
 #' @return
 #' @export
@@ -108,8 +99,6 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
 #' @param gating_reactiveValues 
 #'
 #' 
-#' @importFrom base order
-#' @importFrom base names
 #' 
 #' 
 #' @return
@@ -129,14 +118,6 @@ get_reactive_gate_list <- function(gating_reactiveValues) {
 #' Title
 #' 
 #' 
-#' 
-#' @importFrom base data.frame
-#' @importFrom base character
-#' @importFrom base integer 
-#' @importFrom base numeric 
-#' @importFrom base I 
-#' @importFrom base list
-#'
 #' @return
 #' @export
 #'
@@ -174,7 +155,6 @@ create_gating_df <- function() {
 #' @param reactive_gate_list 
 #' @param temp_gating_df 
 #'
-#' @importFrom base is.null
 #' 
 #' @return
 #' @export

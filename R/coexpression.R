@@ -28,8 +28,6 @@ get_bilinear_val <- function(x,y,ngrid,quad11,quad21,quad12,quad22){
 #' @param ngrid 
 #'
 #' @importFrom grDevices rgb
-#' @importFrom base expand.grid
-#' @importFrom base c 
 #'
 #' @return
 #' @export
@@ -54,7 +52,6 @@ get_color_matrix_df <- function(ngrid = 16) {
 #'
 #' @param input 
 #'
-#' @importFrom base c  
 #' @return
 #' @export
 #'

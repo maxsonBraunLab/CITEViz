@@ -133,9 +133,10 @@ app_ui <- function(request) {
                
                hr(style = "border-top: 3px solid whitesmoke;"),
                
-               h5(strong("How to Cite CITE-Viz")),
-               p("For citing this app in a publication, use:"),
-               tags$blockquote("Thai Nguyen, Wesley Rosales, Anjali Panikar, John Cheney and Garth Kong (2021). CITE-Viz: Reproducing the Flow Cytometry Workflow. Version 0.1.0. <put final hyperlink here>", style = "font-family: monospace;"),
+               # uncomment this citation section and update the actual citation below once CITE-Viz has been published
+               # h5(strong("How to Cite CITE-Viz")),
+               # p("For citing this app in a publication, use:"),
+               # tags$blockquote("Garth L. Kong, Thai T. Nguyen, Wesley K. Rosales, Anjali D. Panikar, John H. W. Cheney, Brittany M. Curtiss, Sarah A. Carratt, Theodore P. Braun, Julia E. Maxson. CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq.", style = "font-family: monospace;"),
                
                h5(strong("Acknowledgements")), 
                p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
@@ -500,7 +501,6 @@ app_ui <- function(request) {
 #' resources inside the Shiny application. 
 #' 
 #' @import shiny
-#' @importFrom base head 
 #' 
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
