@@ -154,7 +154,7 @@ app_server <- function( input, output, session ) {
           config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
-          layout(title = list(font = list(size = 14)), hovermode = FALSE) 
+          plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE) 
       })
       
       
@@ -213,7 +213,7 @@ app_server <- function( input, output, session ) {
           config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
-          layout(title = list(font = list(size = 14)), hovermode = FALSE)
+          plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE)
       })
       
       # ----- render QA plots -----
@@ -277,7 +277,7 @@ app_server <- function( input, output, session ) {
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
-          layout(
+          plotly::layout(
             title = toupper(reduc),
             xaxis = list(title = cell_col[1]),
             yaxis = list(title = cell_col[2]),
@@ -320,7 +320,7 @@ app_server <- function( input, output, session ) {
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
-          layout(
+          plotly::layout(
             title = toupper(paste(reduc, "(3D)")),
             scene = list(xaxis = list(title = cell_col[1]),
                          yaxis = list(title = cell_col[2]),
@@ -430,7 +430,7 @@ app_server <- function( input, output, session ) {
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
-            layout(
+            plotly::layout(
               title = toupper(reduc),
               xaxis = list(title = cell_col[1]),
               yaxis = list(title = cell_col[2]),
@@ -617,7 +617,7 @@ app_server <- function( input, output, session ) {
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
-            layout(
+            plotly::layout(
               showlegend = FALSE,
               title = toupper(reduc),
               xaxis = list(title = cell_col[1]),
@@ -828,7 +828,7 @@ app_server <- function( input, output, session ) {
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
-            layout(
+            plotly::layout(
               title = "Normalized Feature Scatter Plot",
               xaxis = list(title = input$x_feature),
               yaxis = list(title = input$y_feature),
@@ -887,7 +887,7 @@ app_server <- function( input, output, session ) {
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
-          layout(
+          plotly::layout(
             title = toupper(reduc),
             xaxis = list(title = cell_col[1]),
             yaxis = list(title = cell_col[2]))
@@ -1140,7 +1140,7 @@ app_server <- function( input, output, session ) {
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
-            layout(
+            plotly::layout(
               title = "Normalized Feature Scatter Plot",
               xaxis = list(title = input$x_feature_bg),
               yaxis = list(title = input$y_feature_bg),
@@ -1180,7 +1180,7 @@ app_server <- function( input, output, session ) {
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
-          layout(title = toupper(reduc),
+          plotly::layout(title = toupper(reduc),
                  xaxis = list(title = cell_col[1]),
                  yaxis = list(title = cell_col[2]),
                  dragmode = "select") %>%
