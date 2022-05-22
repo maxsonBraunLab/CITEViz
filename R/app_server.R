@@ -773,7 +773,7 @@ app_server <- function( input, output, session ) {
           
           #generate dataframe for custom colorscale for contour plot, where each hex color code is mapped to a specific z-value between 0 and 1 (inclusive)
           #colorscale needs to be in this format for Plotly's add_histogram2dcontour(colorscale = ...) parameter
-          customColorScale <- data.frame(
+          gating_color_scale <- data.frame(
             z = c(0.0, 0.20, 0.40, 0.60, 0.80, 1.0),
             col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
           )
@@ -788,7 +788,7 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = customColorScale, 
+              add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
                                      contours = list(coloring='heatmap')) %>%
               add_markers(x = count_data[,input$x_feature],
                           y = count_data[,input$y_feature],
@@ -813,7 +813,7 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data_subset),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = customColorScale, 
+              add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = gating_color_scale, 
                                      contours = list(coloring='heatmap')) %>%
               add_markers(x = count_data_subset[,input$x_feature], 
                           y = count_data_subset[,input$y_feature], 
@@ -1127,17 +1127,17 @@ app_server <- function( input, output, session ) {
                           mode = "markers",
                           color = rownames(count_data) %in% selected_cell_barcodes, #color cells by whether they're in the selection or not
                           colors = c("grey", "black")) %>% 
-            add_histogram2dcontour(showscale = FALSE, ncontours = 10,
-                                   colorscale = NULL,
-                                   contours = list(coloring='none'),
-                                   color = I("magenta3"),
+            add_histogram2dcontour(showscale = FALSE,
+                                   ncontours = 10,
+                                   colorscale = gating_color_scale,
+                                   contours = list(coloring='heatmap'),
+                                   color = I("black"),
                                    size = I(1.5)) %>%
             add_markers(x = count_data[,input$x_feature_bg],
                         y = count_data[,input$y_feature_bg],
                         marker = list(size=2),
-                        alpha = 0.6) %>%
-            config(toImageButtonOptions = list(format = "png",
-                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+                        alpha = 1) %>%
+            config(toImageButtonOptions = list(format = "png", scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
             plotly::layout(
