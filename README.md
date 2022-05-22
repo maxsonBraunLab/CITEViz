@@ -13,7 +13,7 @@ CITE-Viz is a single-cell visualization platform with a custom module that repli
 We recommend installing CITE-Viz through the RStudio IDE using the following commands:
 
 ```R
-devtools:install_github("maxsonBraunLab/CITE-Viz")
+devtools::install_github("maxsonBraunLab/CITE-Viz")
 run_app()
 ```
 
