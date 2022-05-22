@@ -1,6 +1,6 @@
 Package: CITEViz
 Title: CITE-Viz
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongg@ohsu.edu', role = c('cre', 'aut'), comment = c(ORCID = ' 0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut'),
