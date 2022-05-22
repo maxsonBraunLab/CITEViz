@@ -1109,6 +1109,11 @@ app_server <- function( input, output, session ) {
         {
           #code to execute when one of the above input events occurs
           req(input$x_feature_bg, input$y_feature_bg)
+
+          gating_color_scale <- data.frame(
+            z = c(0.0, 0.20, 0.40, 0.60, 0.80, 1.0),
+            col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
+          )
           
           SeuratObject::DefaultAssay(myso) <- input$Assay_bg
           count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
