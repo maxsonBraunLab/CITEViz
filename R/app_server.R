@@ -5,7 +5,7 @@
 #' 
 #' @import shiny
 #' 
-#' @importFrom graphics layout
+#' @importFrom plotly layout
 #' 
 #' 
 #' @noRd
@@ -116,7 +116,7 @@ app_server <- function( input, output, session ) {
         )
         
         #creates list of x-coordinates for quantiles of data. 
-        quant <- quantile(x = myso[[]][,params[1]],
+        quant <- stats::quantile(x = myso[[]][,params[1]],
                           probs = c(0.5,0.75,0.95),
                           na.rm = TRUE)
         
@@ -126,32 +126,32 @@ app_server <- function( input, output, session ) {
         #generate base plot template with features that all QA distribution plots will have
         base_distrib_plot <- myso[[]] %>%
           ggplot2::ggplot(aes(x = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
-          labs(fill = color, color = color) + 
-          theme(plot.title = element_text(hjust=0.5)) +
-          ggtitle(params[2]) +
-          xlab(params[3]) +
-          geom_vline(xintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
-          scale_color_manual(values = custom_palette) +
-          scale_fill_manual(values = custom_palette)
+          ggplot2::labs(fill = color, color = color) + 
+          ggplot2::theme(plot.title = element_text(hjust=0.5)) +
+          ggplot2::ggtitle(params[2]) +
+          ggplot2::xlab(params[3]) +
+          ggplot2::geom_vline(xintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
+          ggplot2::scale_color_manual(values = custom_palette) +
+          ggplot2::scale_fill_manual(values = custom_palette)
         
         #initialize QA distribution plot before if/else statements below so that the plot object can be accessed outside of the if/else statements
         final_distrib_plot <- base_distrib_plot
         
         #create density/bar plot for selected input. If integrated object is uploaded, then the original identity of the cells will separate into graphs per sample
         if (input$QA %in% "ADT Count Per Cell") {
-          final_distrib_plot <- base_distrib_plot + scale_x_log10() + geom_density(alpha = 0.25) + ylab("Density")
+          final_distrib_plot <- base_distrib_plot + ggplot2::scale_x_log10() + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
         } 
         else if (input$QA %in% "Unique ADTs Per Cell") {
-          final_distrib_plot <- base_distrib_plot + geom_bar(alpha = 0.5, position = "dodge") + ylab("Frequency")
+          final_distrib_plot <- base_distrib_plot + ggplot2::geom_bar(alpha = 0.5, position = "dodge") + ggplot2::ylab("Frequency")
         }
         else {
-          final_distrib_plot <- base_distrib_plot + geom_density(alpha = 0.25) + ylab("Density")
+          final_distrib_plot <- base_distrib_plot + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
         }
         
         #show distribution plot
         final_distrib_plot %>% 
           plotly::ggplotly() %>% 
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE) 
@@ -177,7 +177,7 @@ app_server <- function( input, output, session ) {
         #instead of switch and hardcoded values, try colnames() of the input data so user can select whatever cols are in their data
         
         #creates list of x-coordinates for quantiles of data. 
-        quant <- quantile(x = myso[[]][,params[1]],
+        quant <- stats::quantile(x = myso[[]][,params[1]],
                           probs = c(0.5,0.75,0.95),
                           na.rm = TRUE)
         
@@ -187,30 +187,30 @@ app_server <- function( input, output, session ) {
         #generate base plot template with features that all QA boxplots will have
         base_box_plot <- myso[[]] %>%
           ggplot2::ggplot(aes(x = eval(parse(text = color)), y = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
-          labs(fill = color, color = color) + 
-          geom_boxplot(alpha = 0.5, width=0.5) + 
-          theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-          theme(plot.title = element_text(hjust = 0.5)) +
-          ggtitle(params[2]) +
-          xlab("Sample") +
-          ylab(params[3]) +
-          geom_violin(alpha = 0.2) +
-          geom_hline(yintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
-          scale_color_manual(values = custom_palette) +
-          scale_fill_manual(values = custom_palette)
+          ggplot2::labs(fill = color, color = color) + 
+          ggplot2::geom_boxplot(alpha = 0.5, width=0.5) + 
+          ggplot2::theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+          ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
+          ggplot2::ggtitle(params[2]) +
+          ggplot2::xlab("Sample") +
+          ggplot2::ylab(params[3]) +
+          ggplot2::geom_violin(alpha = 0.2) +
+          ggplot2::geom_hline(yintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
+          ggplot2::scale_color_manual(values = custom_palette) +
+          ggplot2::scale_fill_manual(values = custom_palette)
         
         #initialize QA box plot before if/else statements below so that the plot object can be accessed outside of the if/else statements
         final_box_plot <- base_box_plot
         
         #create box plot for selected input. If integrated object is uploaded, then the original identity of the cells will separate into boxes per sample
         if (input$QA %in% "ADT Count Per Cell") {
-          final_box_plot <- base_box_plot + scale_y_log10()
+          final_box_plot <- base_box_plot + ggplot2::scale_y_log10()
         } 
         
         #show box plot
         final_box_plot %>% 
           plotly::ggplotly() %>% 
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE)
@@ -273,7 +273,7 @@ app_server <- function( input, output, session ) {
                         marker = list(size = 3, width = 2),
                         source = "A") %>%
           
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
@@ -316,7 +316,7 @@ app_server <- function( input, output, session ) {
                         mode = "markers",
                         marker = list(size = 2, width = 1)) %>%
           
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
@@ -426,8 +426,8 @@ app_server <- function( input, output, session ) {
                                         reversescale = TRUE),
                           source = "expression_1d_plot") %>%
             
-            config(toImageButtonOptions = list(format = "png",
-                                               scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+            plotly::config(toImageButtonOptions = list(format = "png",
+                                                      scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
             plotly::layout(
@@ -613,7 +613,7 @@ app_server <- function( input, output, session ) {
                                         color = ~mapped_df$hex_color_mix
                                         )) %>%
            
-            config(toImageButtonOptions = list(format = "png",
+            plotly::config(toImageButtonOptions = list(format = "png",
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
@@ -788,9 +788,9 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
+              plotly::add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
                                      contours = list(coloring='heatmap')) %>%
-              add_markers(x = count_data[,input$x_feature],
+              plotly::add_markers(x = count_data[,input$x_feature],
                           y = count_data[,input$y_feature],
                           marker = list(size=2),
                           color = I("black"),
@@ -813,9 +813,9 @@ app_server <- function( input, output, session ) {
                                                 customdata = rownames(count_data_subset),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = gating_color_scale, 
+              plotly::add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = gating_color_scale, 
                                      contours = list(coloring='heatmap')) %>%
-              add_markers(x = count_data_subset[,input$x_feature], 
+              plotly::add_markers(x = count_data_subset[,input$x_feature], 
                           y = count_data_subset[,input$y_feature], 
                           marker = list(size=2.5), 
                           color = I("black"), 
@@ -824,7 +824,7 @@ app_server <- function( input, output, session ) {
           
           # add configuration and layout options to base scatterplot, register selection events
           base_scatterplot %>%
-            config(toImageButtonOptions = list(format = "png",
+            plotly::config(toImageButtonOptions = list(format = "png",
                                                scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
@@ -883,7 +883,7 @@ app_server <- function( input, output, session ) {
                         mode = 'markers',
                         marker = list(size = 3, width=2)) %>%
           
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
@@ -1132,17 +1132,17 @@ app_server <- function( input, output, session ) {
                           mode = "markers",
                           color = rownames(count_data) %in% selected_cell_barcodes, #color cells by whether they're in the selection or not
                           colors = c("grey", "black")) %>% 
-            add_histogram2dcontour(showscale = FALSE,
+            plotly::add_histogram2dcontour(showscale = FALSE,
                                    ncontours = 10,
                                    colorscale = gating_color_scale,
                                    contours = list(coloring='heatmap'),
                                    color = I("black"),
                                    size = I(1.5)) %>%
-            add_markers(x = count_data[,input$x_feature_bg],
+            plotly::add_markers(x = count_data[,input$x_feature_bg],
                         y = count_data[,input$y_feature_bg],
                         marker = list(size=2),
                         alpha = 1) %>%
-            config(toImageButtonOptions = list(format = "png", scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+            plotly::config(toImageButtonOptions = list(format = "png", scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
             ) %>%
             #Layout changes the aesthetic of the plot
             plotly::layout(
@@ -1181,7 +1181,7 @@ app_server <- function( input, output, session ) {
                         mode = 'markers',
                         marker = list(size = 3, width=2),
                         source = "D") %>%
-          config(toImageButtonOptions = list(format = "png",
+          plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
