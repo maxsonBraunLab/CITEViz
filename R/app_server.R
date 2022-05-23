@@ -1276,7 +1276,7 @@ app_server <- function( input, output, session ) {
         updateSelectInput(
           session = session,
           inputId = "Assay_bg",
-          selected = gGetData(ate_list_bg()[[selected_gate_bg()]], "assay_name")
+          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "assay_name")
         )
         updateSelectInput(
           session = session,
