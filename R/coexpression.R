@@ -53,7 +53,7 @@ get_color_matrix_df <- function(ngrid = 16) {
 #' @param input 
 #' @param myso 
 #'
-#' @importFrom ggplot2 ggplot geom_tile labs scale_x_continuous scale_y_continuous
+#' @importFrom ggplot2 aes ggplot geom_tile labs scale_x_continuous scale_y_continuous
 #' 
 #' @return
 #' @export
