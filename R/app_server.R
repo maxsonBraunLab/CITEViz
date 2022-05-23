@@ -4,9 +4,9 @@
 #'     DO NOT REMOVE.
 #' 
 #' @import shiny
+#' @import ggplot2
 #'  
 #' @importFrom dplyr filter last left_join
-#' @importFrom ggplot2 ggplot geom_bar geom_boxplot geom_density geom_hline geom_vline geom_violin ggtitle labs scale_color_manual scale_fill_manual scale_x_log10 scale_y_log10 theme xlab ylab
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
 #' @importFrom rlang is_empty
 #' @importFrom SeuratObject Assays DefaultAssay Embeddings FetchData GetAssayData Reductions
