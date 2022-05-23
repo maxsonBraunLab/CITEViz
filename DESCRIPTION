@@ -1,6 +1,6 @@
 Package: CITEViz
 Title: CITE-Viz
-Version: 0.1.0
+Version: 0.99.0
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongg@ohsu.edu', role = c('cre', 'aut'), comment = c(ORCID = ' 0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut'),
@@ -12,15 +12,28 @@ Description: Reproduce flow cytometry workflow using CITE-Seq
 License: MIT + file LICENSE
 Imports: 
     attempt,
+    bslib,
     config (>= 0.3.1),
+    dplyr,
     DT,
+    ggplot2,
     glue,
     golem (>= 0.3.1),
     htmltools,
+    plotly,
     processx,
-    shiny (>= 1.6.0)
+    RColorBrewer,
+    rlang,
+    Seurat,
+    SeuratObject,
+    shiny (>= 1.6.0),
+    shinyBS,
+    shinyjs,
+    stats, 
+    tibble,
+    tidyverse,
+    vembedr
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.1.2
 Suggests: 
     spelling,
