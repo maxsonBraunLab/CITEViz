@@ -155,7 +155,7 @@ create_gating_df <- function() {
 #' @param reactive_gate_list 
 #' @param temp_gating_df 
 #'
-#' 
+#' @importFrom tibble add_row
 #' @return
 #' @export
 #'
@@ -163,7 +163,7 @@ create_gating_df <- function() {
 update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_df) {
     gate_obj <- reactive_gate_list[[gate_name_string]]
     if (!is.null(gate_obj)) {
-      temp_gating_df <- add_row(temp_gating_df,
+      temp_gating_df <- tibble::add_row(temp_gating_df,
                                 Gate_ID = gate_name_string,
                                 Assay_Name = GetData(gate_obj,"assay_name"),
                                 X_Axis = GetData(gate_obj,"x_axis"),
