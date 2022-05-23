@@ -60,6 +60,9 @@ get_color_matrix_df <- function(ngrid = 16) {
 #'
 #' @examples
 create_2d_color_legend <- function(input, myso) {
+  #require these UI input items to render before trying to get data from them for plotting, so that errors don't get thrown
+  shiny::req(input$rds_input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
+  
   #selected metadata to color clusters by
   color_x <- input$x_axis_feature
   color_y <- input$y_axis_feature
