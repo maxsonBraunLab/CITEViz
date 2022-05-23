@@ -350,7 +350,7 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction_expr_1d",
         choices = sort(SeuratObject::Reductions(myso)),
-        selected = dplyr::last(sort(names(SeuratObject::Reductions(myso))))
+        selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       
       output$Assay_1d = renderUI({
