@@ -62,20 +62,6 @@ app_ui <- function(request) {
                # css style below can't easily be put into separate css file due to id of tab container being generated uniquely each time app is run
                style = "padding-left: 1.5rem; padding-right: 1.5rem; margin-left: auto; margin-right: auto; max-width: 1040px",
                
-               # use this area for beta testing & survey information
-               div(id = "beta_testing_banner",
-                   
-                   #to remove
-                   # style = "
-                   #  border: 2px solid gray; 
-                   #  border-radius: 5px;
-                   #  background-color: whitesmoke; 
-                   #  margin-top: 0;
-                   #  margin-bottom: 1.2rem;
-                   #  padding: 1rem 1rem 0 1rem;",
-                   p(strong("Beta version 0.1.0:", style = "color: red;"), "As this app enters beta-testing, we are very grateful for your honest feedback and constructive criticism. Please see the following", a("survey link", href = "https://docs.google.com/forms/d/e/1FAIpQLSckYnhqJHSrt4JjTM7qOfpKQ6MrptQXNCmexwF1N_xDJ7bVxA/viewform?usp=sf_link"), "to provide us with feedback (links to a Google survey).")
-               ),
-               
                #if user doesn't have javascript on their browser, display a message box near top of page
                tags$noscript(
                  div(
