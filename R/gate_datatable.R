@@ -21,7 +21,7 @@ create_gating_dt <- function(temp_reactive_gating_df) {
                                                 buttons = c("copy", "print"),
                                                 columnDefs = list(list(visible = FALSE, targets = c(11:ncol(temp_reactive_gating_df))))
                                     )) %>%
-    formatRound(c("Percent_Subsetted_From_Previous", "Percent_Subsetted_From_Total"), digits = 4)
+    DT::formatRound(c("Percent_Subsetted_From_Previous", "Percent_Subsetted_From_Total"), digits = 4)
     
     return(temp_gating_dt)
 }
