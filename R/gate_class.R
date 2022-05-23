@@ -1,5 +1,4 @@
-# define a Gate class for gate objects
-#' Title
+#' Gate class for gate objects
 #'
 #' @slot counter integer. 
 #' @slot assay_name character. 
@@ -17,7 +16,7 @@
 #' @slot pct_subset_from_previous numeric. 
 #' @slot pct_subset_from_total numeric. 
 #'
-#' @return
+#' @return a gate class object
 #' @export
 #'
 #' @examples
@@ -46,26 +45,27 @@ setClass("Gate", slots = list(
   ))
   
   
-#constructor for Gate objects
-#' Title
+#' Constructor for Gate objects
+#' 
+#' All parameters are slots within the gate object
 #'
-#' @param counter 
-#' @param assay_name 
-#' @param input_cells 
-#' @param input_coords 
-#' @param subset_cells 
-#' @param subset_coords 
-#' @param x_axis 
-#' @param y_axis 
-#' @param gate_coords 
-#' @param name_subset_cells 
-#' @param num_input_cells 
-#' @param num_subset_cells 
-#' @param total_num_cells_in_sample 
-#' @param pct_subset_from_previous 
-#' @param pct_subset_from_total 
+#' @param counter integer to keep track of gate number
+#' @param assay_name character. Seurat object assay gates on
+#' @param input_cells list. cells plotted
+#' @param input_coords dataframe of plotted cell coordinates
+#' @param subset_cells list. cells selected
+#' @param subset_coords dataframe of selected cell coordinates
+#' @param x_axis character. Feature on x-axis
+#' @param y_axis character. Feature on y-axis
+#' @param gate_coords list. coordinates of drawn gate
+#' @param name_subset_cells character. user ipute of selected cell subset name
+#' @param num_input_cells integer. number of total cells on plot
+#' @param num_subset_cells integer. number of cells selected
+#' @param total_num_cells_in_sample integer. number of total cells in seurat object
+#' @param pct_subset_from_previous numeric. percentage of cells selected from cells plotted
+#' @param pct_subset_from_total numeric. percentage of cells selected from cells in Seurat object
 #'
-#' @return
+#' @return Gate class object
 #' @export
 #'
 #' @examples
@@ -93,10 +93,10 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
 
 #' Slot Accessor Method
 #'
-#' @param gate_obj 
-#' @param slot_name 
+#' @param gate_obj a single Gate class object
+#' @param slot_name name of slot to draw data from
 #'
-#' @return
+#' @return data from slot in gate object
 #' @export
 #'
 #' @examples
@@ -106,10 +106,10 @@ GetData <- function(gate_obj, slot_name) {
 
 #' Set Cell Subset Name
 #'
-#' @param gate_obj 
-#' @param new_name 
+#' @param gate_obj a single Gate class object
+#' @param new_name character. New name of cell subset
 #'
-#' @return
+#' @return Gate object with new name of subset cells in name_subset_cells slot
 #' @export
 #'
 #' @examples

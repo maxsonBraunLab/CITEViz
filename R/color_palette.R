@@ -1,13 +1,13 @@
-#create custom color palette with color interpolation to use for QA plots
-#interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-#takes in an integer argument for number of colors to generate in palette
-#returns a character vector of color hex codes for the desired number of colors
-#to improve: add a colorblind-friendly palette option
-#' Title
+#' Custom color palette with color interpolation to use for QA plots
 #'
-#' @param num_colors 
+#' create custom color palette with color interpolation to use for QA plots
+#' interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
+#' takes in an integer argument for number of colors to generate in palette
+#' returns a character vector of color hex codes for the desired number of colors
+#' 
+#' @param num_colors number of colors
 #'
-#' @return
+#' @return a color palette
 #' @export
 #'
 #' @examples

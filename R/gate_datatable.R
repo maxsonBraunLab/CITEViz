@@ -1,9 +1,8 @@
-#create gating datatable for display in UI
-#' Title
+#' Gating datatable for display in UI
 #'
-#' @param temp_reactive_gating_df 
+#' @param temp_reactive_gating_df reactive gating dataframe to use as contents
 #'
-#' @return
+#' @return an interactive data table
 #' @export
 #'
 #' @examples

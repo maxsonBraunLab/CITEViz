@@ -1,16 +1,14 @@
-#create gate objects from user input selections depending on if the user is forward-gating or back-gating
-#' Title
+#' #create gate objects from user input selections
 #'
-#' @param input
-#' @param is_forward_gating 
-#' @param assay_count_data 
-#' @param gate_counter 
-#' @param reactive_gate_list 
-#' @param reactive_selected_gate 
-#' @param reactive_last_buttons_clicked 
+#' @param input Reactive container for ui inputs
+#' @param is_forward_gating Boolean for if the gating is forward or back gating
+#' @param assay_count_data Feature expression data
+#' @param gate_counter Integer of gate number
+#' @param reactive_gate_list Reactive list of gates
+#' @param reactive_selected_gate Reactive value of user chosen gate object
+#' @param reactive_last_buttons_clicked Reactive list object tracking the last two buttons clicked of three possibilities: "gate_button","reset_button","clear_all_gates_button"
 #'
-#' 
-#' @return
+#' @return a Gate object
 #' @export
 #'
 #' @examples
@@ -94,14 +92,11 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
   }
   
   
-#' Title
+#' Convert Shiny reactiveValues object to reactive gate list
 #'
-#' @param gating_reactiveValues 
+#' @param gating_reactiveValues Shiny reactiveValues object holding all reactive gate objects
 #'
-#' 
-#' 
-#' 
-#' @return
+#' @return reactive gate list for app purposes
 #' @export
 #'
 #' @examples
@@ -114,14 +109,10 @@ get_reactive_gate_list <- function(gating_reactiveValues) {
     return(reactive_gate_list)
   }
   
-#create gating dataframe
-#' Title
+#' Create gating dataframe
 #' 
-#' 
-#' @return
+#' @return Empty gate dataframe for app purposes
 #' @export
-#'
-#' 
 #' 
 #' @examples
 create_gating_df <- function() {
@@ -148,15 +139,14 @@ create_gating_df <- function() {
     )
   }
   
-#function to populate/update gating data frame
-#' Title
+#' Populate/update gating data frame
 #'
-#' @param gate_name_string 
-#' @param reactive_gate_list 
-#' @param temp_gating_df 
+#' @param gate_name_string character string of new gate name
+#' @param reactive_gate_list shiny reactivelist of gates
+#' @param temp_gating_df empty gating dataframe built from create_gating_df function
 #'
 #' @importFrom tibble add_row
-#' @return
+#' @return updated gating dataframe 
 #' @export
 #'
 #' @examples
@@ -190,15 +180,12 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
   }
   
   
-# reset all values in gate_reactive_values to NULL
-#' Title
+#' Reset all values in gate_reactive_values to NULL
 #'
-#' @param gate_name_string 
-#' @param local_gate_reactive_values 
+#' @param gate_name_string name of gate to be deleted
+#' @param local_gate_reactive_values Shiny reactiveValues
 #'
-#' 
-#' 
-#' @return
+#' @return empty reactiveValues list of Gate objects
 #' @export
 #'
 #' @examples

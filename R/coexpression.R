@@ -1,17 +1,17 @@
-# ----- Bilinear interpolation function -----
-# Takes in a given x and y coordinate, the dimension of a square grid, and four values representing the base red, green, or blue (RGB) color values (0-255) of the four quadrants of the square grid
-# Returns the bilinear interpolated red, green, or blue value (0-255) of the given input coordinates (x,y)
-#' Title
+#' Bilinear Interpolation
 #'
-#' @param x 
-#' @param y 
-#' @param ngrid 
-#' @param quad11 
-#' @param quad21 
-#' @param quad12 
-#' @param quad22 
+#' Takes in a given x and y coordinate, the dimension of a square grid, and four values representing the base red, green, or blue (RGB) color values (0-255) of the four quadrants of the square grid
+#' Returns the bilinear interpolated red, green, or blue value (0-255) of the given input coordinates (x,y)
 #'
-#' @return
+#' @param x integer vector
+#' @param y integer vector
+#' @param ngrid integer taken from get_color_matrix_df
+#' @param quad11 integer
+#' @param quad21 integer
+#' @param quad12 integer
+#' @param quad22 integer
+#'
+#' @return numeric vector for color values used in coexpression plot
 #' @export
 #'
 #' @examples
@@ -22,14 +22,13 @@ get_bilinear_val <- function(x,y,ngrid,quad11,quad21,quad12,quad22){
 }
 
 
-# ----- Create 2D color dataframe for gene/ADT coexpression -----
-#' Title
+#' Create 2D color dataframe for gene/ADT coexpression
 #'
-#' @param ngrid 
+#' @param ngrid integer changing resolution of color grid
 #'
 #' @importFrom grDevices rgb
 #'
-#' @return
+#' @return dataframe for use in coexpression legend
 #' @export
 #'
 #' @examples
@@ -47,15 +46,14 @@ get_color_matrix_df <- function(ngrid = 16) {
   return(color_matrix_df)
 }
 
-# ----- Create 2D color legend plot for gene/ADT coexpression -----
-#' Title
+#' Create 2D color legend plot for gene/ADT coexpression
 #'
-#' @param input 
-#' @param myso 
+#' @param input Shiny reactiveValues object containing user inputs
+#' @param myso a Seurat object
 #'
 #' @importFrom ggplot2 aes ggplot geom_tile labs scale_x_continuous scale_y_continuous
 #' 
-#' @return
+#' @return legend for app coexpression plot
 #' @export
 #'
 #' @examples
