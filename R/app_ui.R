@@ -4,6 +4,10 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' 
+#' @importFrom bslib bs_theme
+#' @importFrom DT DTOutput
+#' @importFrom plotly plotlyOutput
+#' @importFrom vembedr embed_url
 #' 
 #' @noRd
 app_ui <- function(request) {
