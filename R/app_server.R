@@ -4,31 +4,17 @@
 #'     DO NOT REMOVE.
 #' 
 #' @import shiny
-#' 
-#' @importFrom plotly layout
-#' 
-#' 
+#'  
+#' @importFrom dplyr filter last left_join
+#' @importFrom ggplot2 ggplot geom_bar geom_boxplot geom_density geom_hline geom_vline geom_violin ggtitle labs scale_color_manual scale_fill_manual scale_x_log10 scale_y_log10 theme xlab ylab
+#' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
+#' @importFrom rlang is_empty
+#' @importFrom SeuratObject Assays DefaultAssay Embeddings FetchData GetAssayData Reductions
+#' @importFrom stats quantile
+#'
 #' @noRd
 app_server <- function( input, output, session ) {
-  
-  # ---------- Packages list ---------- 
-  # Change the package library list below to fit Bioconductr guidelines!!! 
-  # Specify necessary packages in NAMESPACE and DESCRIPTION files instead!
-  
-  library(bslib)    #needed for custom bootstrap theme
-  library(DT)       #needed to create HTML datatable widgets
-  library(ggplot2)
-  library(plotly)
-  library(RColorBrewer)
-  library(Seurat)
-  library(shiny)
-  library(shinyBS)  #bootstrap components for shiny
-  library(shinyjs)
-  library(stats)
-  library(tidyverse)
-  library(vembedr)  #needed to embed Youtube videos in landing/welcome tab
-  
-  
+
   #set max file upload size to 3gb (default is only 5mb) since rds files can be really big
   #takes in an integer argument for max filesize in megabytes
   #to improve: set max file upload size based on user's hardware limitations?
@@ -284,7 +270,7 @@ app_server <- function( input, output, session ) {
             dragmode = "select") %>% 
           #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
           
-          event_register("plotly_selected")
+          plotly::event_register("plotly_selected")
       })
       
       # ----- Reactive 3D reduction graph -----
@@ -331,12 +317,12 @@ app_server <- function( input, output, session ) {
       # ----- render clustering plots -----
       output$output_2dplot_1 <- plotly::renderPlotly({ reduc_plot() })
       output$output_3dplot_1 <- plotly::renderPlotly({ reduc_plot_3d() })
-      
+
       # ----- datatable of metadata for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$cluster_pg_selected <- DT::renderDT(server = FALSE, {
         #currently returns every column of metadata dataframe. May want to select specific columns in the future
-        selected_metadata_df <- myso[[]][event_data("plotly_selected", source = "A")$customdata, ]
+        selected_metadata_df <- myso[[]][plotly::event_data("plotly_selected", source = "A")$customdata, ]
         cluster_dt <- DT::datatable(selected_metadata_df, 
                                     rownames = TRUE,
                                     selection = "none", #make it so no rows can be selected (bc we currently have no need to select rows)
@@ -436,7 +422,7 @@ app_server <- function( input, output, session ) {
               yaxis = list(title = cell_col[2]),
               dragmode = "select") %>% #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
         
-            event_register("plotly_selected")
+            plotly::event_register("plotly_selected")
           })
       
       
@@ -465,7 +451,7 @@ app_server <- function( input, output, session ) {
         # num_cells_expressing_subset <- num_cells_expressing
         
         # # get num of cells selected by user
-        # selected_cell_barcodes <- event_data("plotly_selected", source = "expression_1d_plot")$customdata
+        # selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "expression_1d_plot")$customdata
         # if (!is.null(selected_cell_barcodes)) {
         #   count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
         #   num_cells_selected <- nrow(count_data_subset)
@@ -475,7 +461,7 @@ app_server <- function( input, output, session ) {
         #     nrow()
         # }
         
-        #num_cells_selected <- nrow(event_data("plotly_selected", source = "expression_1d_plot")$customdata)
+        #num_cells_selected <- nrow(plotly::event_data("plotly_selected", source = "expression_1d_plot")$customdata)
         
         # get total num of cells in sample
         num_cells_total <- nrow(count_data)
@@ -624,7 +610,7 @@ app_server <- function( input, output, session ) {
               yaxis = list(title = cell_col[2]),
               dragmode = "select") %>% #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
             
-            event_register("plotly_selected")
+            plotly::event_register("plotly_selected")
       })
       
       
@@ -796,12 +782,14 @@ app_server <- function( input, output, session ) {
                           color = I("black"),
                           alpha = 0.6) 
           }
+          
+          
           else {
             selected_cell_barcodes <- NULL
             count_data_subset <- NULL
             
             if (last_buttons_clicked$last == "gate_button" & is.null(input$gating_pg_table_rows_selected)) {
-              selected_cell_barcodes <- event_data("plotly_selected", source = "C")$customdata
+              selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "C")$customdata
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
             }
             else if (!is.null(input$gating_pg_table_rows_selected)) {
@@ -835,7 +823,7 @@ app_server <- function( input, output, session ) {
               showlegend = FALSE,
               dragmode = "select") %>% #Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
             
-            event_register("plotly_selected")
+            plotly::event_register("plotly_selected")
         })
       
       # ----- reactive gating 2D reduction graph -----
@@ -864,7 +852,7 @@ app_server <- function( input, output, session ) {
           selected_cells <- GetData(gate_list()[[selected_gate()]], "subset_cells")[[1]]
         }
         else {
-          selected_cells <- event_data("plotly_selected", source = "C")$customdata
+          selected_cells <- plotly::event_data("plotly_selected", source = "C")$customdata
         }
         
         if (is.null(selected_cells)) {
@@ -918,8 +906,8 @@ app_server <- function( input, output, session ) {
         count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature, input$y_feature), slot = "data")
         
         # get plotly event data
-        sel <- event_data("plotly_selected", source = "C")
-        brushed_coords <- event_data("plotly_brushed", source = "C")
+        sel <- plotly::event_data("plotly_selected", source = "C")
+        brushed_coords <- plotly::event_data("plotly_brushed", source = "C")
 
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive() + 1)
@@ -1104,7 +1092,7 @@ app_server <- function( input, output, session ) {
           input$x_feature_bg,
           input$y_feature_bg,
           input$gating_pg_table_bg_rows_selected,
-          event_data("plotly_selected", source = "D")
+          plotly::event_data("plotly_selected", source = "D")
         ), 
         {
           #code to execute when one of the above input events occurs
@@ -1120,7 +1108,7 @@ app_server <- function( input, output, session ) {
           selected_cell_barcodes <- NULL
           
           if (is.null(input$gating_pg_table_bg_rows_selected)) {
-            selected_cell_barcodes <- event_data("plotly_selected", source = "D")$customdata
+            selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "D")$customdata
           }
           else {
             selected_cell_barcodes <- GetData(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
@@ -1189,7 +1177,7 @@ app_server <- function( input, output, session ) {
                  xaxis = list(title = cell_col[1]),
                  yaxis = list(title = cell_col[2]),
                  dragmode = "select") %>%
-          event_register("plotly_selected")
+          plotly::event_register("plotly_selected")
       })
       
       
@@ -1218,8 +1206,8 @@ app_server <- function( input, output, session ) {
         count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
         
         # get plotly event data
-        sel <- event_data("plotly_selected", source = "D")
-        brushed_coords <- event_data("plotly_brushed", source = "D")
+        sel <- plotly::event_data("plotly_selected", source = "D")
+        brushed_coords <- plotly::event_data("plotly_brushed", source = "D")
 
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive_bg() + 1)
