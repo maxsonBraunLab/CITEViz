@@ -14,6 +14,7 @@ We recommend installing CITE-Viz through the RStudio IDE using the following com
 
 ```R
 devtools::install_github("maxsonBraunLab/CITE-Viz")
+library(CITEViz)
 run_app()
 ```
 
