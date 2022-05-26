@@ -20,7 +20,7 @@
 #' @export
 #'
 #' @examples
-setClass("Gate", slots = list(
+methods::setClass("Gate", slots = list(
     counter = "integer", #to keep track of gate number in the case of multiple gating steps
     assay_name = "character", #to keep track of which assay (RNA, ADT, etc) the gate data is coming from
     
@@ -65,6 +65,8 @@ setClass("Gate", slots = list(
 #' @param pct_subset_from_previous numeric. percentage of cells selected from cells plotted
 #' @param pct_subset_from_total numeric. percentage of cells selected from cells in Seurat object
 #'
+#' @importFrom methods new
+#'
 #' @return Gate class object
 #' @export
 #'
@@ -73,7 +75,7 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
                    subset_cells = list(), subset_coords = data.frame(), x_axis = NA_character_, y_axis = NA_character_,
                    gate_coords = list(), name_subset_cells = NA_character_, num_input_cells = NA_integer_, num_subset_cells = NA_integer_,
                    total_num_cells_in_sample = NA_integer_, pct_subset_from_previous = NA_real_, pct_subset_from_total = NA_real_) {
-    new("Gate", 
+  methods::new("Gate", 
         counter=counter, 
         assay_name = assay_name, 
         input_cells = input_cells, 
@@ -95,13 +97,15 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
 #'
 #' @param gate_obj a single Gate class object
 #' @param slot_name name of slot to draw data from
-#'
+#' 
+#' @importFrom methods slot
+#' 
 #' @return data from slot in gate object
 #' @export
 #'
 #' @examples
 GetData <- function(gate_obj, slot_name) {
-  return(slot(gate_obj, slot_name))
+  return(methods::slot(gate_obj, slot_name))
 }
 
 #' Set Cell Subset Name
@@ -109,11 +113,13 @@ GetData <- function(gate_obj, slot_name) {
 #' @param gate_obj a single Gate class object
 #' @param new_name character. New name of cell subset
 #'
+#' @importFrom methods slot
+#'
 #' @return Gate object with new name of subset cells in name_subset_cells slot
 #' @export
 #'
 #' @examples
 SetSubsetName <- function(gate_obj, new_name) {
-  slot(gate_obj, "name_subset_cells") <- new_name
+  methods::slot(gate_obj, "name_subset_cells") <- new_name
   return(gate_obj)
 }
