@@ -7,12 +7,14 @@
 #' 
 #' @param num_colors number of colors
 #'
+#' @importFrom grDevices colorRampPalette
+#'
 #' @return a color palette
 #' @export
 #'
 #' @examples
 get_palette <- function(num_colors = integer(3)) {
-    base_palette <- colorRampPalette(colors = c("turquoise3",
+    base_palette <- grDevices::colorRampPalette(colors = c("turquoise3",
                                                 "darkgreen",
                                                 "red",
                                                 "royalblue1",
