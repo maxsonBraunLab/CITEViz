@@ -51,6 +51,8 @@ get_color_matrix_df <- function(ngrid = 16) {
 #' @param input Shiny reactiveValues object containing user inputs
 #' @param myso a Seurat object
 #'
+#'
+#' @import magrittr
 #' @importFrom ggplot2 aes ggplot geom_tile labs scale_x_continuous scale_y_continuous
 #' 
 #' @return legend for app coexpression plot

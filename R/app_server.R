@@ -5,6 +5,7 @@
 #' 
 #' @import shiny
 #' @import ggplot2
+#' @import magrittr
 #'  
 #' @importFrom dplyr filter last left_join
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly

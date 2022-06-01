@@ -2,6 +2,8 @@
 #'
 #' @param temp_reactive_gating_df reactive gating dataframe to use as contents
 #'
+#' @import magrittr
+#' 
 #' @return an interactive data table
 #' @export
 #'
