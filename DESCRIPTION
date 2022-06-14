@@ -8,7 +8,7 @@ Authors@R: c(
     person('Anjali', 'Panikar', email = 'anjalip@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-5740-807X')),
     person('John', 'Cheney', email = 'jcheney7@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0001-6194-2745'))
     )
-Description: Reproduce flow cytometry workflow using CITE-Seq
+Description: CITEViz is a shiny app that allows for custom gating of CITE-seq antibody-derived tag data reproducing the flow cytometry workflow
 License: MIT + file LICENSE
 Imports: 
     attempt,
@@ -43,3 +43,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Language: en-US
+biocViews: SingleCell, ShinyApps
