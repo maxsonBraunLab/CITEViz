@@ -7,7 +7,7 @@
 create_2d_color_legend(input, myso)
 }
 \arguments{
-\item{input}{Shiny reactiveValues object containing user inputs}
+\item{input}{Shiny internal parameter object containing UI user input values}
 
 \item{myso}{a Seurat object}
 }
@@ -16,4 +16,10 @@ legend for app coexpression plot
 }
 \description{
 Create 2D color legend plot for gene/ADT coexpression
+}
+\examples{
+\dontrun{
+seurat_object <- readRDS("path/to/RDSfile/containing/Seurat/object")
+create_2d_color_legend(input, seurat_object)
+}
 }

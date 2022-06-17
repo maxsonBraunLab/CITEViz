@@ -7,11 +7,14 @@
 get_color_matrix_df(ngrid = 16)
 }
 \arguments{
-\item{ngrid}{integer changing resolution of color grid}
+\item{ngrid}{integer setting the resolution (dimensions) of color grid (e.g., ngrid = 16 sets a 16x16 color grid). Default is ngrid=16.}
 }
 \value{
 dataframe for use in coexpression legend
 }
 \description{
 Create 2D color dataframe for gene/ADT coexpression
+}
+\examples{
+get_color_matrix_df(10)
 }

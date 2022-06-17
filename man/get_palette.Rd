@@ -4,17 +4,25 @@
 \alias{get_palette}
 \title{Custom color palette with color interpolation to use for QA plots}
 \usage{
-get_palette(num_colors = integer(3))
+get_palette(num_colors = 3)
 }
 \arguments{
 \item{num_colors}{number of colors}
 }
 \value{
-a color palette
+A color palette in the form of a character vector of hex color codes.
 }
 \description{
 create custom color palette with color interpolation to use for QA plots
 interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-takes in an integer argument for number of colors to generate in palette
+takes in an integer argument for number of colors to generate in palette (default is 3)
 returns a character vector of color hex codes for the desired number of colors
+}
+\examples{
+# passing an integer directly into function
+get_palette(8)
+
+# passing a variable holding an integer value into function
+number_of_colors <- 10
+get_palette(number_of_colors)
 }
