@@ -6,7 +6,11 @@ Authors@R: c(
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
     person('Wesley', 'Rosales', email = 'wrosales@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-6381-9844')),
     person('Anjali', 'Panikar', email = 'anjalip@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-5740-807X')),
-    person('John', 'Cheney', email = 'jcheney7@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0001-6194-2745'))
+    person('John', 'Cheney', email = 'jcheney7@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0001-6194-2745')),
+    person('Sarah', 'Carratt', email = 'carratt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0003-2493-6789')),
+    person('Brittany', 'Curtiss', email = 'curtisbr@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-5274-8323')),
+    person('Theodore', 'Braun', email = 'braunt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-6248-2143')),
+    person('Julia', 'Maxson', email = 'maxsonj@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-3871-7221'))
     )
 Description: CITEViz is a shiny app that allows for custom gating of CITE-seq antibody-derived tag data reproducing the flow cytometry workflow
 License: MIT + file LICENSE
