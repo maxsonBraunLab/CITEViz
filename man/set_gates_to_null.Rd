@@ -17,3 +17,14 @@ empty reactiveValues list of Gate objects
 \description{
 Reset all values in gate_reactive_values to NULL
 }
+\examples{
+
+\dontrun{
+   # Suppose reactive_list_of_gates has two gates: "gate1" and "gate2"
+   reactive_list_of_gates <- set_gates_to_null("gate1", reactive_list_of_gates)
+   reactive_list_of_gates <- set_gates_to_null("gate2", reactive_list_of_gates)
+   
+   # reactive_list_of_gates is now empty
+}
+
+}

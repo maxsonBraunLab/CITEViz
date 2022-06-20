@@ -12,3 +12,9 @@ Empty gate dataframe for app purposes
 \description{
 Create gating dataframe
 }
+\examples{
+
+# Takes no arguments
+example_df <- create_gating_df()
+
+}

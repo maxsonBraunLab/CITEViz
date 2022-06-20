@@ -35,3 +35,20 @@ a Gate object
 \description{
 #create gate objects from user input selections
 }
+\examples{
+
+\dontrun{
+   
+   # The app uses the following to create a gate from user input
+   
+   gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(input = input, # input is a shiny internal object that records user inputs
+                                                                            is_forward_gating = TRUE, 
+                                                                            assay_count_data = count_data, # specific assay count data 
+                                                                            gate_counter = counter, # what number gate this is
+                                                                            reactive_gate_list = gate_list(), 
+                                                                            reactive_selected_gate = selected_gate(),
+                                                                            reactive_last_buttons_clicked = last_buttons_clicked
+                                                                            )
+}
+
+}

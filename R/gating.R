@@ -12,6 +12,21 @@
 #' @export
 #'
 #' @examples
+#' 
+#' \dontrun{
+#'    
+#'    # The app uses the following to create a gate from user input
+#'    
+#'    gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(input = input, # input is a shiny internal object that records user inputs
+#'                                                                             is_forward_gating = TRUE, 
+#'                                                                             assay_count_data = count_data, # specific assay count data 
+#'                                                                             gate_counter = counter, # what number gate this is
+#'                                                                             reactive_gate_list = gate_list(), 
+#'                                                                             reactive_selected_gate = selected_gate(),
+#'                                                                             reactive_last_buttons_clicked = last_buttons_clicked
+#'                                                                             )
+#' }
+#' 
 create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_data, gate_counter, reactive_gate_list, reactive_selected_gate, reactive_last_buttons_clicked) {
     # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for forward and backgating
     # So for forward-gating, an example of an input from a UI element would be input$Assay. The corresponding input in the backgating page would be input$Assay_bg. the suffix for the backgating UI elements is "_bg"
@@ -100,6 +115,15 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
 #' @export
 #'
 #' @examples
+#' 
+#' \dontrun{
+#'     # reactiveValues() is a shiny reactiveValues object
+#'     gate_reactive_values <- reactiveValues()
+#'     gate_list <- get_reactive_gate_list(gate_reactive_values)
+#'     
+#'     # gate_list is now in a form that can be used by the app
+#' }
+#' 
 get_reactive_gate_list <- function(gating_reactiveValues) {
     reactive_gate_list <- reactive({
       unordered_list <- reactiveValuesToList(gating_reactiveValues)
@@ -115,6 +139,10 @@ get_reactive_gate_list <- function(gating_reactiveValues) {
 #' @export
 #' 
 #' @examples
+#' 
+#' # Takes no arguments
+#' example_df <- create_gating_df()
+#' 
 create_gating_df <- function() {
     data.frame(
       Gate_ID = character(),
@@ -150,6 +178,51 @@ create_gating_df <- function() {
 #' @export
 #'
 #' @examples
+#' 
+#' # create an empty gating data frame using create_gating_df()
+#' example_df <- create_gating_df()
+#' 
+#' # create Gate object
+#' example_gate1 <- Gate(counter = as.integer(1), 
+#'                    assay_name = "example1", 
+#'                    input_cells = list(c("a", "b", "c")),
+#'                    input_coords =  data.frame(x=c(1,2,3),y=c(4,5,6)),
+#'                    subset_cells = list(c("a","b")), 
+#'                    subset_coords = data.frame(x=c(1,2),y=c(4,5)), 
+#'                    x_axis = "ADT-A", 
+#'                    y_axis = "ADT-B", 
+#'                    gate_coords = list(x=c(1,2,3,4),y=c(5,6,7,8)), 
+#'                    name_subset_cells = "example_cells_A", 
+#'                    num_input_cells = as.integer(1000), 
+#'                    num_subset_cells = as.integer(500), 
+#'                    total_num_cells_in_sample = as.integer(1000),
+#'                    pct_subset_from_previous = 50, 
+#'                    pct_subset_from_total = 50)
+#' 
+#' # update_gating_df() requires a list of gate objects to choose from 
+#' 
+#' example_gate2 <- Gate(counter = as.integer(2), 
+#'                    assay_name = "example2", 
+#'                    input_cells = list(c("a", "b")),
+#'                    input_coords =  data.frame(x=c(1,2),y=c(4,5)),
+#'                    subset_cells = list(c("a")), 
+#'                    subset_coords = data.frame(x=c(1),y=c(4)), 
+#'                    x_axis = "ADT-C", 
+#'                    y_axis = "ADT-D", 
+#'                    gate_coords = list(x=c(10,20,30,40),y=c(50,60,70,80)), 
+#'                    name_subset_cells = "example_cells_B", 
+#'                    num_input_cells = as.integer(500), 
+#'                    num_subset_cells = as.integer(100), 
+#'                    total_num_cells_in_sample = as.integer(1000),
+#'                    pct_subset_from_previous = 20, 
+#'                    pct_subset_from_total = 10)
+#' 
+#' example_gate_list <- list("gate1" = example_gate1, "gate2" = example_gate2)
+#' 
+#' # Inputs contents of Gate object into empty gating dataframe
+#' example_df <- update_gating_df(gate_name_string = "gate1", reactive_gate_list = example_gate_list, temp_gating_df = example_df)
+#' example_df <- update_gating_df(gate_name_string = "gate2", reactive_gate_list = example_gate_list, temp_gating_df = example_df)
+#' 
 update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_df) {
     gate_obj <- reactive_gate_list[[gate_name_string]]
     if (!is.null(gate_obj)) {
@@ -189,6 +262,15 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
 #' @export
 #'
 #' @examples
+#' 
+#' \dontrun{
+#'    # Suppose reactive_list_of_gates has two gates: "gate1" and "gate2"
+#'    reactive_list_of_gates <- set_gates_to_null("gate1", reactive_list_of_gates)
+#'    reactive_list_of_gates <- set_gates_to_null("gate2", reactive_list_of_gates)
+#'    
+#'    # reactive_list_of_gates is now empty
+#' }
+#' 
 set_gates_to_null <- function(gate_name_string, local_gate_reactive_values) {
     local_gate_reactive_values[[gate_name_string]] <- NULL
     return(local_gate_reactive_values[[gate_name_string]])

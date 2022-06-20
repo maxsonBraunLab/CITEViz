@@ -39,3 +39,8 @@ See `?golem::get_golem_options` for more details.}
 \description{
 Run the Shiny Application
 }
+\examples{
+
+run_app()
+
+}

@@ -15,3 +15,14 @@ reactive gate list for app purposes
 \description{
 Convert Shiny reactiveValues object to reactive gate list
 }
+\examples{
+
+\dontrun{
+    # reactiveValues() is a shiny reactiveValues object
+    gate_reactive_values <- reactiveValues()
+    gate_list <- get_reactive_gate_list(gate_reactive_values)
+    
+    # gate_list is now in a form that can be used by the app
+}
+
+}

@@ -44,3 +44,8 @@ Gate class for gate objects
 \item{\code{pct_subset_from_total}}{numeric.}
 }}
 
+\examples{
+
+# See examples of Gate function
+
+}
