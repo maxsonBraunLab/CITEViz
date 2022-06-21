@@ -2,9 +2,9 @@ Package: CITEViz
 Title: CITE-Viz
 Version: 0.99.0
 Authors@R: c(
-    person('Garth', 'Kong', email = 'kongg@ohsu.edu', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
+    person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
-    person('Wesley', 'Rosales', email = 'wrosales@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-6381-9844')),
+    person('Wesley', 'Rosales', email = 'wesleykrosales@gmail.com', role = 'aut', comment = c(ORCID = '0000-0002-6381-9844')),
     person('Anjali', 'Panikar', email = 'anjalip@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-5740-807X')),
     person('John', 'Cheney', email = 'jcheney7@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0001-6194-2745')),
     person('Sarah', 'Carratt', email = 'carratt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0003-2493-6789')),

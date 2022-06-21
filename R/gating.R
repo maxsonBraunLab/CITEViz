@@ -9,23 +9,7 @@
 #' @param reactive_last_buttons_clicked Reactive list object tracking the last two buttons clicked of three possibilities: "gate_button","reset_button","clear_all_gates_button"
 #'
 #' @return a Gate object
-#' @export
-#'
-#' @examples
-#' 
-#' \dontrun{
-#'    
-#'    # The app uses the following to create a gate from user input
-#'    
-#'    gate_reactive_values[[paste0("gate_", counter)]] <- create_gate_from_input(input = input, # input is a shiny internal object that records user inputs
-#'                                                                             is_forward_gating = TRUE, 
-#'                                                                             assay_count_data = count_data, # specific assay count data 
-#'                                                                             gate_counter = counter, # what number gate this is
-#'                                                                             reactive_gate_list = gate_list(), 
-#'                                                                             reactive_selected_gate = selected_gate(),
-#'                                                                             reactive_last_buttons_clicked = last_buttons_clicked
-#'                                                                             )
-#' }
+#' @noRd
 #' 
 create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_data, gate_counter, reactive_gate_list, reactive_selected_gate, reactive_last_buttons_clicked) {
     # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for forward and backgating
@@ -114,15 +98,7 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
 #' @return reactive gate list for app purposes
 #' @export
 #'
-#' @examples
-#' 
-#' \dontrun{
-#'     # reactiveValues() is a shiny reactiveValues object
-#'     gate_reactive_values <- reactiveValues()
-#'     gate_list <- get_reactive_gate_list(gate_reactive_values)
-#'     
-#'     # gate_list is now in a form that can be used by the app
-#' }
+#' @noRd
 #' 
 get_reactive_gate_list <- function(gating_reactiveValues) {
     reactive_gate_list <- reactive({
@@ -259,17 +235,7 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
 #' @param local_gate_reactive_values Shiny reactiveValues
 #'
 #' @return empty reactiveValues list of Gate objects
-#' @export
-#'
-#' @examples
-#' 
-#' \dontrun{
-#'    # Suppose reactive_list_of_gates has two gates: "gate1" and "gate2"
-#'    reactive_list_of_gates <- set_gates_to_null("gate1", reactive_list_of_gates)
-#'    reactive_list_of_gates <- set_gates_to_null("gate2", reactive_list_of_gates)
-#'    
-#'    # reactive_list_of_gates is now empty
-#' }
+#' @noRd
 #' 
 set_gates_to_null <- function(gate_name_string, local_gate_reactive_values) {
     local_gate_reactive_values[[gate_name_string]] <- NULL
