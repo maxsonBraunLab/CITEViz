@@ -1,5 +1,5 @@
 Package: CITEViz
-Title: CITE-Viz
+Title: CITEViz
 Version: 0.99.0
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
@@ -12,7 +12,7 @@ Authors@R: c(
     person('Theodore', 'Braun', email = 'braunt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-6248-2143')),
     person('Julia', 'Maxson', email = 'maxsonj@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-3871-7221'))
     )
-Description: CITEViz is a shiny app that allows for custom gating of CITE-seq antibody-derived tag data reproducing the flow cytometry workflow
+Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
 License: MIT + file LICENSE
 Imports: 
     attempt,
@@ -49,4 +49,4 @@ Suggests:
 Config/testthat/edition: 3
 Language: en-US
 VignetteBuilder: knitr
-biocViews: SingleCell, ShinyApps, FlowCytometry
+biocViews: SingleCell, ShinyApps, FlowCytometry, QualityControl, GeneExpression
