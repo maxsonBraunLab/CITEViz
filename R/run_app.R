@@ -8,6 +8,7 @@
 #' @importFrom shiny shinyApp
 #' @importFrom golem with_golem_options 
 #' 
+#' @return Initialization of CITEViz app
 #' @examples
 #' 
 #' run_app()

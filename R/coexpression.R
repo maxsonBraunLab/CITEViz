@@ -67,13 +67,7 @@ get_color_matrix_df <- function(ngrid = 16) {
 #' @importFrom ggplot2 aes ggplot geom_tile labs scale_x_continuous scale_y_continuous
 #' 
 #' @return legend for app coexpression plot
-#' @export
-#'
-#' @examples 
-#' \dontrun{
-#' seurat_object <- readRDS("path/to/RDSfile/containing/Seurat/object")
-#' create_2d_color_legend(input, seurat_object)
-#' }
+#' @noRd
 create_2d_color_legend <- function(input, myso) {
   #require these UI input items to render before trying to get data from them for plotting, so that errors don't get thrown
   shiny::req(input$rds_input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
