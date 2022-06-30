@@ -449,21 +449,6 @@ app_server <- function( input, output, session ) {
           dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
           nrow()
         
-        # num_cells_expressing_subset <- num_cells_expressing
-        
-        # # get num of cells selected by user
-        # selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "expression_1d_plot")$customdata
-        # if (!is.null(selected_cell_barcodes)) {
-        #   count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
-        #   num_cells_selected <- nrow(count_data_subset)
-        #   # get number of cells expressing a feature (ADT, gene, etc)
-        #   num_cells_expressing_subset <- data.frame(count_data_subset) %>%
-        #     dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
-        #     nrow()
-        # }
-        
-        #num_cells_selected <- nrow(plotly::event_data("plotly_selected", source = "expression_1d_plot")$customdata)
-        
         # get total num of cells in sample
         num_cells_total <- nrow(count_data)
         
