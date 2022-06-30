@@ -354,7 +354,7 @@ app_server <- function( input, output, session ) {
         selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       
-      output$Assay_1d = renderUI({
+      output$Assay_1d <- renderUI({
         selectInput(inputId = "Assay_1d",
                     label = "Choose assay to color reduction plot by:",
                     choices = sort(SeuratObject::Assays(object = myso)),
@@ -362,7 +362,7 @@ app_server <- function( input, output, session ) {
         )
       })
       
-      output$feature_1d = renderUI({
+      output$feature_1d <- renderUI({
         req(input$Assay_1d)
         feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_1d, '")')
         selectInput(inputId = "feature_1d",
@@ -507,7 +507,7 @@ app_server <- function( input, output, session ) {
         selected = dplyr::last(sort(SeuratObject::Reductions(myso)))
       )
       
-      output$Assay_x_axis = renderUI({
+      output$Assay_x_axis <- renderUI({
         selectInput(inputId = "Assay_x_axis",
                     label = "Choose assay for x-axis colorscale:",
                     choices = sort(SeuratObject::Assays(object = myso)),
@@ -515,7 +515,7 @@ app_server <- function( input, output, session ) {
         )
       })
       
-      output$Assay_y_axis = renderUI({
+      output$Assay_y_axis <- renderUI({
         selectInput(inputId = "Assay_y_axis",
                     label = "Choose assay for y-axis colorscale:",
                     choices = sort(SeuratObject::Assays(object = myso)),
@@ -523,7 +523,7 @@ app_server <- function( input, output, session ) {
         )
       })
 
-      output$x_axis_feature = renderUI({
+      output$x_axis_feature <- renderUI({
         req(input$Assay_x_axis)
         feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_x_axis, '")')
         selectInput(inputId = "x_axis_feature",
@@ -533,7 +533,7 @@ app_server <- function( input, output, session ) {
         )
       })
       
-      output$y_axis_feature = renderUI({
+      output$y_axis_feature <- renderUI({
         req(input$Assay_y_axis)
         feature_path <- paste0('SeuratObject::GetAssayData(object = myso, slot = "data", assay = "', input$Assay_y_axis, '")')
         selectInput(inputId = "y_axis_feature",
