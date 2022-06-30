@@ -15,7 +15,6 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
     # "ui_input_suffix" refers to the suffix that is at the end of the UI input elements for forward and backgating
     # So for forward-gating, an example of an input from a UI element would be input$Assay. The corresponding input in the backgating page would be input$Assay_bg. the suffix for the backgating UI elements is "_bg"
     ui_input_suffix <- ""
-    
     sel <- NA_character_
     brushed_coords <- NA_character_
     input_cells <- list()
@@ -26,7 +25,6 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
       # get plotly event data
       sel <- event_data("plotly_selected", source = "C")
       brushed_coords <- event_data("plotly_brushed", source = "C")
-
       # Check for Gate object. If one does not exists, create initial input for first gate.
       if (length(reactive_gate_list) == 0 | reactive_last_buttons_clicked$second_to_last == "reset_button" | reactive_last_buttons_clicked$second_to_last == "clear_all_gates_button") {
         input_cells <- list(rownames(assay_count_data))
@@ -49,44 +47,35 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
     # back-gating logic
     else {
       ui_input_suffix <- "_bg"
-
       # get plotly event data and input cell data
       sel <- event_data("plotly_selected", source = "D")
       brushed_coords <- event_data("plotly_brushed", source = "D")
       input_cells <- list(rownames(assay_count_data))
       input_coords <- data.frame(x = assay_count_data[,1], y = assay_count_data[,2])
     }
-
-    #assign values to variables
-    assay_name <- input[[paste0("Assay", ui_input_suffix)]]
+    #assign values to variables that will be referenced multiple times in Gate object creation
     subset_cells <- list(sel$customdata)
-    subset_coords <- data.frame(x = assay_count_data[sel$customdata,1], y = assay_count_data[sel$customdata,2])
-    x_axis <- input[[paste0("x_feature", ui_input_suffix)]]
-    y_axis <- input[[paste0("y_feature", ui_input_suffix)]]
-    gate_coords <- list(x = c(brushed_coords$x), y = c(brushed_coords$y))
-    name_subset_cells <- input[[paste0("cell_subset_name", ui_input_suffix)]]
     num_input_cells <- length(unlist(input_cells))
     num_subset_cells <- length(unlist(subset_cells))
     total_num_cells_in_sample <- length(rownames(assay_count_data))
-    pct_subset_from_previous <- 100 * num_subset_cells / num_input_cells
-    pct_subset_from_total <- 100 * num_subset_cells / total_num_cells_in_sample
 
     # construct Gate object
     gate_obj <- Gate(counter = gate_counter,
-                    assay_name = assay_name,
+                    assay_name = input[[paste0("Assay", ui_input_suffix)]],
                     input_cells = input_cells,
                     input_coords = input_coords,
                     subset_cells = subset_cells,
-                    subset_coords = subset_coords,
-                    x_axis = x_axis,
-                    y_axis = y_axis,
-                    gate_coords = gate_coords,
-                    name_subset_cells = name_subset_cells,
+                    subset_coords = data.frame(x = assay_count_data[sel$customdata,1], 
+                                               y = assay_count_data[sel$customdata,2]),
+                    x_axis = input[[paste0("x_feature", ui_input_suffix)]],
+                    y_axis = input[[paste0("y_feature", ui_input_suffix)]],
+                    gate_coords = list(x = c(brushed_coords$x), y = c(brushed_coords$y)),
+                    name_subset_cells = input[[paste0("cell_subset_name", ui_input_suffix)]],
                     num_input_cells = num_input_cells,
                     num_subset_cells = num_subset_cells,
                     total_num_cells_in_sample = total_num_cells_in_sample,
-                    pct_subset_from_previous = pct_subset_from_previous,
-                    pct_subset_from_total = pct_subset_from_total)
+                    pct_subset_from_previous = 100 * num_subset_cells / num_input_cells,
+                    pct_subset_from_total = 100 * num_subset_cells / total_num_cells_in_sample)
     return(gate_obj)
   }
   
