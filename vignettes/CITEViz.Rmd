@@ -1,6 +1,9 @@
 ---
 title: "CITEViz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq"
-author: 
+author:
+  - name: Garth Kong
+    affiliation:
+      "Knight Cancer Institute, Oregon Health and Science University"
   - name: Thai Nguyen
     affiliation:
       "Bioinformatics and Genomics Masters Program, University of Oregon"
@@ -13,9 +16,6 @@ author:
   - name: John Cheney
     affiliation:
       "Bioinformatics and Genomics Masters Program, University of Oregon"
-  - name: Garth Kong
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
   - name: Brittany Curtiss
     affiliation:
       "Knight Cancer Institute, Oregon Health and Science University"
