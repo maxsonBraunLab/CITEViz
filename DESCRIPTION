@@ -12,7 +12,7 @@ Authors@R: c(
     person('Theodore', 'Braun', email = 'braunt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-6248-2143')),
     person('Julia', 'Maxson', email = 'maxsonj@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-3871-7221'))
     )
-Description: Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
+Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
 License: MIT
 Imports: 
     bslib,
