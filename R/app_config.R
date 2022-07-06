@@ -9,7 +9,7 @@
 #'
 #' @noRd
 app_sys <- function(...) {
-  system.file(..., package = "CITEViz")
+    system.file(..., package = "CITEViz")
 }
 
 
@@ -21,22 +21,20 @@ app_sys <- function(...) {
 #' @param use_parent Logical, scan the parent directory for config file.
 #'
 #' @noRd
-get_golem_config <- function (
-  value,
-  config = Sys.getenv(
-    "GOLEM_CONFIG_ACTIVE",
-    Sys.getenv(
-      "R_CONFIG_ACTIVE",
-      "default"
+get_golem_config <- function(value,
+    config = Sys.getenv(
+        "GOLEM_CONFIG_ACTIVE",
+        Sys.getenv(
+            "R_CONFIG_ACTIVE",
+            "default"
+        )
+    ),
+    use_parent = TRUE) {
+    config::get(
+        value = value,
+        config = config,
+        # Modify this if your config file is somewhere else:
+        file = app_sys("golem-config.yml"),
+        use_parent = use_parent
     )
-  ),
-  use_parent = TRUE
-) {
-  config::get(
-    value = value,
-    config = config,
-    # Modify this if your config file is somewhere else:
-    file = app_sys("golem-config.yml"),
-    use_parent = use_parent
-  )
 }
