@@ -14,20 +14,20 @@
 #' run_app()
 #' 
 run_app <- function(
-  onStart = NULL,
+  on_start = NULL,
   options = list(), 
-  enableBookmarking = NULL,
-  uiPattern = "/",
+  enable_bookmarking = NULL,
+  ui_pattern = "/",
   ...
 ) {
   with_golem_options(
     app = shinyApp(
       ui = app_ui,
       server = app_server,
-      onStart = onStart,
+      on_start = on_start,
       options = options, 
-      enableBookmarking = enableBookmarking, 
-      uiPattern = uiPattern
+      enable_bookmarking = enable_bookmarking, 
+      ui_pattern = ui_pattern
     ), 
     golem_opts = list(...)
   )

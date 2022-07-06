@@ -142,9 +142,9 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
 #'                    pct_subset_from_total = 50)
 #'                    
 #' # Retrieve coordinates of gate
-#' GetData(example_gate, "gate_coords")
+#' get_data(example_gate, "gate_coords")
 #'
-GetData <- function(gate_obj, slot_name) {
+get_data <- function(gate_obj, slot_name) {
   return(methods::slot(gate_obj, slot_name))
 }
 
@@ -178,8 +178,8 @@ GetData <- function(gate_obj, slot_name) {
 #'                    pct_subset_from_total = 50)
 #'                    
 #' # Change cell subset name name from "example_cells_A" to "custom_name"
-#' example_gate <- SetSubsetName(example_gate, "custom_name")
-SetSubsetName <- function(gate_obj, new_name) {
+#' example_gate <- set_subset_name(example_gate, "custom_name")
+set_subset_name <- function(gate_obj, new_name) {
   methods::slot(gate_obj, "name_subset_cells") <- new_name
   return(gate_obj)
 }

@@ -24,8 +24,8 @@
 #' color_matrix_df$red_values <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[1], color10[1], color01[1], color11[1])
 #' color_matrix_df$green_values <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[2], color10[2], color01[2], color11[2])
 #' color_matrix_df$blue_values <- get_bilinear_val(color_matrix_df$x_value, color_matrix_df$y_value, ngrid, color00[3], color10[3], color01[3], color11[3])
-get_bilinear_val <- function(x,y,ngrid,quad11,quad21,quad12,quad22){
-  temp_val <- quad11*(ngrid-x)*(ngrid-y) + quad21*x*(ngrid-y) + quad12*(ngrid-x)*y + quad22*x*y
+get_bilinear_val <- function(x, y, ngrid, quad11, quad21, quad12, quad22) 
+{ temp_val <- quad11 * (ngrid - x) * (ngrid - y) + quad21 * x * (ngrid - y) + quad12 * (ngrid - x) * y + quad22 * x * y
   bilinear_val <- temp_val / (ngrid*ngrid)
   return(bilinear_val)
 }
@@ -89,9 +89,12 @@ create_2d_color_legend <- function(input, myso) {
   ngrid <- 16
   color_matrix_df <- get_color_matrix_df(ngrid)
   
+  x <- quote(x_value)
+  y <- quote(y_value)
+  
   #show plot of 2D color legend
   color_matrix_df %>%
-    ggplot2::ggplot(aes(x = x_value, y = y_value)) + 
+    ggplot2::ggplot(aes(x = !!x, y = !!y)) + 
     ggplot2::geom_tile(fill = color_matrix_df$hex_color_mix) +
     ggplot2::labs(x = input$x_axis_feature, y = input$y_axis_feature) +
     ggplot2::scale_x_continuous(breaks = c(0, ngrid), 

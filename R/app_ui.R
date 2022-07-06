@@ -129,7 +129,7 @@ app_ui <- function(request) {
                # tags$blockquote("Garth L. Kong, Thai T. Nguyen, Wesley K. Rosales, Anjali D. Panikar, John H. W. Cheney, Brittany M. Curtiss, Sarah A. Carratt, Theodore P. Braun, Julia E. Maxson. CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq.", style = "font-family: monospace;"),
                
                h5(strong("Acknowledgements")), 
-               p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
+               p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a("end cancer as we know it.", href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
                p("Furthermore, the development team would like to thank faculty and advisors of the Bioinformatics and Genomics Masters Program at the University of Oregon, expressly, Dr. Leslie Coonrod, Dr. Stacey Wagner, Pete Batzel and Jason Sydes for their extensive time spent providing countless resources and much-appreciated wisdom in all things bioinformatics."),
                br(),
                br(), 
@@ -494,17 +494,17 @@ app_ui <- function(request) {
 #' 
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
-golem_add_external_resources <- function(){
+golem_add_external_resources <- function( )
   
-  add_resource_path(
-    'www', app_sys('app/www')
+ { add_resource_path(
+    "www", app_sys("app/www")
   )
  
   tags$head(
     favicon(),
     bundle_resources(
-      path = app_sys('app/www'),
-      app_title = 'CITEViz'
+      path = app_sys("app/www"),
+      app_title = "CITEViz"
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert() 

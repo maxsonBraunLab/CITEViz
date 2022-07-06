@@ -26,32 +26,30 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
       sel <- event_data("plotly_selected", source = "C")
       brushed_coords <- event_data("plotly_brushed", source = "C")
       # Check for Gate object. If one does not exists, create initial input for first gate.
-      if (length(reactive_gate_list) == 0 | reactive_last_buttons_clicked$second_to_last == "reset_button" | reactive_last_buttons_clicked$second_to_last == "clear_all_gates_button") {
+      if (length(reactive_gate_list) == 0 || reactive_last_buttons_clicked$second_to_last == "reset_button" || reactive_last_buttons_clicked$second_to_last == "clear_all_gates_button") {
         input_cells <- list(rownames(assay_count_data))
-        input_coords <- data.frame(x = assay_count_data[,1], y = assay_count_data[,2])
-      }
-      else {
+        input_coords <- data.frame(x = assay_count_data[, 1], y = assay_count_data[, 2])
+      } else {
         #set up inputs to gate object if there is already a gate object
         # if user has not selected a previous gate from datatable to re-gate from
         if (is.null(input$gating_pg_table_rows_selected)) {
           input_cells <- reactive_gate_list[[paste0("gate_", gate_counter - 1)]]@subset_cells
           input_coords <- data.frame(x = brushed_coords$x, y = brushed_coords$y)
-        }
         # else if user has selected a previous gate from datatable that they want to re-gate from
-        else {
+        } else {
           input_cells <- reactive_gate_list[[reactive_selected_gate]]@subset_cells
           input_coords <- reactive_gate_list[[reactive_selected_gate]]@subset_coords
         }
       }
-    }
+    
     # back-gating logic
-    else {
+    } else {
       ui_input_suffix <- "_bg"
       # get plotly event data and input cell data
       sel <- event_data("plotly_selected", source = "D")
       brushed_coords <- event_data("plotly_brushed", source = "D")
       input_cells <- list(rownames(assay_count_data))
-      input_coords <- data.frame(x = assay_count_data[,1], y = assay_count_data[,2])
+      input_coords <- data.frame(x = assay_count_data[, 1], y = assay_count_data[, 2])
     }
     #assign values to variables that will be referenced multiple times in Gate object creation
     subset_cells <- list(sel$customdata)
@@ -65,8 +63,8 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
                     input_cells = input_cells,
                     input_coords = input_coords,
                     subset_cells = subset_cells,
-                    subset_coords = data.frame(x = assay_count_data[sel$customdata,1], 
-                                               y = assay_count_data[sel$customdata,2]),
+                    subset_coords = data.frame(x = assay_count_data[sel$customdata, 1], 
+                                               y = assay_count_data[sel$customdata, 2]),
                     x_axis = input[[paste0("x_feature", ui_input_suffix)]],
                     y_axis = input[[paste0("y_feature", ui_input_suffix)]],
                     gate_coords = list(x = c(brushed_coords$x), y = c(brushed_coords$y)),
@@ -80,18 +78,18 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
   }
   
   
-#' Convert Shiny reactiveValues object to reactive gate list
+#' Convert Shiny reactive_values object to reactive gate list
 #'
-#' @param gating_reactiveValues Shiny reactiveValues object holding all reactive gate objects
+#' @param gating_reactive_values Shiny reactive_values object holding all reactive gate objects
 #'
 #' @return reactive gate list for app purposes
 #' @export
 #'
 #' @noRd
 #' 
-get_reactive_gate_list <- function(gating_reactiveValues) {
+get_reactive_gate_list <- function(gating_reactive_values) {
     reactive_gate_list <- reactive({
-      unordered_list <- reactiveValuesToList(gating_reactiveValues)
+      unordered_list <- reactive_values_to_list(gating_reactive_values)
       ordered_list <- unordered_list[order(names(unordered_list))]
       ordered_list
     })
@@ -193,25 +191,25 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
     if (!is.null(gate_obj)) {
       temp_gating_df <- tibble::add_row(temp_gating_df,
                                 Gate_ID = gate_name_string,
-                                Assay_Name = GetData(gate_obj,"assay_name"),
-                                X_Axis = GetData(gate_obj,"x_axis"),
-                                Y_Axis = GetData(gate_obj,"y_axis"),
-                                Subset_Name = GetData(gate_obj,"name_subset_cells"),
-                                Num_Input_Cells = GetData(gate_obj,"num_input_cells"),
-                                Num_Subset_Cells = GetData(gate_obj,"num_subset_cells"),
+                                Assay_Name = get_data(gate_obj, "assay_name"),
+                                X_Axis = get_data(gate_obj, "x_axis"),
+                                Y_Axis = get_data(gate_obj, "y_axis"),
+                                Subset_Name = get_data(gate_obj, "name_subset_cells"),
+                                Num_Input_Cells = get_data(gate_obj, "num_input_cells"),
+                                Num_Subset_Cells = get_data(gate_obj, "num_subset_cells"),
                                 
-                                Total_Cells_in_Sample = GetData(gate_obj,"total_num_cells_in_sample"),
-                                Percent_Subsetted_From_Previous = GetData(gate_obj,"pct_subset_from_previous"),
-                                Percent_Subsetted_From_Total = GetData(gate_obj,"pct_subset_from_total"),
+                                Total_Cells_in_Sample = get_data(gate_obj, "total_num_cells_in_sample"),
+                                Percent_Subsetted_From_Previous = get_data(gate_obj, "pct_subset_from_previous"),
+                                Percent_Subsetted_From_Total = get_data(gate_obj, "pct_subset_from_total"),
                                 
-                                Input_Cells = GetData(gate_obj,"input_cells"),
-                                Input_X_Coordinates = list(GetData(gate_obj,"input_coords")$x),
-                                Input_Y_Coordinates = list(GetData(gate_obj,"input_coords")$y),
-                                Subset_Cells = GetData(gate_obj,"subset_cells"),
-                                Subset_X_Coordinates = list(GetData(gate_obj,"subset_coords")$x),
-                                Subset_Y_Coordinates = list(GetData(gate_obj,"subset_coords")$y),
-                                Gate_X_Coordinates = list(GetData(gate_obj,"gate_coords")$x),
-                                Gate_Y_Coordinates = list(GetData(gate_obj,"gate_coords")$y)
+                                Input_Cells = get_data(gate_obj, "input_cells"),
+                                Input_X_Coordinates = list(get_data(gate_obj, "input_coords")$x),
+                                Input_Y_Coordinates = list(get_data(gate_obj, "input_coords")$y),
+                                Subset_Cells = get_data(gate_obj, "subset_cells"),
+                                Subset_X_Coordinates = list(get_data(gate_obj, "subset_coords")$x),
+                                Subset_Y_Coordinates = list(get_data(gate_obj, "subset_coords")$y),
+                                Gate_X_Coordinates = list(get_data(gate_obj, "gate_coords")$x),
+                                Gate_Y_Coordinates = list(get_data(gate_obj, "gate_coords")$y)
       )
     }
     return(temp_gating_df)
@@ -221,12 +219,14 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
 #' Reset all values in gate_reactive_values to NULL
 #'
 #' @param gate_name_string name of gate to be deleted
-#' @param local_gate_reactive_values Shiny reactiveValues
+#' @param local_gate_reactive_values Shiny reactive_values
 #'
-#' @return empty reactiveValues list of Gate objects
+#' @return empty reactive_values list of Gate objects
 #' @noRd
 #' 
-set_gates_to_null <- function(gate_name_string, local_gate_reactive_values) {
-    local_gate_reactive_values[[gate_name_string]] <- NULL
+set_gates_to_null <- function(gate_name_string, local_gate_reactive_values)
+{    
+  local_gate_reactive_values[[gate_name_string]] <- NULL
     return(local_gate_reactive_values[[gate_name_string]])
-  }
+}
+

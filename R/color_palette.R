@@ -33,4 +33,4 @@ get_palette <- function(num_colors = 3) {
                                                 "lawngreen",
                                                 "magenta3"))
     return(base_palette(num_colors))
-  }
+}

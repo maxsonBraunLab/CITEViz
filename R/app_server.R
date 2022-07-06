@@ -1,12 +1,12 @@
 #' The application server-side
-#' 
-#' @param input,output,session Internal parameters for {shiny}. 
+#'
+#' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
-#' 
+#'
 #' @import shiny
 #' @import ggplot2
 #' @import magrittr
-#'  
+#'
 #' @importFrom dplyr filter last left_join
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
 #' @importFrom rlang is_empty
@@ -14,52 +14,50 @@
 #' @importFrom stats quantile
 #'
 #' @noRd
-app_server <- function( input, output, session ) {
+app_server <- function(input, output, session) {
 
-  #set max file upload size to 3gb (default is only 5mb) since rds files can be really big
+  #set max file upload size to 3gb (default is only 5mb) since rds files can be large
   #takes in an integer argument for max filesize in megabytes
   #to improve: set max file upload size based on user's hardware limitations?
   options(shiny.maxRequestSize = 3000 * 1024^2)
-  
-  # Your application server logic 
-  
-  # ---------- Filehandling ---------- 
+
+  # Your application server logic
+
+  # ---------- Filehandling ----------
   # Putting everything in an observe function will put everything in the server function into the same environment allowing for
   # a single read of the uploaded seurat object instead of a read everytime myso is called in render* function.
   # This speeds up the code immensely
   # The main function of this initial observe is to allow for a single upload of a Seurat Object over all pages.
-  # Filetype validation: 
-  # Note that only RDS files can be inputted by the user due to the UI fileInput() argument `accept = ".rds"`. 
+  # Filetype validation:
+  # Note that only RDS files can be inputted by the user due to the UI fileInput() argument `accept = ".rds"`.
   # This works on an actual web browser but not in the RStudio viewer.
-  
+
   observe({
-    
+  
     inp_file <- input$rds_input_file
     if (is.null(inp_file)) {
       return(NULL)
     }
-    
+  
     #read in RDS file
     rds_obj <- readRDS(inp_file$datapath)
-    
+  
     if (typeof(rds_obj) == "list") {
       #check if integrated obj exists before retrieving it from RDS that was read in
       integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
-      
+    
       #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
       if (length(integrated_obj_index) == 0) {
         myso <- rds_obj[[1]]
-      }
-      else {
+      } else {
         #read in integrated obj
         myso <- rds_obj[[integrated_obj_index]]
       }
-    }
-    else {
+    } else {
       #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
       myso <- rds_obj
     }
-    
+  
     #check if Seurat object has "reductions" slot
     reduction_validation <- reactive({ 
       validate(
@@ -72,10 +70,9 @@ app_server <- function( input, output, session ) {
     
     output$reduction_validation_status <- renderText({ reduction_validation() })
     
-    
-    # ---------- ***** QA ***** ---------- 
+    # ---------- ***** QA ***** ----------
     # QA plots generated from Maxson-Braun lab's CITE-seq data preprocessing pipeline
-    
+  
     observe({
       
       updateSelectInput(
@@ -98,13 +95,13 @@ app_server <- function( input, output, session ) {
                          "RNA Count Per Cell" = c("nCount_RNA", "Distribution of Counts per Cell", "Number of Counts"),
                          "Gene Count Per Cell" = c("nFeature_RNA", "Distribution of Genes Detected per Cell", "Number of Unique Genes"),
                          "Percent Mitochondria" = c("percentMito", "Distribution of Mito GE per Cell", "Mitochondrial Ratio"),
-                         "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell","Number of Counts"),
+                         "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell", "Number of Counts"),
                          "Unique ADTs Per Cell" = c("nFeature_ADT", "Distribution of CITE-seq Antibodies per Cell", "Number of Unique Antibodies")
         )
         
         #creates list of x-coordinates for quantiles of data. 
-        quant <- stats::quantile(x = myso[[]][,params[1]],
-                          probs = c(0.5,0.75,0.95),
+        quant <- stats::quantile(x = myso[[]][, params[1]],
+                          probs = c(0.5, 0.75, 0.95),
                           na.rm = TRUE)
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
@@ -117,7 +114,7 @@ app_server <- function( input, output, session ) {
           ggplot2::theme(plot.title = element_text(hjust=0.5)) +
           ggplot2::ggtitle(params[2]) +
           ggplot2::xlab(params[3]) +
-          ggplot2::geom_vline(xintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
+          ggplot2::geom_vline(xintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") + 
           ggplot2::scale_color_manual(values = custom_palette) +
           ggplot2::scale_fill_manual(values = custom_palette)
         
@@ -127,11 +124,9 @@ app_server <- function( input, output, session ) {
         #create density/bar plot for selected input. If integrated object is uploaded, then the original identity of the cells will separate into graphs per sample
         if (input$QA %in% "ADT Count Per Cell") {
           final_distrib_plot <- base_distrib_plot + ggplot2::scale_x_log10() + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
-        } 
-        else if (input$QA %in% "Unique ADTs Per Cell") {
+        } else if (input$QA %in% "Unique ADTs Per Cell") {
           final_distrib_plot <- base_distrib_plot + ggplot2::geom_bar(alpha = 0.5, position = "dodge") + ggplot2::ylab("Frequency")
-        }
-        else {
+        } else {
           final_distrib_plot <- base_distrib_plot + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
         }
         
@@ -157,15 +152,15 @@ app_server <- function( input, output, session ) {
                          "RNA Count Per Cell" = c("nCount_RNA", "Distribution of Counts per Cell", "Number of Counts"),
                          "Gene Count Per Cell" = c("nFeature_RNA", "Distribution of Genes Detected per Cell", "Number of Unique Genes"),
                          "Percent Mitochondria" = c("percentMito", "Distribution of Mito GE per Cell", "Mitochondrial Ratio"),
-                         "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell","Number of Counts"),
+                         "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell", "Number of Counts"),
                          "Unique ADTs Per Cell" = c("nFeature_ADT", "Distribution of CITE-seq Antibodies per Cell", "Number of Unique Antibodies")
         )
         
         #instead of switch and hardcoded values, try colnames() of the input data so user can select whatever cols are in their data
         
-        #creates list of x-coordinates for quantiles of data. 
-        quant <- stats::quantile(x = myso[[]][,params[1]],
-                          probs = c(0.5,0.75,0.95),
+        #creates list of x-coordinates for quantiles of data.
+        quant <- stats::quantile(x = myso[[]][, params[1]],
+                          probs = c(0.5, 0.75, 0.95),
                           na.rm = TRUE)
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
@@ -180,7 +175,7 @@ app_server <- function( input, output, session ) {
           ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
           ggplot2::ggtitle(params[2]) +
           ggplot2::xlab("Sample") +
-          ggplot2::ylab(params[3]) +
+          ggplot2::ylab(params[3]) + 
           ggplot2::geom_violin(alpha = 0.2) +
           ggplot2::geom_hline(yintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
           ggplot2::scale_color_manual(values = custom_palette) +
@@ -214,8 +209,8 @@ app_server <- function( input, output, session ) {
     # ---------- ***** Clustering ***** ---------- 
     observe({
       
-      #changes the selectInput "reduction" dropdown contents to include all reductions in Seurat Object
-      updateSelectInput(
+      #changes the selectInput "reduction" dropdown contents to include all reductions in Seurat Objec
+     updateSelectInput(
         session = session,
         inputId = "reduction",
         choices = sort(SeuratObject::Reductions(myso)),
@@ -251,12 +246,12 @@ app_server <- function( input, output, session ) {
         
         #show plot
         plotly::plot_ly(cell_data, 
-                        x = ~cell_data[,1], y = ~cell_data[,2],
+                        x = ~cell_data[, 1], y = ~cell_data[, 2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = ~eval(parse(text = paste0("myso[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors = custom_palette,
-                        type = "scatter", 
-                        mode = "markers",
+                        type = "scatter",  
+                        mode = "markers", 
                         marker = list(size = 3, width = 2),
                         source = "A") %>%
           
@@ -295,12 +290,12 @@ app_server <- function( input, output, session ) {
         
         #show plot
         plotly::plot_ly(cell_data, 
-                        x = ~cell_data[,1], y = ~cell_data[,2], z = ~cell_data[,3],
+                        x = ~cell_data[, 1], y = ~cell_data[, 2], z = ~cell_data[, 3],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = ~eval(parse(text = paste0("myso[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors =  custom_palette,
-                        type = "scatter3d", 
-                        mode = "markers",
+                        type = "scatter3d",  
+                        mode = "markers", 
                         marker = list(size = 2, width = 1)) %>%
           
           plotly::config(toImageButtonOptions = list(format = "png",
@@ -321,8 +316,9 @@ app_server <- function( input, output, session ) {
 
       # ----- datatable of metadata for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
-      output$cluster_pg_selected <- DT::renderDT(server = FALSE, {
+      output$cluster_pg_selected <- DT::renderDT(server = FALSE,
         #currently returns every column of metadata dataframe. May want to select specific columns in the future
+      { 
         selected_metadata_df <- myso[[]][plotly::event_data("plotly_selected", source = "A")$customdata, ]
         cluster_dt <- DT::datatable(selected_metadata_df, 
                                     rownames = TRUE,
@@ -380,8 +376,8 @@ app_server <- function( input, output, session ) {
           input$reduction_expr_1d,
           input$feature_1d
         ), 
-        {
-          req(input$rds_input_file, input$reduction_expr_1d, input$Assay_1d, input$feature_1d)
+        
+        { req(input$rds_input_file, input$reduction_expr_1d, input$Assay_1d, input$feature_1d)
           
           #create string for reduction to plot
           reduc <- input$reduction_expr_1d
@@ -405,7 +401,7 @@ app_server <- function( input, output, session ) {
                           #colors = custom_palette,
                           type = "scatter", 
                           mode = "markers",
-                          marker = list(size = 3,
+                          marker = list(size = 3, 
                                         color = ~count_data[, color_x], 
                                         colorbar = list(title = color_x,
                                                         len = 0.5),
@@ -444,7 +440,6 @@ app_server <- function( input, output, session ) {
         SeuratObject::DefaultAssay(myso) <- input$Assay_1d
         count_data <- SeuratObject::FetchData(object = myso, vars = color_x, slot = "data")
 
-        # num_cells_selected <- nrow(count_data)
         num_cells_expressing <- count_data %>%
           dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
           nrow()
@@ -455,7 +450,6 @@ app_server <- function( input, output, session ) {
         #convert count_data for selected cells into a dataframe
         selected_counts_df <- data.frame(Feature = color_x,
                                          Num_Cells_Expressing = num_cells_expressing,
-                                         # Percent_of_Selected = 100 * (num_cells_expressing_subset / num_cells_selected),
                                          Percent_of_Total_Sample = 100 * num_cells_expressing / num_cells_total)
 
         selected_counts_dt <- DT::datatable(selected_counts_df, 
@@ -577,7 +571,7 @@ app_server <- function( input, output, session ) {
           # create UMAP that colors by expression levels
           plotly::plot_ly(mapped_df,
                           source = "expression_2d_plot",
-                          x = ~cell_data[,1], y = ~cell_data[,2],
+                          x = ~cell_data[, 1], y = ~cell_data[, 2],
                           customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                           type = "scatter",
                           mode = "markers",
@@ -607,8 +601,8 @@ app_server <- function( input, output, session ) {
       
       # ----- datatable of expression for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
-      output$coexpression_pg_selected <- DT::renderDT(server = FALSE, {
-        req(input$rds_input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
+      output$coexpression_pg_selected <- DT::renderDT(server = FALSE, 
+        { req(input$rds_input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
         
         #selected metadata to color clusters by
         color_x <- input$x_axis_feature
@@ -756,41 +750,38 @@ app_server <- function( input, output, session ) {
           # generate a base scatterplot based on user input
           if ((last_buttons_clicked$last == "NA" | last_buttons_clicked$last == "reset_button" | last_buttons_clicked$last == "clear_all_gates_button") & is.null(input$gating_pg_table_rows_selected)) {
             base_scatterplot <- plotly::plot_ly(count_data,
-                                                x = ~count_data[,input$x_feature], y = ~count_data[,input$y_feature],
+                                                x = ~count_data[, input$x_feature], y = ~count_data[, input$y_feature],
                                                 customdata = rownames(count_data),
                                                 mode = "markers",
                                                 source = "C") %>% 
               plotly::add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
-                                     contours = list(coloring='heatmap')) %>%
-              plotly::add_markers(x = count_data[,input$x_feature],
-                          y = count_data[,input$y_feature],
+                                     contours = list(coloring="heatmap")) %>%
+              plotly::add_markers(x = count_data[, input$x_feature],
+                          y = count_data[, input$y_feature],
                           marker = list(size=2),
                           color = I("black"),
                           alpha = 0.6) 
-          }
-          
-          
-          else {
+          } else {
             selected_cell_barcodes <- NULL
             count_data_subset <- NULL
             
             if (last_buttons_clicked$last == "gate_button" & is.null(input$gating_pg_table_rows_selected)) {
               selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "C")$customdata
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
-            }
-            else if (!is.null(input$gating_pg_table_rows_selected)) {
-              selected_cell_barcodes <- GetData(gate_list()[[selected_gate()]], "subset_cells")[[1]]
+            
+            } else if (!is.null(input$gating_pg_table_rows_selected))
+              { selected_cell_barcodes <- get_data(gate_list()[[selected_gate()]], "subset_cells")[[1]]
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
             }
             base_scatterplot <- plotly::plot_ly(count_data_subset,
-                                                x = ~count_data_subset[,input$x_feature], y = ~count_data_subset[,input$y_feature],
+                                                x = ~count_data_subset[, input$x_feature], y = ~count_data_subset[, input$y_feature],
                                                 customdata = rownames(count_data_subset),
                                                 mode = "markers",
                                                 source = "C") %>% 
-              plotly::add_histogram2dcontour(showscale=FALSE, ncontours=10, colorscale = gating_color_scale, 
-                                     contours = list(coloring='heatmap')) %>%
-              plotly::add_markers(x = count_data_subset[,input$x_feature], 
-                          y = count_data_subset[,input$y_feature], 
+              plotly::add_histogram2dcontour(showscale = FALSE, ncontours = 10, colorscale = gating_color_scale, 
+                                     contours = list(coloring="heatmap")) %>%
+              plotly::add_markers(x = count_data_subset[, input$x_feature], 
+                          y = count_data_subset[, input$y_feature], 
                           marker = list(size=2.5), 
                           color = I("black"), 
                           alpha = 0.6)
@@ -833,28 +824,26 @@ app_server <- function( input, output, session ) {
         
         # initialize selected_cells before if/else statements so it can be accessed outside of the statements
         selected_cells <- NULL
-        
+
         if (!is.null(input$gating_pg_table_rows_selected)) {
-          selected_cells <- GetData(gate_list()[[selected_gate()]], "subset_cells")[[1]]
-        }
-        else {
+          selected_cells <- get_data(gate_list()[[selected_gate()]], "subset_cells")[[1]]
+        } else {
           selected_cells <- plotly::event_data("plotly_selected", source = "C")$customdata
         }
         
         if (is.null(selected_cells)) {
           plotly_color_list <- c(paste0("myso[[]]$", color), custom_palette)
-        } 
-        else {
+        } else {
           plotly_color_list <- c("rownames(cell_data) %in% selected_cells", 'c("grey", "black")')
         }
         
         plotly::plot_ly(cell_data, 
-                        x = ~cell_data[,1], y = ~cell_data[,2],
+                        x = ~cell_data[, 1], y = ~cell_data[, 2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = ~eval(parse(text = plotly_color_list[1])), #color by selected metadata in object; need to incorporate 
                         colors = ~eval(parse(text = plotly_color_list[2])),
-                        type = 'scatter', 
-                        mode = 'markers',
+                        type = "scatter", 
+                        mode = "markers",
                         marker = list(size = 3, width=2)) %>%
           
           plotly::config(toImageButtonOptions = list(format = "png",
@@ -885,15 +874,12 @@ app_server <- function( input, output, session ) {
       selected_gate <- reactiveVal(NULL)
       
       #events triggered by clicking gate button
-      observeEvent(input$gate, {
+      observeEvent(input$gate,
+      { 
         req(input$x_feature, input$y_feature)
         
         SeuratObject::DefaultAssay(myso) <- input$Assay
         count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature, input$y_feature), slot = "data")
-        
-        # get plotly event data
-        sel <- plotly::event_data("plotly_selected", source = "C")
-        brushed_coords <- plotly::event_data("plotly_brushed", source = "C")
 
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive() + 1)
@@ -938,7 +924,7 @@ app_server <- function( input, output, session ) {
         cell_edit_data <- input$gating_pg_table_cell_edit
         gate_id <- reactive_gating_df()$Gate_ID[cell_edit_data$row]
         # [input$gating_pg_table_cell_edit$row, 1]
-        gate_reactive_values[[gate_id]] <- SetSubsetName(gate_reactive_values[[gate_id]], cell_edit_data$value)
+        gate_reactive_values[[gate_id]] <- set_subset_name(gate_reactive_values[[gate_id]], cell_edit_data$value)
       })
       
       # when a datatable row is selected, set the selected_gate reactive value to the gate that was selected in the datatable
@@ -951,17 +937,17 @@ app_server <- function( input, output, session ) {
         updateSelectInput(
           session = session,
           inputId = "Assay",
-          selected = GetData(gate_list()[[selected_gate()]], "assay_name")
+          selected = get_data(gate_list()[[selected_gate()]], "assay_name")
         )
         updateSelectInput(
           session = session,
           inputId = "x_feature",
-          selected = GetData(gate_list()[[selected_gate()]], "x_axis")
+          selected = get_data(gate_list()[[selected_gate()]], "x_axis")
         )
         updateSelectInput(
           session = session,
           inputId = "y_feature",
-          selected = GetData(gate_list()[[selected_gate()]], "y_axis")
+          selected = get_data(gate_list()[[selected_gate()]], "y_axis")
         )
       })
       
@@ -1095,9 +1081,8 @@ app_server <- function( input, output, session ) {
           
           if (is.null(input$gating_pg_table_bg_rows_selected)) {
             selected_cell_barcodes <- plotly::event_data("plotly_selected", source = "D")$customdata
-          }
-          else {
-            selected_cell_barcodes <- GetData(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
+          } else {
+            selected_cell_barcodes <- get_data(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
           }
           
           plotly::plot_ly(count_data,
@@ -1109,11 +1094,11 @@ app_server <- function( input, output, session ) {
             plotly::add_histogram2dcontour(showscale = FALSE,
                                    ncontours = 10,
                                    colorscale = gating_color_scale,
-                                   contours = list(coloring='heatmap'),
+                                   contours = list(coloring="heatmap"),
                                    color = I("black"),
                                    size = I(1.5)) %>%
             plotly::add_markers(x = count_data[,input$x_feature_bg],
-                        y = count_data[,input$y_feature_bg],
+                        y = count_data[, input$y_feature_bg],
                         marker = list(size=2),
                         alpha = 1) %>%
             plotly::config(toImageButtonOptions = list(format = "png", scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
@@ -1151,15 +1136,15 @@ app_server <- function( input, output, session ) {
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = ~eval(parse(text = plotly_color_list[1])), #color by selected metadata in object; need to incorporate 
                         colors = ~eval(parse(text = plotly_color_list[2])),
-                        type = 'scatter',
-                        mode = 'markers',
-                        marker = list(size = 3, width=2),
+                        type = "scatter",
+                        mode = "markers",
+                        marker = list(size = 3, width = 2),
                         source = "D") %>%
           plotly::config(toImageButtonOptions = list(format = "png",
                                              scale = 10) #scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
           ) %>%
           #Layout changes the aesthetic of the plot
-          plotly::layout(title = toupper(reduc),
+          plotly::layout(title = toupper(reduc), 
                  xaxis = list(title = cell_col[1]),
                  yaxis = list(title = cell_col[2]),
                  dragmode = "select") %>%
@@ -1185,16 +1170,12 @@ app_server <- function( input, output, session ) {
       selected_gate_bg <- reactiveVal(NULL)
       
       #events triggered by clicking gate button
-      observeEvent(input$gate_bg, {
-        req(input$x_feature_bg, input$y_feature_bg)
+      observeEvent(input$gate_bg,
+        { req(input$x_feature_bg, input$y_feature_bg)
         
         SeuratObject::DefaultAssay(myso) <- input$Assay_bg
         count_data <- SeuratObject::FetchData(object = myso, vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
         
-        # get plotly event data
-        sel <- plotly::event_data("plotly_selected", source = "D")
-        brushed_coords <- plotly::event_data("plotly_brushed", source = "D")
-
         # increment counter every time gate button is clicked
         counter <- as.integer(counter_reactive_bg() + 1)
         counter_reactive_bg(counter)
@@ -1237,7 +1218,7 @@ app_server <- function( input, output, session ) {
       observeEvent(input$gating_pg_table_bg_cell_edit, {
         cell_edit_data <- input$gating_pg_table_bg_cell_edit
         gate_id <- reactive_gating_df_bg()$Gate_ID[cell_edit_data$row]
-        gate_reactive_values_bg[[gate_id]] <- SetSubsetName(gate_reactive_values_bg[[gate_id]], cell_edit_data$value)
+        gate_reactive_values_bg[[gate_id]] <- set_subset_name(gate_reactive_values_bg[[gate_id]], cell_edit_data$value)
       })
       
       # when a datatable row is selected, set the selected_gate_bg reactive value to the gate that was selected in the datatable
@@ -1250,17 +1231,17 @@ app_server <- function( input, output, session ) {
         updateSelectInput(
           session = session,
           inputId = "Assay_bg",
-          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "assay_name")
+          selected = get_data(gate_list_bg()[[selected_gate_bg()]], "assay_name")
         )
         updateSelectInput(
           session = session,
           inputId = "x_feature_bg",
-          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "x_axis")
+          selected = get_data(gate_list_bg()[[selected_gate_bg()]], "x_axis")
         )
         updateSelectInput(
           session = session,
           inputId = "y_feature_bg",
-          selected = GetData(gate_list_bg()[[selected_gate_bg()]], "y_axis")
+          selected = get_data(gate_list_bg()[[selected_gate_bg()]], "y_axis")
         )
       })
       
