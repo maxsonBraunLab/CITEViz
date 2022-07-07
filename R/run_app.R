@@ -9,9 +9,8 @@
 #' @importFrom golem with_golem_options 
 #' 
 #' @return Initialization of CITEViz app
-#' @examples
 #' 
-#' run_app()
+#' @noRd
 #' 
 run_app <- function(
   onStart = NULL,
