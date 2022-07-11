@@ -62,7 +62,9 @@ example_gate2 <- Gate(counter = as.integer(2),
 example_gate_list <- list("gate1" = example_gate1, "gate2" = example_gate2)
 
 # Inputs contents of Gate object into empty gating dataframe
-example_df <- update_gating_df(gate_name_string = "gate1", reactive_gate_list = example_gate_list, temp_gating_df = example_df)
-example_df <- update_gating_df(gate_name_string = "gate2", reactive_gate_list = example_gate_list, temp_gating_df = example_df)
+example_df <- update_gating_df(gate_name_string = "gate1", 
+    reactive_gate_list = example_gate_list, temp_gating_df = example_df)
+example_df <- update_gating_df(gate_name_string = "gate2", 
+    reactive_gate_list = example_gate_list, temp_gating_df = example_df)
 
 }

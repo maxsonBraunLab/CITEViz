@@ -85,7 +85,6 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
 #' @param gating_reactiveValues Shiny reactiveValues object holding all reactive gate objects
 #'
 #' @return reactive gate list for app purposes
-#' @export
 #'
 #' @noRd
 #' 

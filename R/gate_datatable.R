@@ -56,7 +56,7 @@
 #' example_df <- update_gating_df(gate_name_string = "gate2", 
 #'     reactive_gate_list = example_gate_list, temp_gating_df = example_df)
 #' 
-#' example_dt <- create_gating_dt(example_df)
+#' create_gating_dt(example_df)
 create_gating_dt <- function(temp_reactive_gating_df) {
     temp_gating_dt <- DT::datatable(temp_reactive_gating_df, 
                                     rownames = TRUE, 
