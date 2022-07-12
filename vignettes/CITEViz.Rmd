@@ -37,7 +37,7 @@ output:
       toc_float: true
 
 vignette: >
-  %\VignetteIndexEntry{CITEViz: Getting Started}
+  %\VignetteIndexEntry{'CITEViz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq'}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -65,8 +65,11 @@ multi-omic feature expression plots. This vignette demonstrates
 the usage of CITEViz on a subset of CITE-seq data from peripheral blood 
 mononuclear cells by 
 [Hao et. al. 2021](https://doi.org/10.1016/j.cell.2021.04.048).
+
 ## Installation
+
 Make sure you have R version **4.1.0** or later installed. We recommend installing CITEViz through the RStudio IDE using the following commands:
+
 ```{r eval=FALSE}
 devtools::install_github("maxsonBraunLab/CITEViz")
 library(CITEViz)

@@ -13,8 +13,8 @@ Authors@R: c(
     person('Julia', 'Maxson', email = 'maxsonj@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-3871-7221'))
     )
 Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
-License: MIT
-Imports: 
+License: MIT + file LICENSE
+Imports:
     bslib,
     config (>= 0.3.1),
     dplyr,
@@ -28,13 +28,15 @@ Imports:
     rlang,
     SeuratObject,
     shiny (>= 1.6.0),
-    stats, 
+    stats,
     tibble,
     vembedr
 Encoding: UTF-8
 RoxygenNote: 7.2.0
 Suggests:
     knitr,
+    BiocStyle,
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
