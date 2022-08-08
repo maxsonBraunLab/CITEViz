@@ -51,9 +51,9 @@ knitr::opts_chunk$set(
 BiocStyle::markdown()
 ```
 
-# Introduction and Setup
+# Introduction
 
-```{r, echo = FALSE, out.width = "35%", out.height = "35%"}
+```{r, echo = FALSE, out.width = "35%", out.height = "35%", fig.align = "left"}
 knitr::include_graphics("../inst/app/www/citeviz-logo-light-cropped.png")
 ```
 
@@ -71,7 +71,7 @@ run_app()
 
 CITEViz will be uploaded to Bioconductor version 3.16, and the release date is currently set for October 2022.
 
-## Data Upload
+## Data Input Format
 
 CITEViz accepts files in the RDS (.rds) format. The preferred rds file should include a Seurat object or list of Seurat objects; if a list of a single Seurat object is used, only the object labeled "integrated" will be used. A file can be uploaded using the depicted file upload box at the top of any page in CITEViz, and the same dataset will be retained for exploration across all tabs.
 
