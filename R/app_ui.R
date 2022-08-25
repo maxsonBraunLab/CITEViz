@@ -28,11 +28,11 @@ app_ui <- function(request) {
           # to remove
           #style = "margin-left: 0; padding-left: 1rem; padding-right: 1rem;",
           fileInput(
-            inputId = "rds_input_file", 
+            inputId = "input_file", 
             placeholder = "Upload an RDS (.rds) file",
-            accept = ".rds",
+            accept = c(".rds", ".arrow"),
             label = NULL,
-            multiple = FALSE)
+            multiple = TRUE)
         ),
         div(
           # to remove
@@ -93,13 +93,14 @@ app_ui <- function(request) {
                
                h5(strong("Quality Assurance (QA)")),
                p("The Quality Assurance (QA) page allows the user to visualize data by several QA parameters including, but not limited to, mitochondrial ratio, RNA count per cell, and ADT count per cell, along different metadata separations. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value."),
-               img(src = "inst/app/www/QA_page.png", width = "100%"),
+               img(src = "www/QA_page.png", width = "100%"),
                
                br(),
                h5(strong("Clustering")),
                p("The Clustering page allows the user to select from a dropdown of dimensionality reduction plots and color cells by different metadata while viewing plots and cluster relationships in two- and three-dimensional space."),
                p("When the cursor hovers in the 2D reduction plot, the selection tools (box or lasso selection) appear for the user to choose from. The metadata for selected cells appears in the data table below the plots. The user also has the option to print or copy this data to clipboard."),
-               img(src = "inst/app/www/clustering_page.png", width = "100%"), 
+               img(src = "www/clustering_page.png", width = "100%"),
+              
                br(),
                h5(strong("Gating")),
                
