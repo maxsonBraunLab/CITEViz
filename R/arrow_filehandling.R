@@ -1,6 +1,6 @@
 #' Generate a Feather file from data in a Seurat object.
 #'
-#' This function retrieves data in specified slots ("metadata", "assays", or "reductions") from a user-inputted Seurat object and writes that data to a Feather file.
+#' This function retrieves data in specified slots ("metadata", "assays", or "reductions") from a user-inputted Seurat object and writes that data to a Feather file. The first column of data contains cell barcodes from a CITE-seq experiment, and subsequent columns contain metadata or count data for various assays (counts for each ADT, gene, etc.) and reductions (embeddings for UMAPs, PCAs, etc.). This columnar data storage format allows for much faster read access in downstream app processes.
 #' 
 #' @param assay_or_reduction_name A string specifying the name of an assay (e.g., ADT, RNA, etc.) or reduction (e.g., PCA, UMAP, etc.) present in the Seurat object that is passed as a parameter to this function.
 #' @param seurat_object A Seurat object containing metadata, assays, and reductions for a CITE-seq experiment.
@@ -26,8 +26,14 @@ write_seurat_to_feather <- function(assay_or_reduction_name = NULL, seurat_objec
   if (slot_name == "metadata"){
     subdata_df <- as.data.frame(seurat_object[[]]) 
   }
-  else if (slot_name == "assays"){
-    subdata_df <- as.data.frame(SeuratObject::GetAssayData(seurat_object, slot = "data", assay = assay_or_reduction_name)) 
+  if (slot_name == "assays"){
+    # transpose assay data so that that rownames are cell barcodes and column names are ADTs/Genes/etc.
+    # convert transposed output matrix into data frame again
+    subdata_df <- as.data.frame(SeuratObject::GetAssayData(seurat_object, 
+                                                           slot = "data", 
+                                                           assay = assay_or_reduction_name)) %>% 
+      t() %>%
+      as.data.frame()
     output_file_identifier <- paste0("_", assay_or_reduction_name)
   }
   else if (slot_name == "reductions"){
@@ -36,7 +42,7 @@ write_seurat_to_feather <- function(assay_or_reduction_name = NULL, seurat_objec
   }
   
   # convert rownames of dataframe to a column in the dataframe because for some reason, writing to a feather file doesn't preserve the original rowname data
-  subdata_df <- subdata_df %>% tibble::rownames_to_column("column_of_rownames")
+  subdata_df <- subdata_df %>% tibble::rownames_to_column("cell_barcodes")
   
   # generate platform-independent output file path
   output_filepath <- file.path(output_dir_path,

@@ -27,7 +27,7 @@ write_seurat_to_feather(
 The relative path to the feather file that was generated. This value is returned invisibly.
 }
 \description{
-This function retrieves data in specified slots ("metadata", "assays", or "reductions") from a user-inputted Seurat object and writes that data to a Feather file.
+This function retrieves data in specified slots ("metadata", "assays", or "reductions") from a user-inputted Seurat object and writes that data to a Feather file. The first column of data contains cell barcodes from a CITE-seq experiment, and subsequent columns contain metadata or count data for various assays (counts for each ADT, gene, etc.) and reductions (embeddings for UMAPs, PCAs, etc.). This columnar data storage format allows for much faster read access in downstream app processes.
 }
 \examples{
 \dontrun{
