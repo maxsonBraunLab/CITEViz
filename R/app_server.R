@@ -21,56 +21,93 @@ app_server <- function( input, output, session ) {
   #to improve: set max file upload size based on user's hardware limitations?
   options(shiny.maxRequestSize = 3000 * 1024^2)
   
-  # Your application server logic 
+  # Your application server logic
   
   # ---------- Filehandling ---------- 
   # Putting everything in an observe function will put everything in the server function into the same environment allowing for
-  # a single read of the uploaded seurat object instead of a read everytime myso is called in render* function.
+  # a single read of the uploaded seurat object instead of a read every time myso is called in render* function.
   # This speeds up the code immensely
   # The main function of this initial observe is to allow for a single upload of a Seurat Object over all pages.
   # Filetype validation: 
-  # Note that only RDS files can be inputted by the user due to the UI fileInput() argument `accept = ".rds"`. 
+  # Note that only RDS, Arrow, or Feather files can be inputted by the user due to the UI fileInput() argument `accept = c(".rds", ".arrow", ".feather")`. 
   # This works on an actual web browser but not in the RStudio viewer.
   
   observe({
     
-    inp_file <- input$rds_input_file
-    if (is.null(inp_file)) {
-      return(NULL)
-    }
+    inp_file <- input$input_file
+    if (is.null(inp_file)) { return(NULL) }
     
-    #read in RDS file
-    rds_obj <- readRDS(inp_file$datapath)
+    # set boolean flag for whether user's RDS file was already converted to arrow files prior to app startup
+    # this determines whether the server reads Seurat data from a Seurat object or from an arrow file for plots, tables, etc.
+    arrow_flag <- reactiveVal() # can be TRUE or FALSE
+    myso <- NULL # initialize seurat object here so it is accessible to everything else in server side
     
-    if (typeof(rds_obj) == "list") {
-      #check if integrated obj exists before retrieving it from RDS that was read in
-      integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
+    observeEvent(
+      list(
+        #list of input events that can trigger reactive flag
+        input$input_file
+        # include app startup? (for reading in seurat object from memory instead of file upload)
+      ),
+      {
+        # code to execute when one of the above input events occurs
+
+        # check if original name of uploaded input files have RDS extension or not (i.e., are feather or arrow files)
+        file_extension <- tools::file_ext(inp_file$name)
+        
+        if (file_extension == "RDS" | file_extension == "rds") {
+          arrow_flag(FALSE)
+          #read in RDS file
+          rds_obj <- readRDS(inp_file$datapath)
+          
+          if (typeof(rds_obj) == "list") {
+            #check if integrated obj exists before retrieving it from RDS that was read in
+            integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
+            
+            #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
+            if (length(integrated_obj_index) == 0) {
+              myso <- rds_obj[[1]]
+            }
+            else {
+              #read in integrated obj
+              myso <- rds_obj[[integrated_obj_index]]
+            }
+          }
+          else {
+            #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
+            myso <- rds_obj
+          }
+          
+          #check if Seurat object has "reductions" slot
+          reduction_validation <- reactive({ 
+            validate(
+              need(
+                length(SeuratObject::Reductions(myso)) > 0,
+                message = "Seurat object does not contain reductions. Please check input RDS file."
+              )
+            )
+          })
+          
+          output$reduction_validation_status <- renderText({ reduction_validation() })
+          
+          message("Arrow flag is FALSE")        
+          }
+        # else if input file extension is not RDS (i.e. is arrow or feather), set arrow_flag to true
+        else {
+          arrow_flag(TRUE)
+          message("Arrow flag is TRUE")
+        }
+        
+        # if not RDS, set arrow_flag(TRUE)
+        # else set arrow_flag(FALSE) and read RDS
+        
+        # triggered by file input button in UI
+        #   ## give it option to accept multiple files (either one RDS or multiple feather files)
+        #   ## if the user inputs multiple RDS files, throw an error to the user to tell them not to do that
+        # what happens if the user inputs a mix of RDS and Feather files at the same time?
+      })
       
-      #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
-      if (length(integrated_obj_index) == 0) {
-        myso <- rds_obj[[1]]
-      }
-      else {
-        #read in integrated obj
-        myso <- rds_obj[[integrated_obj_index]]
-      }
-    }
-    else {
-      #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
-      myso <- rds_obj
-    }
+
     
-    #check if Seurat object has "reductions" slot
-    reduction_validation <- reactive({ 
-      validate(
-        need(
-          length(SeuratObject::Reductions(myso)) > 0,
-          message = "Seurat object does not contain reductions. Please check input RDS file."
-        )
-      )
-    })
-    
-    output$reduction_validation_status <- renderText({ reduction_validation() })
     
     
     # ---------- ***** QA ***** ---------- 
@@ -90,7 +127,7 @@ app_server <- function( input, output, session ) {
       #reactive function will rerun this expression every time distribution_plot is called, which should be only when QA or color_qa choice is changed
       distribution_plot <- reactive({
         
-        req(input$rds_input_file, input$QA, input$color_qa)
+        req(input$input_file, input$QA, input$color_qa)
         color <- input$color_qa
         
         #This assigns the params variable a list of strings that act a varying parameters depending on input of QA
@@ -149,7 +186,7 @@ app_server <- function( input, output, session ) {
       # reactive box plot 
       box_plot <- reactive({
         
-        req(input$rds_input_file, input$QA, input$color_qa)
+        req(input$input_file, input$QA, input$color_qa)
         color <- input$color_qa
         
         #This assigns the params variable a list of strings that act a varying parameters depending on input of QA
@@ -232,7 +269,7 @@ app_server <- function( input, output, session ) {
       
       # ----- Reactive 2D reduction graph -----
       reduc_plot <- reactive({
-        req(input$rds_input_file, input$reduction, input$color1)
+        req(input$input_file, input$reduction, input$color1)
         
         #create string for reduction to plot
         reduc <- input$reduction
@@ -276,7 +313,7 @@ app_server <- function( input, output, session ) {
       
       # ----- Reactive 3D reduction graph -----
       reduc_plot_3d <- reactive({
-        req(input$rds_input_file, input$reduction, input$color1)
+        req(input$input_file, input$reduction, input$color1)
         
         #create string for reduction to plot
         reduc <- input$reduction
@@ -376,12 +413,12 @@ app_server <- function( input, output, session ) {
       expr_reduc_plot_1d <- eventReactive(
         list(
           #list of input events that can trigger reactive 
-          input$rds_input_file,
+          input$input_file,
           input$reduction_expr_1d,
           input$feature_1d
         ), 
         {
-          req(input$rds_input_file, input$reduction_expr_1d, input$Assay_1d, input$feature_1d)
+          req(input$input_file, input$reduction_expr_1d, input$Assay_1d, input$feature_1d)
           
           #create string for reduction to plot
           reduc <- input$reduction_expr_1d
@@ -436,7 +473,7 @@ app_server <- function( input, output, session ) {
       # ----- datatable of expression for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$expression_pg_selected <- DT::renderDT(server = FALSE, {
-        req(input$rds_input_file, input$Assay_1d, input$feature_1d)
+        req(input$input_file, input$Assay_1d, input$feature_1d)
         
         #selected feature to color clusters by
         color_x <- input$feature_1d
@@ -534,13 +571,13 @@ app_server <- function( input, output, session ) {
       expr_reduc_plot_2d <- eventReactive(
         list(
           #list of input events that can trigger reactive plot
-          input$rds_input_file,
+          input$input_file,
           input$reduction_expr_2d,
           input$x_axis_feature,
           input$y_axis_feature
         ), 
         {
-          req(input$rds_input_file, input$reduction_expr_2d, input$x_axis_feature, input$y_axis_feature)
+          req(input$input_file, input$reduction_expr_2d, input$x_axis_feature, input$y_axis_feature)
           
           #create string for reduction to plot
           reduc <- input$reduction_expr_2d
@@ -568,6 +605,9 @@ app_server <- function( input, output, session ) {
           # map gene expression values to 2d color grid
           ngrid <- 16
           color_matrix_df <- get_color_matrix_df(ngrid)
+          
+          # use range() instead of max() to account for negative count data (flawed input data?)???
+          # and use count_data + abs(min(count_data)) instead of just count_data in the numerator so account for color mapping of negative counts???
           coexpression_df <- data.frame(x_value = round(ngrid * count_data_x / max(count_data_x)),
                                         y_value = round(ngrid * count_data_y / max(count_data_y)))
           coexpression_umap_df <- cbind(coexpression_df, cell_data) #combine umap reduction data with expression data
@@ -608,7 +648,7 @@ app_server <- function( input, output, session ) {
       # ----- datatable of expression for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$coexpression_pg_selected <- DT::renderDT(server = FALSE, {
-        req(input$rds_input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
+        req(input$input_file, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
         
         #selected metadata to color clusters by
         color_x <- input$x_axis_feature
@@ -728,7 +768,7 @@ app_server <- function( input, output, session ) {
       reactive_featurescatter <- eventReactive(
         list(
           #list of input events that can trigger reactive featurescatter
-          input$rds_input_file,
+          input$input_file,
           input$gate,
           input$reset_adt_scatter,
           input$clear_all_gates,
@@ -814,7 +854,7 @@ app_server <- function( input, output, session ) {
       
       # ----- reactive gating 2D reduction graph -----
       gating_reduc_plot <- reactive({
-        req(input$rds_input_file, input$color2, input$reduction_g)
+        req(input$input_file, input$color2, input$reduction_g)
         
         #create string for reduction to plot
         reduc <- input$reduction_g
@@ -970,7 +1010,7 @@ app_server <- function( input, output, session ) {
         list(
           #list of input events that can trigger resetting of gating info
           input$clear_all_gates,
-          input$rds_input_file
+          input$input_file
         ), 
         {
           counter_reactive(as.integer(0))
@@ -1071,7 +1111,7 @@ app_server <- function( input, output, session ) {
       reactive_featurescatter_bg <- eventReactive(
         list(
           #list of input events that can trigger reactive featurescatter
-          input$rds_input_file,
+          input$input_file,
           input$gate_bg,
           input$reset_adt_scatter_bg,
           input$clear_all_gates_bg,
@@ -1128,7 +1168,7 @@ app_server <- function( input, output, session ) {
       
       # ----- backgate reactive reduction plot of selected cell features -----
       gating_reduc_plot_bg <- reactive({
-        req(input$rds_input_file, input$color2_bg, input$reduction_bg)
+        req(input$input_file, input$color2_bg, input$reduction_bg)
         
         #creates string for reduction to plot
         reduc <- input$reduction_bg
@@ -1269,7 +1309,7 @@ app_server <- function( input, output, session ) {
         list(
           #list of input events that can trigger resetting of gating info
           input$clear_all_gates_bg,
-          input$rds_input_file
+          input$input_file
         ), 
         {
           counter_reactive_bg(as.integer(0))
