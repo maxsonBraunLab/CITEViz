@@ -64,7 +64,7 @@ knitr::include_graphics("../inst/app/www/citeviz-logo-light-cropped.png")
 Make sure you have R version **4.2.0** or later installed. We recommend installing CITEViz through the RStudio IDE using the following commands:
 
 ```{r eval=FALSE}
-devtools::install_github("maxsonBraunLab/CITEViz")
+BiocManager::install("CITEViz")
 library(CITEViz)
 run_app()
 ```
