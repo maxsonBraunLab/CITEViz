@@ -114,3 +114,62 @@ create_feather_files <- function(seurat_object, feather_parent_dir = "citeviz_ar
   
   return(invisible(output_dir_path))
 }
+
+
+
+# This function takes in a Boolean arrow_flag, an optional Seurat object, the category of data to retrieve (metadata, reductions, assays, etc.)
+# returns a character vector containing dropdown menu choices
+# category can be = c("metadata", "reductions", "assays")
+
+#' Title
+#'
+#' @param category 
+#' @param reactive_arrow_flag 
+#' @param reactive_seurat_object 
+#' @param reactive_arrow_file_list 
+#' @param input_file_df 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_choices <- function(category, reactive_arrow_flag, reactive_seurat_object, reactive_arrow_file_list, input_file_df) {
+  menu_choices <- NULL
+  
+  if (reactive_arrow_flag == FALSE & !is.null(reactive_seurat_object)) {
+    if (category == "metadata") {
+      menu_choices <- colnames(reactive_seurat_object[[]][lapply(reactive_seurat_object[[]], class) %in% c("factor", "character")])
+    }
+    else if (category == "reductions") {
+      menu_choices <- SeuratObject::Reductions(reactive_seurat_object)
+    }
+    else if (category == "assays") {
+      menu_choices <- SeuratObject::Assays(object = reactive_seurat_object)
+    }
+  }
+  
+  else if (reactive_arrow_flag == TRUE & !is.null(reactive_arrow_file_list)) {
+    file_indexes <- grep(pattern = category,
+                         x = reactive_arrow_file_list,
+                         ignore.case = TRUE, value = FALSE)
+    if (category == "metadata") {
+      filepath <- input_file_df$datapath[file_indexes]
+      menu_choices <- arrow::read_feather(filepath) %>% # get columns that contain factors or characters
+        dplyr::select(!cell_barcodes & (where(is.factor) | where(is.character))) %>%
+        colnames()
+    }
+    # from arrow file list, split filenames so that only each reduction or assay option is left in the vector
+    # populate dropdown menu with this vector of reductions or assays
+    else if (category == "reductions" | category == "assays") {
+      filenames <- input_file_df$name[file_indexes]
+      menu_choices <- tools::file_path_sans_ext(filenames) %>%
+        strsplit(split = "_") %>%
+        lapply(tail, n = 1) %>%
+        unlist()
+    }
+  }
+
+  return(sort(menu_choices))
+}
+
+
