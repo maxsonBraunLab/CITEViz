@@ -643,7 +643,7 @@ app_server <- function( input, output, session ) {
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_1d, 
                                  reduction_name = NULL,
-                                 assay_data_to_get = input$color_x)
+                                 assay_data_to_get = color_x)
           
           #create dataframe from reduction selected
           cell_data <- get_data(category = "reductions",
