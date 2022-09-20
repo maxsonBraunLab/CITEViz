@@ -97,8 +97,8 @@ create_2d_color_legend <- function(input, arrow_flag, seurat_object, arrow_file_
   
   count_data_y <- get_data(category = "assays",
                            arrow_flag = arrow_flag, 
-                           seurat_object = myso, 
-                           arrow_file_list = arrow_filename_list, 
+                           seurat_object = seurat_object, 
+                           arrow_file_list = arrow_file_list, 
                            input_file_df = input_file_df, 
                            assay_name = input$Assay_y_axis, 
                            reduction_name = NULL,
