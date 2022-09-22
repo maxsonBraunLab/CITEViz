@@ -39,12 +39,16 @@ app_server <- function( input, output, session ) {
     input_file_df <- input$file_input
     if (is.null(input_file_df)) { return(NULL) }
     
-    # set boolean flag for whether user's RDS file was already converted to arrow files prior to app startup
-    # this determines whether the server reads Seurat data from a Seurat object or from an arrow file for plots, tables, etc.
+    # # set boolean flag for whether user's RDS file was already converted to arrow files prior to app startup
+    # # this determines whether the server reads Seurat data from a Seurat object or from an arrow file for plots, tables, etc.
     arrow_flag <- reactiveVal() # can be TRUE or FALSE
     arrow_filename_list <- reactiveVal(NULL)
     myso <- reactiveVal(NULL) # initialize seurat object here so it is accessible to everything else in server side
     valid_file_input_flag <- reactiveVal() #set this flag so if invalid files are uploaded, the rest of the app doesn't render and throw errors due to invalid file input
+    
+    # keep track of type of input data (Seurat object, SingleCellExperiment object, Feather/Arrow file, etc.)
+    # 1 = Seurat object, 2 = SingleCellExperiment object, 3 = Feather/Arrow file, etc.
+    input_data_type <- reactiveVal() 
     
     observeEvent(
       list(
@@ -62,33 +66,40 @@ app_server <- function( input, output, session ) {
         if (length(file_extensions) == 1) {
           # if only 1 rds file is uploaded
           if (file_extensions == "rds") {
-            arrow_flag(FALSE)
-            message("Arrow flag is FALSE")
-            
+            # arrow_flag(FALSE)
+
             # reset arrow_filename_list to NULL so that there are no issues with getting dropdown menu choices fxn later
             arrow_filename_list(NULL)
             
             #read in RDS file
             rds_obj <- readRDS(input_file_df$datapath)
             
-            if (typeof(rds_obj) == "list") {
-              #check if integrated obj exists before retrieving it from RDS that was read in
-              integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
-              
-              #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
-              if (length(integrated_obj_index) == 0) {
-                # myso <- rds_obj[[1]]
-                myso(rds_obj[[1]])
+            if (class(rds_obj) == "Seurat") {
+              input_data_type(as.integer(1))
+              if (typeof(rds_obj) == "list") {
+                #check if integrated obj exists before retrieving it from RDS that was read in
+                integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
+                
+                #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
+                if (length(integrated_obj_index) == 0) {
+                  # myso <- rds_obj[[1]]
+                  myso(rds_obj[[1]])
+                }
+                else {
+                  #read in integrated obj
+                  # myso <- rds_obj[[integrated_obj_index]]
+                  myso(rds_obj[[integrated_obj_index]])
+                }
               }
               else {
-                #read in integrated obj
-                # myso <- rds_obj[[integrated_obj_index]]
-                myso(rds_obj[[integrated_obj_index]])
+                #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
+                # myso <- rds_obj
+                myso(rds_obj)
               }
             }
-            else {
-              #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
-              # myso <- rds_obj
+            
+            else if (class(rds_obj) == "SingleCellExperiment"){
+              input_data_type(as.integer(2))
               myso(rds_obj)
             }
             # set valid_file_input_flag after reading in RDS so that a Seurat object is in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid seurat obj is read in)
@@ -112,8 +123,7 @@ app_server <- function( input, output, session ) {
             })
           }
           else if (("feather" %in% file_extensions) | ("arrow" %in% file_extensions)) {
-            arrow_flag(TRUE)
-            message("Arrow flag is TRUE")
+            input_data_type(as.integer(3))
             myso(NULL) # reset myso to NULL so that there are no issues with getting dropdown menu choices fxn later
           
             arrow_filename_list(input_file_df$name)
@@ -203,12 +213,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "color_qa",
         choices = get_choices("metadata",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
-                               arrow_flag(), 
+                               input_data_type(), 
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
@@ -234,8 +244,8 @@ app_server <- function( input, output, session ) {
         )
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -302,8 +312,8 @@ app_server <- function( input, output, session ) {
         #instead of switch and hardcoded values, try colnames() of the input data so user can select whatever cols are in their data
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -368,12 +378,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction",
         choices = get_choices("reductions",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
-                                           arrow_flag(), 
+                                           input_data_type(), 
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
@@ -386,12 +396,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "color1",
         choices = get_choices("metadata",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
-                               arrow_flag(), 
+                               input_data_type(), 
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
@@ -410,8 +420,8 @@ app_server <- function( input, output, session ) {
         color <- input$color1
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -423,8 +433,8 @@ app_server <- function( input, output, session ) {
         
         #create dataframe from reduction selected
         cell_data <- get_data(category = "reductions",
-                              arrow_flag = arrow_flag(), 
-                              seurat_object = myso(), 
+                              input_data_type = input_data_type(), 
+                              rds_object = myso(), 
                               arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
@@ -472,8 +482,8 @@ app_server <- function( input, output, session ) {
         color <- input$color1
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -484,8 +494,8 @@ app_server <- function( input, output, session ) {
         
         #create dataframe from reduction selected
         cell_data <- get_data(category = "reductions",
-                              arrow_flag = arrow_flag(), 
-                              seurat_object = myso(), 
+                              input_data_type = input_data_type(), 
+                              rds_object = myso(), 
                               arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
@@ -527,8 +537,8 @@ app_server <- function( input, output, session ) {
       output$cluster_pg_selected <- DT::renderDT(server = FALSE, {
         #currently returns every column of metadata dataframe. May want to select specific columns in the future
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -565,12 +575,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction_expr_1d",
         choices = get_choices("reductions",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
-                                           arrow_flag(), 
+                                           input_data_type(), 
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
@@ -580,7 +590,7 @@ app_server <- function( input, output, session ) {
       
       output$Assay_1d <- renderUI({
         menu_choices <- get_choices("assays",
-                                    arrow_flag(),
+                                    input_data_type(),
                                     myso(),
                                     arrow_filename_list(),
                                     input_file_df)
@@ -598,7 +608,7 @@ app_server <- function( input, output, session ) {
         # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_1d, '")')
         assay_name <- input$Assay_1d
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -637,8 +647,8 @@ app_server <- function( input, output, session ) {
           # count_data <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
           
           count_data <- get_data(category = "assays",
-                                 arrow_flag = arrow_flag(), 
-                                 seurat_object = myso(), 
+                                 input_data_type = input_data_type(), 
+                                 rds_object = myso(), 
                                  arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_1d, 
@@ -647,8 +657,8 @@ app_server <- function( input, output, session ) {
           
           #create dataframe from reduction selected
           cell_data <- get_data(category = "reductions",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -708,8 +718,8 @@ app_server <- function( input, output, session ) {
         # count_data <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
         
         count_data <- get_data(category = "assays",
-                               arrow_flag = arrow_flag(), 
-                               seurat_object = myso(), 
+                               input_data_type = input_data_type(), 
+                               rds_object = myso(), 
                                arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay_1d, 
@@ -764,12 +774,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction_expr_2d",
         choices = get_choices("reductions",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
-                                           arrow_flag(), 
+                                           input_data_type(), 
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
@@ -779,7 +789,7 @@ app_server <- function( input, output, session ) {
       
       output$Assay_x_axis <- renderUI({
         menu_choices <- get_choices("assays",
-                                    arrow_flag(),
+                                    input_data_type(),
                                     myso(),
                                     arrow_filename_list(),
                                     input_file_df)
@@ -794,7 +804,7 @@ app_server <- function( input, output, session ) {
       
       output$Assay_y_axis <- renderUI({
         menu_choices <- get_choices("assays",
-                                    arrow_flag(),
+                                    input_data_type(),
                                     myso(),
                                     arrow_filename_list(),
                                     input_file_df)
@@ -811,7 +821,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay_x_axis)
         assay_name <- input$Assay_x_axis
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -833,7 +843,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay_y_axis)
         assay_name <- input$Assay_y_axis
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -879,8 +889,8 @@ app_server <- function( input, output, session ) {
           # count_data_x <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
           
           count_data_x <- get_data(category = "assays",
-                                   arrow_flag = arrow_flag(), 
-                                   seurat_object = myso(), 
+                                   input_data_type = input_data_type(), 
+                                   rds_object = myso(), 
                                    arrow_file_list = arrow_filename_list(), 
                                    input_file_df = input_file_df, 
                                    assay_name = input$Assay_x_axis, 
@@ -896,8 +906,8 @@ app_server <- function( input, output, session ) {
           # count_data_y <- SeuratObject::FetchData(object = myso(), vars = color_y, slot = "data")
           
           count_data_y <- get_data(category = "assays",
-                                   arrow_flag = arrow_flag(), 
-                                   seurat_object = myso(), 
+                                   input_data_type = input_data_type(), 
+                                   rds_object = myso(), 
                                    arrow_file_list = arrow_filename_list(), 
                                    input_file_df = input_file_df, 
                                    assay_name = input$Assay_y_axis, 
@@ -909,8 +919,8 @@ app_server <- function( input, output, session ) {
           
           #create dataframe from reduction selected
           cell_data <- get_data(category = "reductions",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -962,8 +972,8 @@ app_server <- function( input, output, session ) {
       output$color_legend_2d <- renderPlot({ 
         req(valid_file_input_flag() == TRUE)
         create_2d_color_legend(input = input, 
-                               arrow_flag = arrow_flag(),
-                               seurat_object = myso(), 
+                               input_data_type = input_data_type(),
+                               rds_object = myso(), 
                                arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df) 
         })
@@ -993,8 +1003,8 @@ app_server <- function( input, output, session ) {
         # count_data_y <- SeuratObject::FetchData(object = myso(), vars = color_y, slot = "data")
         
         count_data_x <- get_data(category = "assays",
-                                 arrow_flag = arrow_flag(), 
-                                 seurat_object = myso(), 
+                                 input_data_type = input_data_type(), 
+                                 rds_object = myso(), 
                                  arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_x_axis, 
@@ -1002,8 +1012,8 @@ app_server <- function( input, output, session ) {
                                  assay_data_to_get = color_x)
         
         count_data_y <- get_data(category = "assays",
-                                 arrow_flag = arrow_flag(), 
-                                 seurat_object = myso(), 
+                                 input_data_type = input_data_type(), 
+                                 rds_object = myso(), 
                                  arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_y_axis, 
@@ -1060,7 +1070,7 @@ app_server <- function( input, output, session ) {
       # ----- update/render UI elements -----
       output$Assay <- renderUI({
         menu_choices <- get_choices("assays",
-                                    arrow_flag(),
+                                    input_data_type(),
                                     myso(),
                                     arrow_filename_list(),
                                     input_file_df)
@@ -1077,7 +1087,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay)
         assay_name <- input$Assay
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -1099,7 +1109,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay)
         assay_name <- input$Assay
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -1122,12 +1132,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction_g",
         choices = get_choices("reductions",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
-                                           arrow_flag(), 
+                                           input_data_type(), 
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
@@ -1138,12 +1148,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "color2",
         choices = get_choices("metadata",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
-                               arrow_flag(), 
+                               input_data_type(), 
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
@@ -1195,8 +1205,8 @@ app_server <- function( input, output, session ) {
           # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature, input$y_feature), slot = "data")
           
           count_data <- get_data(category = "assays",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = input$Assay, 
@@ -1283,8 +1293,8 @@ app_server <- function( input, output, session ) {
         color <- input$color2
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -1295,8 +1305,8 @@ app_server <- function( input, output, session ) {
         
         #create dataframe from reduction selected
         cell_data <- get_data(category = "reductions",
-                              arrow_flag = arrow_flag(), 
-                              seurat_object = myso(), 
+                              input_data_type = input_data_type(), 
+                              rds_object = myso(), 
                               arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
@@ -1371,8 +1381,8 @@ app_server <- function( input, output, session ) {
         # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature, input$y_feature), slot = "data")
         
         count_data <- get_data(category = "assays",
-                               arrow_flag = arrow_flag(), 
-                               seurat_object = myso(), 
+                               input_data_type = input_data_type(), 
+                               rds_object = myso(), 
                                arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay, 
@@ -1503,7 +1513,7 @@ app_server <- function( input, output, session ) {
       # ----- update/render UI elements -----
       output$Assay_bg <- renderUI({
         menu_choices <- get_choices("assays",
-                                    arrow_flag(),
+                                    input_data_type(),
                                     myso(),
                                     arrow_filename_list(),
                                     input_file_df)
@@ -1520,7 +1530,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay_bg)
         assay_name <- input$Assay_bg
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -1542,7 +1552,7 @@ app_server <- function( input, output, session ) {
         req(input$Assay_bg)
         assay_name <- input$Assay_bg
         menu_choices <- get_choices(category = NULL, 
-                                    arrow_flag(), 
+                                    input_data_type(), 
                                     myso(), 
                                     arrow_filename_list(), 
                                     input_file_df, 
@@ -1565,12 +1575,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "reduction_bg",
         choices = get_choices("reductions",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
-                                           arrow_flag(), 
+                                           input_data_type(), 
                                            myso(),
                                            arrow_filename_list(), 
                                            input_file_df))
@@ -1581,12 +1591,12 @@ app_server <- function( input, output, session ) {
         session = session,
         inputId = "color2_bg",
         choices = get_choices("metadata",
-                              arrow_flag(),
+                              input_data_type(),
                               myso(),
                               arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
-                               arrow_flag(), 
+                               input_data_type(), 
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
@@ -1644,8 +1654,8 @@ app_server <- function( input, output, session ) {
           # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
           
           count_data <- get_data(category = "assays",
-                                 arrow_flag = arrow_flag(), 
-                                 seurat_object = myso(), 
+                                 input_data_type = input_data_type(), 
+                                 rds_object = myso(), 
                                  arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_bg, 
@@ -1699,8 +1709,8 @@ app_server <- function( input, output, session ) {
         color <- input$color2_bg
         
         metadata_df <- get_data(category = "metadata",
-                                arrow_flag = arrow_flag(), 
-                                seurat_object = myso(), 
+                                input_data_type = input_data_type(), 
+                                rds_object = myso(), 
                                 arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
@@ -1712,8 +1722,8 @@ app_server <- function( input, output, session ) {
         
         #creates dataframe from reduction selected
         cell_data <- get_data(category = "reductions",
-                              arrow_flag = arrow_flag(), 
-                              seurat_object = myso(), 
+                              input_data_type = input_data_type(), 
+                              rds_object = myso(), 
                               arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
@@ -1773,8 +1783,8 @@ app_server <- function( input, output, session ) {
         # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
         
         count_data <- get_data(category = "assays",
-                               arrow_flag = arrow_flag(), 
-                               seurat_object = myso(), 
+                               input_data_type = input_data_type(), 
+                               rds_object = myso(), 
                                arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay_bg, 
