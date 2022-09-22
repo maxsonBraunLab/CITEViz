@@ -29,6 +29,7 @@ Imports:
     rlang,
     SeuratObject,
     shiny (>= 1.6.0),
+    SingleCellExperiment,
     stats,
     tibble,
     vembedr
