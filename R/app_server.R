@@ -7,12 +7,11 @@
 #' @import ggplot2
 #' @import magrittr
 #'  
-#' @importFrom arrow read_feather
 #' @importFrom dplyr filter last left_join
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
 #' @importFrom rlang is_empty
 #' @importFrom SeuratObject Assays DefaultAssay Embeddings FetchData GetAssayData Reductions
-#' @importFrom stats quantile
+#' @importFrom stats as.formula quantile
 #' @importFrom tools file_ext
 #'
 #' @noRd
