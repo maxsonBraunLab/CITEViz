@@ -139,7 +139,10 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
   alt_exp_object <- SingleCellExperiment::altExp(x = sce_object, 
                                                  e = alt_exp_name)
   alt_exp_reductions <- SingleCellExperiment::reducedDimNames(alt_exp_object)
-  if (reduction_name %in% alt_exp_reductions) {
+  # match the reduction name exactly when searching if it's within a list
+  reduction_finder_results <- grepl(paste0("^", reduction_name, "$"), 
+                                    alt_exp_reductions)
+  if (TRUE %in% reduction_finder_results) {
     return(alt_exp_name)
   }
 }
@@ -338,15 +341,17 @@ get_data <- function(category, input_data_type, rds_object, arrow_file_list, inp
         data <- t(as.matrix(SingleCellExperiment::logcounts(rds_object)))
       }
       else {
-        data <- t(as.matrix(
-          SingleCellExperiment::logcounts(
-            SingleCellExperiment::altExp(x = rds_object, e = assay_name))))
+        alt_exp_obj <- SingleCellExperiment::altExp(x = rds_object, 
+                                                    e = assay_name)
+        data <- t(as.matrix(SingleCellExperiment::logcounts(alt_exp_obj)))
       }
     }
     else if (category == "reductions" & !is.null(reduction_name)) {
       main_exp_reductions <- SingleCellExperiment::reducedDimNames(rds_object)
-      
-      if (reduction_name %in% main_exp_reductions) {
+      # match the reduction name exactly when searching if it's within a list
+      reduction_finder_results <- grepl(pattern = paste0("^", reduction_name, "$"), 
+                             x = main_exp_reductions)
+      if (TRUE %in% reduction_finder_results) {
         all_data <- SingleCellExperiment::reducedDim(rds_object, 
                                                      type = reduction_name, 
                                                      withDimnames = FALSE)
