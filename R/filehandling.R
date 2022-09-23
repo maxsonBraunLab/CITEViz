@@ -118,6 +118,33 @@ create_feather_files <- function(seurat_object, feather_parent_dir = "citeviz_ar
 }
 
 
+#' Find which alternate experiment within a SingleCellExperiment object a given reduction can be found in. This is needed if a user wants to retrieve and plot the cell embeddings for a given reduction from a SingleCellExperiment object.
+#'
+#' @param alt_exp_name A string specifying the name of an alternate experiment from a SingleCellExperiment object in which to search if a given reduction is present. The names of alternate experiments can be obtained by looking through SingleCellExperiment::altExpNames(x), where x is a SingleCellExperiment object.
+#' @param sce_object A SingleCellExperiment object containing data from a CITE-seq experiment processed with Seurat.
+#' @param reduction_name A string specifying the name of a reduction (e.g., "UMAP", "PCA", etc.).
+#'
+#' @importFrom SingleCellExperiment altExp reducedDimNames
+#'
+#' @return A string specifying the name of an alternate experiment (e.g., "ADT", "RNA", "SCT", etc.) in which the cell embeddings for a given reduction can be found.
+#' @export
+#'
+#' @examples \dontrun{
+#' sce_object <- readRDS("path/to/RDS_file_containing_SCE_object.rds")
+#' alt_exp_name <- SingleCellExperiment::altExpNames(sce_object)[1]
+#' reduction_name <- "UMAP"
+#' alt_exp_of_desired_reduction <- find_reduction_in_altSCE(alt_exp_name, sce_object, reduction_name)
+#' }
+find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
+  alt_exp_object <- SingleCellExperiment::altExp(x = sce_object, 
+                                                 e = alt_exp_name)
+  alt_exp_reductions <- SingleCellExperiment::reducedDimNames(alt_exp_object)
+  if (reduction_name %in% alt_exp_reductions) {
+    return(alt_exp_name)
+  }
+}
+
+
 #' Get dropdown menu options for selectInput elements in CITEViz.
 #' 
 #' This function retrieves various categories of data (e.g., metadata, reductions, or assays) from user-uploaded input file(s) (e.g., an RDS file containing a Seurat object or Feather files) and returns a character vector of items with which to populate a dropdown menu in the CITEViz user interface. This function can also get subchoices for a dropdown menu after a user has selected an assay they want to view. For example, if a user selects the "ADT" assay, then this function will return a vector of all the possible ADTs a user can choose to view from their input data. If a user selects the "RNA" assay, then this function will return a vector of all the genes a user can choose to view from their input data.
@@ -190,11 +217,6 @@ get_choices <- function(category, input_data_type, rds_object, arrow_file_list, 
         colnames()
     }
     else if (category == "reductions") {
-      # main_exp_reductions <- SingleCellExperiment::reducedDimNames(rds_object)
-      # alt_exp_reductions <- SingleCellExperiment::reducedDimNames(
-      #   SingleCellExperiment::altExp(x = rds_object,
-      #                                e = assay_name)
-      # )
       menu_choices <- unlist(SingleCellExperiment::applySCE(rds_object, 
                                                             reducedDimNames))
     }
@@ -330,23 +352,12 @@ get_data <- function(category, input_data_type, rds_object, arrow_file_list, inp
                                                      withDimnames = FALSE)
       }
       else {
-        # create a named list of alternate experiments and the reductions found in each one 
-        alt_exp_reductions_list <- 
-          SingleCellExperiment::altExpNames(rds_object) %>%
-          sapply(SingleCellExperiment::altExp, x = rds_object, USE.NAMES = TRUE) %>%
-          sapply(SingleCellExperiment::reducedDimNames, USE.NAMES = TRUE)
-        
         # find which alternate experiment a reduction can be found under
-        find_reduction_in_alt_exp <- function(alt_exp_list) {
-          # if (reduction_name %in% )
-          
-        }
-        # assay_name <- lapply(names(alt_exp_reductions_list), reduction_search_fxn) %>% 
-        #   unlist()
-        
-
-        assay_name <- find_reduction_in_alt_exp(alt_exp_reductions_list)
-          
+        alt_exp_names_list <- SingleCellExperiment::altExpNames(rds_object)
+        assay_name <- lapply(alt_exp_names_list, 
+                             FUN = find_reduction_in_altSCE, 
+                             sce_object = rds_object, 
+                             reduction_name = reduction_name) %>% unlist()
         alt_exp_obj <- SingleCellExperiment::altExp(x = rds_object,
                                                     e = assay_name)
         all_data <- SingleCellExperiment::reducedDim(alt_exp_obj,

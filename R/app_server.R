@@ -728,7 +728,7 @@ app_server <- function( input, output, session ) {
 
         # num_cells_selected <- nrow(count_data)
         num_cells_expressing <- count_data %>%
-          dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
+          dplyr::filter((!!as.name(color_x)) > 0) %>%
           nrow()
         
         # get total num of cells in sample
@@ -1022,12 +1022,12 @@ app_server <- function( input, output, session ) {
        
         num_cells_expressing_x <- count_data_x %>%
           # dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
-          dplyr::filter((!!color_x) > 0) %>%
+          dplyr::filter((!!as.name(color_x)) > 0) %>%
           nrow()
           
         num_cells_expressing_y <- count_data_y %>%
           # dplyr::filter(eval(parse(text = paste0("`", color_y, "`"))) > 0) %>%
-          dplyr::filter((!!color_y) > 0) %>%
+          dplyr::filter((!!as.name(color_y)) > 0) %>%
           nrow()
         
         # get total num of cells in sample
