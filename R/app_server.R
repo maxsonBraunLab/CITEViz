@@ -43,7 +43,7 @@ app_server <- function( input, output, session ) {
     # # this determines whether the server reads Seurat data from a Seurat object or from an arrow file for plots, tables, etc.
     arrow_flag <- reactiveVal() # can be TRUE or FALSE
     arrow_filename_list <- reactiveVal(NULL)
-    myso <- reactiveVal(NULL) # initialize seurat object here so it is accessible to everything else in server side
+    myso <- reactiveVal(NULL) # initialize Seurat/SingleCellExperiment/other RDS object here so it is accessible to everything else in server side
     valid_file_input_flag <- reactiveVal() #set this flag so if invalid files are uploaded, the rest of the app doesn't render and throw errors due to invalid file input
     
     # keep track of type of input data (Seurat object, SingleCellExperiment object, Feather/Arrow file, etc.)
@@ -66,8 +66,6 @@ app_server <- function( input, output, session ) {
         if (length(file_extensions) == 1) {
           # if only 1 rds file is uploaded
           if (file_extensions == "rds") {
-            # arrow_flag(FALSE)
-
             # reset arrow_filename_list to NULL so that there are no issues with getting dropdown menu choices fxn later
             arrow_filename_list(NULL)
             
@@ -82,18 +80,15 @@ app_server <- function( input, output, session ) {
                 
                 #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
                 if (length(integrated_obj_index) == 0) {
-                  # myso <- rds_obj[[1]]
                   myso(rds_obj[[1]])
                 }
                 else {
                   #read in integrated obj
-                  # myso <- rds_obj[[integrated_obj_index]]
                   myso(rds_obj[[integrated_obj_index]])
                 }
               }
               else {
                 #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
-                # myso <- rds_obj
                 myso(rds_obj)
               }
             }
@@ -139,65 +134,6 @@ app_server <- function( input, output, session ) {
             })
           }
         }
-        
-       
-        
-        
-        # if (file_extensions == "rds") {
-          # arrow_flag(FALSE)
-          # #read in RDS file
-          # rds_obj <- readRDS(input_file_df$datapath)
-          # 
-          # if (typeof(rds_obj) == "list") {
-          #   #check if integrated obj exists before retrieving it from RDS that was read in
-          #   integrated_obj_index <- grep("integrated", names(rds_obj), ignore.case = TRUE)
-          #   
-          #   #if integrated obj is not in list of objs and each seurat obj in the sample list is also wrapped in a list
-          #   if (length(integrated_obj_index) == 0) {
-          #     myso <- rds_obj[[1]]
-          #   }
-          #   else {
-          #     #read in integrated obj
-          #     myso <- rds_obj[[integrated_obj_index]]
-          #   }
-          # }
-          # else {
-          #   #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
-          #   myso <- rds_obj
-          # }
-          
-          #check if Seurat object has "reductions" slot
-          # file_validation <- reactive({ 
-          #   validate(
-          #     need(
-          #       length(SeuratObject::Reductions(myso)) > 0,
-          #       message = "Seurat object does not contain reductions. Please check input RDS file."
-          #     )
-          #   )
-          # })
-
-          # output$file_validation_status <- renderText({ 
-          #   # file_validation() 
-          #   })
-          
-          # message("Arrow flag is FALSE")        
-          # }
-        # else if input file extension is not RDS (i.e. is arrow or feather), set arrow_flag to true
-        # else {
-        #   arrow_flag(TRUE)
-        #   message("Arrow flag is TRUE")
-        #   
-        #   #get list of input files to read and refer to downstream
-        #   
-        # }
-        
-        # if not RDS, set arrow_flag(TRUE)
-        # else set arrow_flag(FALSE) and read RDS
-        
-        # triggered by file input button in UI
-        #   ## give it option to accept multiple files (either one RDS or multiple feather files)
-        #   ## if the user inputs multiple RDS files, throw an error to the user to tell them not to do that
-        # what happens if the user inputs a mix of RDS and Feather files at the same time?
       }) 
 
     
@@ -222,8 +158,6 @@ app_server <- function( input, output, session ) {
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
-        # choices = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")]),
-        # selected = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- QA distribution plot -----
@@ -261,7 +195,7 @@ app_server <- function( input, output, session ) {
         
         #generate base plot template with features that all QA distribution plots will have
         base_distrib_plot <- metadata_df %>%
-          ggplot2::ggplot(aes(x = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
+          ggplot2::ggplot(aes(x = !!as.name(params[1]), fill = !!as.name(color), color = !!as.name(color))) +
           ggplot2::labs(fill = color, color = color) + 
           ggplot2::theme(plot.title = element_text(hjust=0.5)) +
           ggplot2::ggtitle(params[2]) +
@@ -329,7 +263,7 @@ app_server <- function( input, output, session ) {
         
         #generate base plot template with features that all QA boxplots will have
         base_box_plot <- metadata_df %>%
-          ggplot2::ggplot(aes(x = eval(parse(text = color)), y = eval(parse(text = params[1])), fill = eval(parse(text = color)), color = eval(parse(text = color)))) + #eval(parse(text = x)) necessary to turn string into variable name format
+          ggplot2::ggplot(aes(x = !!as.name(color), y = !!as.name(params[1]), fill = !!as.name(color), color = !!as.name(color))) +
           ggplot2::labs(fill = color, color = color) + 
           ggplot2::geom_boxplot(alpha = 0.5, width=0.5) + 
           ggplot2::theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
@@ -387,8 +321,6 @@ app_server <- function( input, output, session ) {
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
-        # choices = sort(SeuratObject::Reductions(myso())),
-        # selected = dplyr::last(sort(SeuratObject::Reductions(myso())))
       )
       
       #changes selectInput "color" dropdown contents to include all metadata in Seurat Object
@@ -405,8 +337,6 @@ app_server <- function( input, output, session ) {
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
-        # choices = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")]),
-        # selected = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Reactive 2D reduction graph -----
@@ -440,8 +370,6 @@ app_server <- function( input, output, session ) {
                               assay_name = NULL, 
                               reduction_name = reduc)
         
-        # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-        
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
         
@@ -450,7 +378,6 @@ app_server <- function( input, output, session ) {
                         x = ~cell_data[,1], y = ~cell_data[,2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = stats::as.formula(paste0("~metadata_df$", color)),
-                        # color = ~eval(parse(text = paste0("myso()[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors = custom_palette,
                         type = "scatter", 
                         mode = "markers",
@@ -500,8 +427,7 @@ app_server <- function( input, output, session ) {
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
-        # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-        
+
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
         
@@ -510,7 +436,6 @@ app_server <- function( input, output, session ) {
                         x = ~cell_data[,1], y = ~cell_data[,2], z = ~cell_data[,3],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
                         color = stats::as.formula(paste0("~metadata_df$", color)),
-                        # color = ~eval(parse(text = paste0("myso()[[]]$", color))), #color by selected metadata in object; need to incorporate 
                         colors =  custom_palette,
                         type = "scatter3d", 
                         mode = "markers",
@@ -584,8 +509,6 @@ app_server <- function( input, output, session ) {
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
-        # choices = sort(SeuratObject::Reductions(myso())),
-        # selected = dplyr::last(sort(SeuratObject::Reductions(myso())))
       )
       
       output$Assay_1d <- renderUI({
@@ -598,14 +521,11 @@ app_server <- function( input, output, session ) {
                     label = "Choose assay to color reduction plot by:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = sort(SeuratObject::Assays(object = myso())),
-                    # selected = sort(SeuratObject::Assays(object = myso()))[1]
         )
       })
       
       output$feature_1d <- renderUI({
         req(input$Assay_1d)
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_1d, '")')
         assay_name <- input$Assay_1d
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
@@ -617,8 +537,6 @@ app_server <- function( input, output, session ) {
                     label = "Choose feature to view expression levels for:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = rownames(eval(parse(text=feature_path))),
-                    # selected = rownames(eval(parse(text=feature_path)))[1]
         )
       })
       
@@ -639,13 +557,6 @@ app_server <- function( input, output, session ) {
           #selected feature to color clusters by
           color_x <- input$feature_1d
           
-          # temp_myso <- myso()
-          # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_1d
-          # # SeuratObject::DefaultAssay(myso()) <- input$Assay_1d
-          # myso(temp_myso)
-          # 
-          # count_data <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
-          
           count_data <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
@@ -663,8 +574,7 @@ app_server <- function( input, output, session ) {
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = reduc)
-          # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-          
+
           #create list containing all column names of cell_data
           cell_col <- colnames(cell_data)
           
@@ -710,12 +620,6 @@ app_server <- function( input, output, session ) {
         
         #selected feature to color clusters by
         color_x <- input$feature_1d
-        
-        # SeuratObject::DefaultAssay(myso()) <- input$Assay_1d
-        # temp_myso <- myso()
-        # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_1d
-        # myso(temp_myso)
-        # count_data <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
         
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
@@ -783,8 +687,6 @@ app_server <- function( input, output, session ) {
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
-        # choices = sort(SeuratObject::Reductions(myso())),
-        # selected = dplyr::last(sort(SeuratObject::Reductions(myso())))
       )
       
       output$Assay_x_axis <- renderUI({
@@ -797,8 +699,6 @@ app_server <- function( input, output, session ) {
                     label = "Choose assay for x-axis colorscale:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = sort(SeuratObject::Assays(object = myso())),
-                    # selected = sort(SeuratObject::Assays(object = myso()))[1]
         )
       })
       
@@ -812,8 +712,6 @@ app_server <- function( input, output, session ) {
                     label = "Choose assay for y-axis colorscale:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = sort(SeuratObject::Assays(object = myso())),
-                    # selected = sort(SeuratObject::Assays(object = myso()))[1]
         )
       })
 
@@ -831,12 +729,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[1]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_x_axis, '")')
-        # selectInput(inputId = "x_axis_feature",
-        #             label = "Choose feature for x-axis colorscale:",
-        #             choices = rownames(eval(parse(text=feature_path))),
-        #             selected = rownames(eval(parse(text=feature_path)))[1]
-        # )
       })
       
       output$y_axis_feature <- renderUI({
@@ -853,12 +745,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[2]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_y_axis, '")')
-        # selectInput(inputId = "y_axis_feature",
-        #             label = "Choose feature for y-axis colorscale:",
-        #             choices = rownames(eval(parse(text=feature_path))),
-        #             selected = rownames(eval(parse(text=feature_path)))[2]
-        # )
       })
       
       
@@ -881,13 +767,7 @@ app_server <- function( input, output, session ) {
           #selected metadata to color clusters by
           color_x <- input$x_axis_feature
           color_y <- input$y_axis_feature
-          
-          # SeuratObject::DefaultAssay(myso()) <- input$Assay_x_axis
-          # temp_myso <- myso()
-          # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_x_axis
-          # myso(temp_myso)
-          # count_data_x <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
-          
+         
           count_data_x <- get_data(category = "assays",
                                    input_data_type = input_data_type(), 
                                    rds_object = myso(), 
@@ -898,12 +778,6 @@ app_server <- function( input, output, session ) {
                                    assay_data_to_get = color_x)
           # extract only the count values as a vector from the original count data dataframe
           count_data_x <- count_data_x[[color_x]]
-          
-          # SeuratObject::DefaultAssay(myso()) <- input$Assay_y_axis
-          # temp_myso <- myso()
-          # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_y_axis
-          # myso(temp_myso)
-          # count_data_y <- SeuratObject::FetchData(object = myso(), vars = color_y, slot = "data")
           
           count_data_y <- get_data(category = "assays",
                                    input_data_type = input_data_type(), 
@@ -925,8 +799,7 @@ app_server <- function( input, output, session ) {
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = reduc)
-          # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-          
+
           #create list containing all column names of cell_data
           cell_col <- colnames(cell_data)
           
@@ -940,7 +813,6 @@ app_server <- function( input, output, session ) {
                                         y_value = round(ngrid * count_data_y / max(count_data_y)))
           coexpression_umap_df <- cbind(coexpression_df, cell_data) #combine umap reduction data with expression data
           mapped_df <- dplyr::left_join(coexpression_umap_df, color_matrix_df) # map hex color codes to interpolated gene expression values in merged data and create a new data frame
-          
           
           # create UMAP that colors by expression levels
           plotly::plot_ly(mapped_df,
@@ -989,19 +861,6 @@ app_server <- function( input, output, session ) {
         color_x <- input$x_axis_feature
         color_y <- input$y_axis_feature
         
-        # SeuratObject::DefaultAssay(myso()) <- input$Assay_x_axis
-        # temp_myso <- myso()
-        # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_x_axis
-        # myso(temp_myso)
-        # 
-        # count_data_x <- SeuratObject::FetchData(object = myso(), vars = color_x, slot = "data")
-
-        # SeuratObject::DefaultAssay(myso()) <- input$Assay_y_axis
-        # temp_myso <- myso()
-        # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_y_axis
-        # myso(temp_myso)
-        # count_data_y <- SeuratObject::FetchData(object = myso(), vars = color_y, slot = "data")
-        
         count_data_x <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
@@ -1021,12 +880,10 @@ app_server <- function( input, output, session ) {
                                  assay_data_to_get = color_y)
        
         num_cells_expressing_x <- count_data_x %>%
-          # dplyr::filter(eval(parse(text = paste0("`", color_x, "`"))) > 0) %>%
           dplyr::filter((!!as.name(color_x)) > 0) %>%
           nrow()
           
         num_cells_expressing_y <- count_data_y %>%
-          # dplyr::filter(eval(parse(text = paste0("`", color_y, "`"))) > 0) %>%
           dplyr::filter((!!as.name(color_y)) > 0) %>%
           nrow()
         
@@ -1078,8 +935,6 @@ app_server <- function( input, output, session ) {
                     label = "Choose assay:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = sort(SeuratObject::Assays(object = myso())),
-                    # selected = sort(SeuratObject::Assays(object = myso()))[1])
         )
       })
       
@@ -1097,12 +952,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[1]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay, '")')
-        # selectInput(
-        #   inputId = "x_feature",
-        #   label = "Choose x-axis feature:",
-        #   choices = rownames(eval(parse(text=feature_path))),
-        #   selected = rownames(eval(parse(text=feature_path)))[1])
       })
       
       output$y_feature <- renderUI({
@@ -1119,12 +968,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[2]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay, '")')
-        # selectInput(
-        #   inputId = "y_feature",
-        #   label = "Choose y-axis feature:",
-        #   choices = rownames(eval(parse(text=feature_path))),
-        #   selected = rownames(eval(parse(text=feature_path)))[2])
       })
       
       #changes the selectInput "reduction" dropdown contents to include all reductions in Seurat Object
@@ -1141,8 +984,6 @@ app_server <- function( input, output, session ) {
                                            myso(), 
                                            arrow_filename_list(), 
                                            input_file_df))
-        # choices = sort(SeuratObject::Reductions(myso())),
-        # selected = dplyr::last(sort(SeuratObject::Reductions(myso())))
       )
       updateSelectInput(
         session = session,
@@ -1157,8 +998,6 @@ app_server <- function( input, output, session ) {
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
-        # choices = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")]),
-        # selected = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Last-clicked buttons tracker -----
@@ -1197,13 +1036,6 @@ app_server <- function( input, output, session ) {
           #code to execute when one of the above input events occurs
           req(input$x_feature, input$y_feature, valid_file_input_flag() == TRUE)
           
-          # SeuratObject::DefaultAssay(myso()) <- input$Assay
-          # temp_myso <- myso()
-          # SeuratObject::DefaultAssay(temp_myso) <- input$Assay
-          # myso(temp_myso)
-          
-          # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature, input$y_feature), slot = "data")
-          
           count_data <- get_data(category = "assays",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
@@ -1239,7 +1071,6 @@ app_server <- function( input, output, session ) {
                           alpha = 0.6) 
           }
           
-          
           else {
             selected_cell_barcodes <- NULL
             count_data_subset <- NULL
@@ -1253,7 +1084,8 @@ app_server <- function( input, output, session ) {
               count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
             }
             base_scatterplot <- plotly::plot_ly(count_data_subset,
-                                                x = ~count_data_subset[,input$x_feature], y = ~count_data_subset[,input$y_feature],
+                                                x = ~count_data_subset[,input$x_feature], 
+                                                y = ~count_data_subset[,input$y_feature],
                                                 customdata = rownames(count_data_subset),
                                                 mode = "markers",
                                                 source = "C") %>% 
@@ -1311,8 +1143,7 @@ app_server <- function( input, output, session ) {
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
-        # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-        
+
         #create list containing all column names of cell_data
         cell_col <- colnames(cell_data)
         
@@ -1327,7 +1158,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (is.null(selected_cells)) {
-          plotly_color_list <- c(paste0("metadata_df$", color), custom_palette)
+          plotly_color_list <- c(paste0("metadata_df$", color), "custom_palette")
         } 
         else {
           plotly_color_list <- c("rownames(cell_data) %in% selected_cells", 'c("grey", "black")')
@@ -1336,8 +1167,8 @@ app_server <- function( input, output, session ) {
         plotly::plot_ly(cell_data, 
                         x = ~cell_data[,1], y = ~cell_data[,2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
-                        color = ~eval(parse(text = plotly_color_list[1])), #color by selected metadata in object; need to incorporate 
-                        colors = ~eval(parse(text = plotly_color_list[2])),
+                        color = stats::as.formula(paste0("~", plotly_color_list[1])), #color by selected metadata in object
+                        colors = stats::as.formula(paste0("~", plotly_color_list[2])),
                         type = 'scatter', 
                         mode = 'markers',
                         marker = list(size = 3, width=2)) %>%
@@ -1372,13 +1203,6 @@ app_server <- function( input, output, session ) {
       #events triggered by clicking gate button
       observeEvent(input$gate, {
         req(input$x_feature, input$y_feature)
-        
-        # SeuratObject::DefaultAssay(myso()) <- input$Assay
-        # temp_myso <- myso()
-        # SeuratObject::DefaultAssay(temp_myso) <- input$Assay
-        # myso(temp_myso)
-        # 
-        # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature, input$y_feature), slot = "data")
         
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
@@ -1435,7 +1259,6 @@ app_server <- function( input, output, session ) {
       observeEvent(input$gating_pg_table_cell_edit, {
         cell_edit_data <- input$gating_pg_table_cell_edit
         gate_id <- reactive_gating_df()$Gate_ID[cell_edit_data$row]
-        # [input$gating_pg_table_cell_edit$row, 1]
         gate_reactive_values[[gate_id]] <- SetSubsetName(gate_reactive_values[[gate_id]], cell_edit_data$value)
       })
       
@@ -1521,8 +1344,6 @@ app_server <- function( input, output, session ) {
                     label = "Choose assay:",
                     choices = menu_choices,
                     selected = menu_choices[1]
-                    # choices = sort(SeuratObject::Assays(object = myso())),
-                    # selected = sort(SeuratObject::Assays(object = myso()))[1])
         )
       })
       
@@ -1540,12 +1361,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[1]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_bg, '")')
-        # selectInput(
-        #   inputId = "x_feature_bg",
-        #   label = "Choose x-axis feature:",
-        #   choices = rownames(eval(parse(text=feature_path))),
-        #   selected = rownames(eval(parse(text=feature_path)))[1])
       })
       
       output$y_feature_bg <- renderUI({
@@ -1562,12 +1377,6 @@ app_server <- function( input, output, session ) {
                     choices = menu_choices,
                     selected = menu_choices[2]
         )
-        # feature_path <- paste0('SeuratObject::GetAssayData(object = myso(), slot = "data", assay = "', input$Assay_bg, '")')
-        # selectInput(
-        #   inputId = "y_feature_bg",
-        #   label = "Choose y-axis feature:",
-        #   choices = rownames(eval(parse(text=feature_path))),
-        #   selected = rownames(eval(parse(text=feature_path)))[2])
       })
       
       #changes the selectInput "reduction" dropdown contents to include all reductions in Seurat Object
@@ -1584,8 +1393,6 @@ app_server <- function( input, output, session ) {
                                            myso(),
                                            arrow_filename_list(), 
                                            input_file_df))
-        # choices = sort(SeuratObject::Reductions(myso())),
-        # selected = dplyr::last(sort(SeuratObject::Reductions(myso())))
       )
       updateSelectInput(
         session = session,
@@ -1600,8 +1407,6 @@ app_server <- function( input, output, session ) {
                                myso(), 
                                arrow_filename_list(), 
                                input_file_df)[1]
-        # choices = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")]),
-        # selected = colnames(myso()[[]][lapply(myso()[[]], class) %in% c("factor", "character")])[1]
       )
       
       # ----- Last-clicked buttons tracker -----
@@ -1646,13 +1451,6 @@ app_server <- function( input, output, session ) {
             col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
           )
           
-          # SeuratObject::DefaultAssay(myso()) <- input$Assay_bg
-          # temp_myso <- myso()
-          # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_bg
-          # myso(temp_myso)
-          # 
-          # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
-          
           count_data <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
@@ -1661,7 +1459,6 @@ app_server <- function( input, output, session ) {
                                  assay_name = input$Assay_bg, 
                                  reduction_name = NULL,
                                  assay_data_to_get = c(input$x_feature_bg, input$y_feature_bg))
-          
           
           selected_cell_barcodes <- NULL
           
@@ -1718,7 +1515,7 @@ app_server <- function( input, output, session ) {
         
         #interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
         custom_palette <- get_palette(length(unique(metadata_df[[color]])))
-        plotly_color_list <- c(paste0("metadata_df$", color), custom_palette)
+        plotly_color_list <- c(paste0("metadata_df$", color), "custom_palette")
         
         #creates dataframe from reduction selected
         cell_data <- get_data(category = "reductions",
@@ -1728,16 +1525,15 @@ app_server <- function( input, output, session ) {
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
-        # cell_data <- data.frame(eval(parse(text = paste0("SeuratObject::Embeddings(object = myso(), reduction = '", reduc, "')"))))
-        
+
         #creates list containing all column names of cell_data
         cell_col <- colnames(cell_data)
         
         plotly::plot_ly(cell_data, 
                         x = ~cell_data[,1], y = ~cell_data[,2],
                         customdata = rownames(cell_data), #customdata is printed in cell selection and used to find metadata
-                        color = ~eval(parse(text = plotly_color_list[1])), #color by selected metadata in object; need to incorporate 
-                        colors = ~eval(parse(text = plotly_color_list[2])),
+                        color = stats::as.formula(paste0("~", plotly_color_list[1])), #color by selected metadata in object
+                        colors = stats::as.formula(paste0("~", plotly_color_list[2])),
                         type = 'scatter',
                         mode = 'markers',
                         marker = list(size = 3, width=2),
@@ -1774,13 +1570,6 @@ app_server <- function( input, output, session ) {
       #events triggered by clicking gate button
       observeEvent(input$gate_bg, {
         req(input$x_feature_bg, input$y_feature_bg)
-        
-        # SeuratObject::DefaultAssay(myso()) <- input$Assay_bg
-        # temp_myso <- myso()
-        # SeuratObject::DefaultAssay(temp_myso) <- input$Assay_bg
-        # myso(temp_myso)
-        # 
-        # count_data <- SeuratObject::FetchData(object = myso(), vars = c(input$x_feature_bg, input$y_feature_bg), slot = "data")
         
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
