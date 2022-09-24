@@ -49,6 +49,8 @@ app_server <- function( input, output, session ) {
     # 1 = Seurat object, 2 = SingleCellExperiment object, 3 = Feather/Arrow file, etc.
     input_data_type <- reactiveVal() 
     
+    duplicate_reductions_flag <- reactiveVal() # if an inputted Seurat/SingleCellExperiment/etc object contains more than one reduction with the exact same name, then this flag is set to TRUE. Else this flag is set to FALSE. This prevents duplicate reduction names from causing ambiguity in correct data retrieval and app crashing.
+    
     observeEvent(
       list(
         #list of input events that can trigger reactive flag
@@ -67,6 +69,7 @@ app_server <- function( input, output, session ) {
           if (file_extensions == "rds") {
             # reset arrow_filename_list to NULL so that there are no issues with getting dropdown menu choices fxn later
             arrow_filename_list(NULL)
+            reductions_vector <- NULL
             
             #read in RDS file
             rds_obj <- readRDS(input_file_df$datapath)
@@ -90,14 +93,29 @@ app_server <- function( input, output, session ) {
                 #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
                 myso(rds_obj)
               }
+              
+              reductions_vector <- SeuratObject::Reductions(myso())
             }
             
             else if (class(rds_obj) == "SingleCellExperiment"){
               input_data_type(as.integer(2))
               myso(rds_obj)
+              reductions_vector <- unlist(SingleCellExperiment::applySCE(myso(), reducedDimNames))
             }
             # set valid_file_input_flag after reading in RDS so that a Seurat object is in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid seurat obj is read in)
             valid_file_input_flag(TRUE)
+            
+            # check if object contains duplicate reduction names
+            # set duplicate_reductions_flag after reading in RDS so that an RDS object is in memory before other parts of app that require a duplicate_reductions_flag==FALSE can run
+            if (length(reductions_vector) == length(unique(reductions_vector))) {
+              duplicate_reductions_flag(FALSE)
+            }
+            else {
+              duplicate_reductions_flag(TRUE)
+              output$file_validation_status <- renderText({ 
+                "The uploaded file contains more than one reduction of the same name. Please check your data and make sure all reductions are uniquely named."
+              })
+            }
           }
           # else if the 1 file uploaded is not RDS 
           else {
@@ -142,7 +160,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       updateSelectInput(
         session = session,
@@ -164,7 +183,9 @@ app_server <- function( input, output, session ) {
       #reactive function will rerun this expression every time distribution_plot is called, which should be only when QA or color_qa choice is changed
       distribution_plot <- reactive({
         
-        req(input$file_input, input$QA, input$color_qa, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$QA, input$color_qa, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         color <- input$color_qa
         
         #This assigns the params variable a list of strings that act a varying parameters depending on input of QA
@@ -230,7 +251,9 @@ app_server <- function( input, output, session ) {
       # reactive box plot 
       box_plot <- reactive({
         
-        req(input$file_input, input$QA, input$color_qa, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$QA, input$color_qa, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         color <- input$color_qa
         
         #This assigns the params variable a list of strings that act a varying parameters depending on input of QA
@@ -304,7 +327,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       #changes the selectInput "reduction" dropdown contents to include all reductions in Seurat Object
       updateSelectInput(
@@ -340,7 +364,9 @@ app_server <- function( input, output, session ) {
       
       # ----- Reactive 2D reduction graph -----
       reduc_plot <- reactive({
-        req(input$file_input, input$reduction, input$color1, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$reduction, input$color1, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         
         #create string for reduction to plot
         reduc <- input$reduction
@@ -399,7 +425,9 @@ app_server <- function( input, output, session ) {
       
       # ----- Reactive 3D reduction graph -----
       reduc_plot_3d <- reactive({
-        req(input$file_input, input$reduction, input$color1, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$reduction, input$color1, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         
         #create string for reduction to plot
         reduc <- input$reduction
@@ -492,7 +520,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       # ----- update/render UI elements -----
       updateSelectInput(
@@ -548,7 +577,10 @@ app_server <- function( input, output, session ) {
           input$feature_1d
         ), 
         {
-          req(input$file_input, input$reduction_expr_1d, input$Assay_1d, input$feature_1d, valid_file_input_flag() == TRUE)
+          req(input$file_input, input$reduction_expr_1d, 
+              input$Assay_1d, input$feature_1d, 
+              valid_file_input_flag() == TRUE, 
+              duplicate_reductions_flag() == FALSE)
           
           #create string for reduction to plot
           reduc <- input$reduction_expr_1d
@@ -615,7 +647,9 @@ app_server <- function( input, output, session ) {
       # ----- datatable of expression for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$expression_pg_selected <- DT::renderDT(server = FALSE, {
-        req(input$file_input, input$Assay_1d, input$feature_1d, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$Assay_1d, input$feature_1d, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         
         #selected feature to color clusters by
         color_x <- input$feature_1d
@@ -669,7 +703,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       # ----- update/render UI elements -----
       
@@ -758,7 +793,10 @@ app_server <- function( input, output, session ) {
           input$y_axis_feature
         ), 
         {
-          req(input$file_input, input$reduction_expr_2d, input$x_axis_feature, input$y_axis_feature, valid_file_input_flag() == TRUE)
+          req(input$file_input, input$reduction_expr_2d, 
+              input$x_axis_feature, input$y_axis_feature, 
+              valid_file_input_flag() == TRUE, 
+              duplicate_reductions_flag() == FALSE)
           
           #create string for reduction to plot
           reduc <- input$reduction_expr_2d
@@ -841,7 +879,8 @@ app_server <- function( input, output, session ) {
       
       # ----- render reactive reduction plots -----
       output$color_legend_2d <- renderPlot({ 
-        req(valid_file_input_flag() == TRUE)
+        req(valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         create_2d_color_legend(input = input, 
                                input_data_type = input_data_type(),
                                rds_object = myso(), 
@@ -854,7 +893,10 @@ app_server <- function( input, output, session ) {
       # ----- datatable of expression for cells selected in plotly -----
       # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
       output$coexpression_pg_selected <- DT::renderDT(server = FALSE, {
-        req(input$file_input, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$Assay_x_axis, input$Assay_y_axis, 
+            input$x_axis_feature, input$y_axis_feature, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         
         #selected metadata to color clusters by
         color_x <- input$x_axis_feature
@@ -921,7 +963,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       # ----- update/render UI elements -----
       output$Assay <- renderUI({
@@ -1033,7 +1076,9 @@ app_server <- function( input, output, session ) {
         ), 
         { 
           #code to execute when one of the above input events occurs
-          req(input$x_feature, input$y_feature, valid_file_input_flag() == TRUE)
+          req(input$x_feature, input$y_feature, 
+              valid_file_input_flag() == TRUE, 
+              duplicate_reductions_flag() == FALSE)
           
           count_data <- get_data(category = "assays",
                                 input_data_type = input_data_type(), 
@@ -1115,7 +1160,9 @@ app_server <- function( input, output, session ) {
       
       # ----- reactive gating 2D reduction graph -----
       gating_reduc_plot <- reactive({
-        req(input$file_input, input$color2, input$reduction_g, valid_file_input_flag() == TRUE)
+        req(input$file_input, input$color2, input$reduction_g, 
+            valid_file_input_flag() == TRUE, 
+            duplicate_reductions_flag() == FALSE)
         
         #create string for reduction to plot
         reduc <- input$reduction_g
@@ -1294,7 +1341,8 @@ app_server <- function( input, output, session ) {
         ), 
         {
           # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-          req(valid_file_input_flag() == TRUE)
+          req(valid_file_input_flag() == TRUE, 
+              duplicate_reductions_flag() == FALSE)
           
           counter_reactive(as.integer(0))
           
@@ -1330,7 +1378,8 @@ app_server <- function( input, output, session ) {
     observe({
       
       # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-      req(valid_file_input_flag() == TRUE)
+      req(valid_file_input_flag() == TRUE, 
+          duplicate_reductions_flag() == FALSE)
       
       # ----- update/render UI elements -----
       output$Assay_bg <- renderUI({
@@ -1661,7 +1710,8 @@ app_server <- function( input, output, session ) {
         ), 
         {
           # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
-          req(valid_file_input_flag() == TRUE)
+          req(valid_file_input_flag() == TRUE, 
+              duplicate_reductions_flag() == FALSE)
           
           counter_reactive_bg(as.integer(0))
           
