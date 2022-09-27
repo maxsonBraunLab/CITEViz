@@ -74,7 +74,8 @@ app_server <- function( input, output, session ) {
             #read in RDS file
             rds_obj <- readRDS(input_file_df$datapath)
             
-            if (class(rds_obj) == "Seurat") {
+            #if object read in from RDS file is a Seurat object
+            if (inherits(rds_obj, "Seurat")) {
               input_data_type(as.integer(1))
               if (typeof(rds_obj) == "list") {
                 #check if integrated obj exists before retrieving it from RDS that was read in
@@ -96,8 +97,8 @@ app_server <- function( input, output, session ) {
               
               reductions_vector <- SeuratObject::Reductions(myso())
             }
-            
-            else if (class(rds_obj) == "SingleCellExperiment"){
+            # else if object read in from RDS file is a SingleCellExperiment object
+            else if (inherits(rds_obj, "SingleCellExperiment")){
               input_data_type(as.integer(2))
               myso(rds_obj)
               reductions_vector <- unlist(SingleCellExperiment::applySCE(myso(), reducedDimNames))
