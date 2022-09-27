@@ -32,6 +32,10 @@ This function retrieves data in specified slots ("metadata", "assays", or "reduc
 \examples{
 \dontrun{
 myso <- readRDS("path/to/RDS_file.rds")
-write_seurat_to_feather(seurat_object = myso, slot_name = "metadata", feather_parent_dir = "citeviz_arrow", feather_file_prefix = "project123")
+
+write_seurat_to_feather(seurat_object = myso, 
+slot_name = "metadata", 
+feather_parent_dir = "citeviz_arrow", 
+feather_file_prefix = "project123")
 }
 }

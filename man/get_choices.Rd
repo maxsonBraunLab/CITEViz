@@ -37,12 +37,24 @@ This function retrieves various categories of data (e.g., metadata, reductions, 
 # if RDS file is uploaded by user
 myso <- readRDS("path/to/RDS_file.rds")
 input_file_data <- input$file_input
-get_choices("metadata", input_data_type = FALSE, rds_object = myso, arrow_file_list = NULL, input_file_df = input_file_data, assay_name = NULL)
+
+get_choices("metadata", 
+input_data_type = FALSE, 
+rds_object = myso, 
+arrow_file_list = NULL, 
+input_file_df = input_file_data, 
+assay_name = NULL)
 
 # if Feather/Arrow files are uploaded by user
 input_file_data <- input$file_input
 arrow_filenames <- input_file_data$name
-get_choices("metadata", input_data_type = TRUE, rds_object = NULL, arrow_file_list = arrow_filenames, input_file_df = input_file_data, assay_name = NULL)
+
+get_choices("metadata", 
+input_data_type = TRUE, 
+rds_object = NULL, 
+arrow_file_list = arrow_filenames, 
+input_file_df = input_file_data, 
+assay_name = NULL)
 }
 
 }

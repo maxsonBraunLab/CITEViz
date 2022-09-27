@@ -43,12 +43,22 @@ Title
 # if RDS file is uploaded by user
 myso <- readRDS("path/to/RDS_file.rds")
 input_file_data <- input$file_input
-get_data("reductions", input_data_type = FALSE, rds_object = myso, arrow_file_list = NULL, input_file_df = input_file_data, reduction_name = "pca")
+get_data("reductions", 
+input_data_type = FALSE, 
+rds_object = myso, 
+arrow_file_list = NULL, 
+input_file_df = input_file_data, 
+reduction_name = "pca")
 
 # if Feather/Arrow files are uploaded by user
 input_file_data <- input$file_input
 arrow_filenames <- input_file_data$name
-get_data("reductions", input_data_type = TRUE, rds_object = NULL, arrow_file_list = arrow_filenames, input_file_df = input_file_data, reduction_name = "pca")
+get_data("reductions", 
+input_data_type = TRUE, 
+rds_object = NULL, 
+arrow_file_list = arrow_filenames, 
+input_file_df = input_file_data, 
+reduction_name = "pca")
 }
 
 }

@@ -26,6 +26,9 @@ This function is called before running the app so that the user's Seurat object 
 \examples{
 \dontrun{
 myso <- readRDS("path/to/RDS_file.rds")
-create_feather_files(seurat_object = myso, feather_parent_dir = "citeviz_arrow", feather_file_prefix = "project123")
+
+create_feather_files(seurat_object = myso, 
+feather_parent_dir = "citeviz_arrow", 
+feather_file_prefix = "project123")
 }
 }

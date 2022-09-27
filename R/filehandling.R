@@ -17,7 +17,11 @@
 #'
 #' @examples \dontrun{
 #' myso <- readRDS("path/to/RDS_file.rds")
-#' write_seurat_to_feather(seurat_object = myso, slot_name = "metadata", feather_parent_dir = "citeviz_arrow", feather_file_prefix = "project123")
+#' 
+#' write_seurat_to_feather(seurat_object = myso, 
+#' slot_name = "metadata", 
+#' feather_parent_dir = "citeviz_arrow", 
+#' feather_file_prefix = "project123")
 #' }
 write_seurat_to_feather <- function(assay_or_reduction_name = NULL, seurat_object, slot_name, output_dir_path, feather_file_prefix){
   # initialize output_file_identifier to empty string by default
@@ -77,7 +81,10 @@ write_seurat_to_feather <- function(assay_or_reduction_name = NULL, seurat_objec
 #'
 #' @examples \dontrun{
 #' myso <- readRDS("path/to/RDS_file.rds")
-#' create_feather_files(seurat_object = myso, feather_parent_dir = "citeviz_arrow", feather_file_prefix = "project123")
+#' 
+#' create_feather_files(seurat_object = myso, 
+#' feather_parent_dir = "citeviz_arrow", 
+#' feather_file_prefix = "project123")
 #' }
 create_feather_files <- function(seurat_object, feather_parent_dir = "citeviz_arrow", feather_file_prefix = "project1") {
   # generate a file prefix for the feather files to be generated, so that 
@@ -165,6 +172,7 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 #' @importFrom dplyr select
 #' @importFrom tools file_path_sans_ext
 #' @importFrom SingleCellExperiment altExp altExpNames colData mainExpName reducedDimNames
+#' @importFrom utils tail
 #'
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
 #' @export
@@ -173,12 +181,24 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 #' # if RDS file is uploaded by user
 #' myso <- readRDS("path/to/RDS_file.rds")
 #' input_file_data <- input$file_input
-#' get_choices("metadata", input_data_type = FALSE, rds_object = myso, arrow_file_list = NULL, input_file_df = input_file_data, assay_name = NULL)
+#' 
+#' get_choices("metadata", 
+#' input_data_type = FALSE, 
+#' rds_object = myso, 
+#' arrow_file_list = NULL, 
+#' input_file_df = input_file_data, 
+#' assay_name = NULL)
 #' 
 #' # if Feather/Arrow files are uploaded by user
 #' input_file_data <- input$file_input
 #' arrow_filenames <- input_file_data$name
-#' get_choices("metadata", input_data_type = TRUE, rds_object = NULL, arrow_file_list = arrow_filenames, input_file_df = input_file_data, assay_name = NULL)
+#' 
+#' get_choices("metadata", 
+#' input_data_type = TRUE, 
+#' rds_object = NULL, 
+#' arrow_file_list = arrow_filenames, 
+#' input_file_df = input_file_data, 
+#' assay_name = NULL)
 #' }
 #' 
 get_choices <- function(category, input_data_type, rds_object, arrow_file_list, input_file_df, assay_name = NULL) {
@@ -256,7 +276,7 @@ get_choices <- function(category, input_data_type, rds_object, arrow_file_list, 
         filenames <- input_file_df$name[file_indexes]
         menu_choices <- tools::file_path_sans_ext(filenames) %>%
           strsplit(split = paste0("_", category, "_")) %>%
-          lapply(tail, n = 1) %>%
+          lapply(utils::tail, n = 1) %>%
           unlist()
       }
     }
@@ -289,12 +309,22 @@ get_choices <- function(category, input_data_type, rds_object, arrow_file_list, 
 #' # if RDS file is uploaded by user
 #' myso <- readRDS("path/to/RDS_file.rds")
 #' input_file_data <- input$file_input
-#' get_data("reductions", input_data_type = FALSE, rds_object = myso, arrow_file_list = NULL, input_file_df = input_file_data, reduction_name = "pca")
+#' get_data("reductions", 
+#' input_data_type = FALSE, 
+#' rds_object = myso, 
+#' arrow_file_list = NULL, 
+#' input_file_df = input_file_data, 
+#' reduction_name = "pca")
 #' 
 #' # if Feather/Arrow files are uploaded by user
 #' input_file_data <- input$file_input
 #' arrow_filenames <- input_file_data$name
-#' get_data("reductions", input_data_type = TRUE, rds_object = NULL, arrow_file_list = arrow_filenames, input_file_df = input_file_data, reduction_name = "pca")
+#' get_data("reductions", 
+#' input_data_type = TRUE, 
+#' rds_object = NULL, 
+#' arrow_file_list = arrow_filenames, 
+#' input_file_df = input_file_data, 
+#' reduction_name = "pca")
 #' }
 #' 
 get_data <- function(category, input_data_type, rds_object, arrow_file_list, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
