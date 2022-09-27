@@ -15,7 +15,6 @@ Authors@R: c(
 Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
 License: MIT + file LICENSE
 Imports:
-    arrow,
     bslib,
     config (>= 0.3.1),
     dplyr,
@@ -33,7 +32,6 @@ Imports:
     stats,
     tibble,
     tools,
-    utils,
     vembedr
 Encoding: UTF-8
 RoxygenNote: 7.2.1

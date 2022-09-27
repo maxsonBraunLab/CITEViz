@@ -30,7 +30,7 @@ app_server <- function( input, output, session ) {
   # This speeds up the code immensely
   # The main function of this initial observe is to allow for a single upload of a Seurat Object over all pages.
   # Filetype validation: 
-  # Note that only RDS, Arrow, or Feather files can be inputted by the user due to the UI fileInput() argument `accept = c(".rds", ".arrow", ".feather")`. 
+  # Note that only RDS files can be inputted by the user due to the UI fileInput() argument `accept = c(".rds")`. 
   # This works on an actual web browser but not in the RStudio viewer.
   
   observe({
@@ -38,15 +38,11 @@ app_server <- function( input, output, session ) {
     input_file_df <- input$file_input
     if (is.null(input_file_df)) { return(NULL) }
     
-    # # set boolean flag for whether user's RDS file was already converted to arrow files prior to app startup
-    # # this determines whether the server reads Seurat data from a Seurat object or from an arrow file for plots, tables, etc.
-    arrow_flag <- reactiveVal() # can be TRUE or FALSE
-    arrow_filename_list <- reactiveVal(NULL)
     myso <- reactiveVal(NULL) # initialize Seurat/SingleCellExperiment/other RDS object here so it is accessible to everything else in server side
     valid_file_input_flag <- reactiveVal() #set this flag so if invalid files are uploaded, the rest of the app doesn't render and throw errors due to invalid file input
     
-    # keep track of type of input data (Seurat object, SingleCellExperiment object, Feather/Arrow file, etc.)
-    # 1 = Seurat object, 2 = SingleCellExperiment object, 3 = Feather/Arrow file, etc.
+    # keep track of type of input data (Seurat object, SingleCellExperiment object, etc.)
+    # 1 = Seurat object, 2 = SingleCellExperiment object, etc.
     input_data_type <- reactiveVal() 
     
     duplicate_reductions_flag <- reactiveVal() # if an inputted Seurat/SingleCellExperiment/etc object contains more than one reduction with the exact same name, then this flag is set to TRUE. Else this flag is set to FALSE. This prevents duplicate reduction names from causing ambiguity in correct data retrieval and app crashing.
@@ -60,15 +56,13 @@ app_server <- function( input, output, session ) {
       {
         # code to execute when one of the above input events occurs
 
-        # check if original names of uploaded input files have RDS extension or not (i.e., are feather or arrow files)
+        # check if original names of uploaded input files have RDS extension or not
         file_extensions <- tolower(tools::file_ext(input_file_df$name))
         
         #if only 1 file is uploaded by user
         if (length(file_extensions) == 1) {
           # if only 1 rds file is uploaded
           if (file_extensions == "rds") {
-            # reset arrow_filename_list to NULL so that there are no issues with getting dropdown menu choices fxn later
-            arrow_filename_list(NULL)
             reductions_vector <- NULL
             
             #read in RDS file
@@ -122,35 +116,17 @@ app_server <- function( input, output, session ) {
           else {
             valid_file_input_flag(FALSE)
             output$file_validation_status <- renderText({ 
-              "Please upload either a single RDS file or multiple Feather files."
+              "Please upload a single RDS file."
             })
           }
         }
         # else if multiple files are uploaded by user
         else {
-          if ("rds" %in% file_extensions) {
-            # send error message to user saying they need to upload either 1 rds file or multiple arrow/feather files
-            valid_file_input_flag(FALSE)
-            output$file_validation_status <- renderText({ 
-              "Please upload either a single RDS file or multiple Feather files."
-            })
-          }
-          else if (("feather" %in% file_extensions) | ("arrow" %in% file_extensions)) {
-            input_data_type(as.integer(3))
-            myso(NULL) # reset myso to NULL so that there are no issues with getting dropdown menu choices fxn later
-          
-            arrow_filename_list(input_file_df$name)
-            
-            # set valid_file_input_flag after reading in file list so that items are in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid file list is read in)
-            valid_file_input_flag(TRUE)
-          }
-          else {
-            # send error message to user saying they need to upload either 1 rds file or multiple arrow/feather files
-            valid_file_input_flag(FALSE)
-            output$file_validation_status <- renderText({ 
-              "Please upload either a single RDS file or multiple Feather files."
-            })
-          }
+          # send error message to user saying they need to upload 1 rds file
+          valid_file_input_flag(FALSE)
+          output$file_validation_status <- renderText({ 
+            "Please upload either a single RDS file or multiple Feather files."
+          })
         }
       }) 
 
@@ -170,12 +146,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("metadata",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
                                input_data_type(), 
                                myso(), 
-                               arrow_filename_list(), 
                                input_file_df)[1]
       )
       
@@ -201,7 +175,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -271,7 +244,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -338,12 +310,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("reductions",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
                                            input_data_type(), 
                                            myso(), 
-                                           arrow_filename_list(), 
                                            input_file_df))
       )
       
@@ -354,12 +324,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("metadata",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
                                input_data_type(), 
                                myso(), 
-                               arrow_filename_list(), 
                                input_file_df)[1]
       )
       
@@ -378,7 +346,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -391,7 +358,6 @@ app_server <- function( input, output, session ) {
         cell_data <- get_data(category = "reductions",
                               input_data_type = input_data_type(), 
                               rds_object = myso(), 
-                              arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
@@ -439,7 +405,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -451,7 +416,6 @@ app_server <- function( input, output, session ) {
         cell_data <- get_data(category = "reductions",
                               input_data_type = input_data_type(), 
                               rds_object = myso(), 
-                              arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
@@ -492,7 +456,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -531,12 +494,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("reductions",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
                                            input_data_type(), 
                                            myso(), 
-                                           arrow_filename_list(), 
                                            input_file_df))
       )
       
@@ -544,7 +505,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices("assays",
                                     input_data_type(),
                                     myso(),
-                                    arrow_filename_list(),
                                     input_file_df)
         selectInput(inputId = "Assay_1d",
                     label = "Choose assay to color reduction plot by:",
@@ -559,7 +519,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "feature_1d",
@@ -592,7 +551,6 @@ app_server <- function( input, output, session ) {
           count_data <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
-                                 arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_1d, 
                                  reduction_name = NULL,
@@ -602,7 +560,6 @@ app_server <- function( input, output, session ) {
           cell_data <- get_data(category = "reductions",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = reduc)
@@ -658,7 +615,6 @@ app_server <- function( input, output, session ) {
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
                                rds_object = myso(), 
-                               arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay_1d, 
                                reduction_name = NULL,
@@ -715,12 +671,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("reductions",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
                                            input_data_type(), 
                                            myso(), 
-                                           arrow_filename_list(), 
                                            input_file_df))
       )
       
@@ -728,7 +682,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices("assays",
                                     input_data_type(),
                                     myso(),
-                                    arrow_filename_list(),
                                     input_file_df)
         selectInput(inputId = "Assay_x_axis",
                     label = "Choose assay for x-axis colorscale:",
@@ -741,7 +694,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices("assays",
                                     input_data_type(),
                                     myso(),
-                                    arrow_filename_list(),
                                     input_file_df)
         selectInput(inputId = "Assay_y_axis",
                     label = "Choose assay for y-axis colorscale:",
@@ -756,7 +708,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "x_axis_feature",
@@ -772,7 +723,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "y_axis_feature",
@@ -809,7 +759,6 @@ app_server <- function( input, output, session ) {
           count_data_x <- get_data(category = "assays",
                                    input_data_type = input_data_type(), 
                                    rds_object = myso(), 
-                                   arrow_file_list = arrow_filename_list(), 
                                    input_file_df = input_file_df, 
                                    assay_name = input$Assay_x_axis, 
                                    reduction_name = NULL,
@@ -820,7 +769,6 @@ app_server <- function( input, output, session ) {
           count_data_y <- get_data(category = "assays",
                                    input_data_type = input_data_type(), 
                                    rds_object = myso(), 
-                                   arrow_file_list = arrow_filename_list(), 
                                    input_file_df = input_file_df, 
                                    assay_name = input$Assay_y_axis, 
                                    reduction_name = NULL,
@@ -833,7 +781,6 @@ app_server <- function( input, output, session ) {
           cell_data <- get_data(category = "reductions",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = reduc)
@@ -885,7 +832,6 @@ app_server <- function( input, output, session ) {
         create_2d_color_legend(input = input, 
                                input_data_type = input_data_type(),
                                rds_object = myso(), 
-                               arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df) 
         })
       output$exploration_reduct_2d <- renderPlotly({ expr_reduc_plot_2d() })
@@ -906,7 +852,6 @@ app_server <- function( input, output, session ) {
         count_data_x <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
-                                 arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_x_axis, 
                                  reduction_name = NULL,
@@ -915,7 +860,6 @@ app_server <- function( input, output, session ) {
         count_data_y <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
-                                 arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_y_axis, 
                                  reduction_name = NULL,
@@ -972,7 +916,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices("assays",
                                     input_data_type(),
                                     myso(),
-                                    arrow_filename_list(),
                                     input_file_df)
         selectInput(inputId = "Assay",
                     label = "Choose assay:",
@@ -987,7 +930,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "x_feature",
@@ -1003,7 +945,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "y_feature",
@@ -1020,12 +961,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("reductions",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
                                            input_data_type(), 
                                            myso(), 
-                                           arrow_filename_list(), 
                                            input_file_df))
       )
       updateSelectInput(
@@ -1034,12 +973,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("metadata",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
                                input_data_type(), 
                                myso(), 
-                               arrow_filename_list(), 
                                input_file_df)[1]
       )
       
@@ -1084,7 +1021,6 @@ app_server <- function( input, output, session ) {
           count_data <- get_data(category = "assays",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = input$Assay, 
                                 reduction_name = NULL,
@@ -1174,7 +1110,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -1186,7 +1121,6 @@ app_server <- function( input, output, session ) {
         cell_data <- get_data(category = "reductions",
                               input_data_type = input_data_type(), 
                               rds_object = myso(), 
-                              arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
@@ -1254,7 +1188,6 @@ app_server <- function( input, output, session ) {
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
                                rds_object = myso(), 
-                               arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay, 
                                reduction_name = NULL,
@@ -1387,7 +1320,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices("assays",
                                     input_data_type(),
                                     myso(),
-                                    arrow_filename_list(),
                                     input_file_df)
         selectInput(inputId = "Assay_bg",
                     label = "Choose assay:",
@@ -1402,7 +1334,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "x_feature_bg",
@@ -1418,7 +1349,6 @@ app_server <- function( input, output, session ) {
         menu_choices <- get_choices(category = NULL, 
                                     input_data_type(), 
                                     myso(), 
-                                    arrow_filename_list(), 
                                     input_file_df, 
                                     assay_name)
         selectInput(inputId = "y_feature_bg",
@@ -1435,12 +1365,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("reductions",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = dplyr::last(get_choices("reductions", 
                                            input_data_type(), 
                                            myso(),
-                                           arrow_filename_list(), 
                                            input_file_df))
       )
       updateSelectInput(
@@ -1449,12 +1377,10 @@ app_server <- function( input, output, session ) {
         choices = get_choices("metadata",
                               input_data_type(),
                               myso(),
-                              arrow_filename_list(),
                               input_file_df),
         selected = get_choices("metadata", 
                                input_data_type(), 
                                myso(), 
-                               arrow_filename_list(), 
                                input_file_df)[1]
       )
       
@@ -1503,7 +1429,6 @@ app_server <- function( input, output, session ) {
           count_data <- get_data(category = "assays",
                                  input_data_type = input_data_type(), 
                                  rds_object = myso(), 
-                                 arrow_file_list = arrow_filename_list(), 
                                  input_file_df = input_file_df, 
                                  assay_name = input$Assay_bg, 
                                  reduction_name = NULL,
@@ -1557,7 +1482,6 @@ app_server <- function( input, output, session ) {
         metadata_df <- get_data(category = "metadata",
                                 input_data_type = input_data_type(), 
                                 rds_object = myso(), 
-                                arrow_file_list = arrow_filename_list(), 
                                 input_file_df = input_file_df, 
                                 assay_name = NULL, 
                                 reduction_name = NULL)
@@ -1570,7 +1494,6 @@ app_server <- function( input, output, session ) {
         cell_data <- get_data(category = "reductions",
                               input_data_type = input_data_type(), 
                               rds_object = myso(), 
-                              arrow_file_list = arrow_filename_list(), 
                               input_file_df = input_file_df, 
                               assay_name = NULL, 
                               reduction_name = reduc)
@@ -1623,7 +1546,6 @@ app_server <- function( input, output, session ) {
         count_data <- get_data(category = "assays",
                                input_data_type = input_data_type(), 
                                rds_object = myso(), 
-                               arrow_file_list = arrow_filename_list(), 
                                input_file_df = input_file_df, 
                                assay_name = input$Assay_bg, 
                                reduction_name = NULL,

@@ -30,9 +30,9 @@ app_ui <- function(request) {
           fileInput(
             inputId = "file_input", 
             placeholder = "Upload an RDS (.rds) file",
-            accept = c(".rds", ".arrow", ".feather"),
+            accept = c(".rds"),
             label = NULL,
-            multiple = TRUE)
+            multiple = FALSE)
         ),
         div(
           # to remove
