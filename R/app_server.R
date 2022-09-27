@@ -125,7 +125,7 @@ app_server <- function( input, output, session ) {
           # send error message to user saying they need to upload 1 rds file
           valid_file_input_flag(FALSE)
           output$file_validation_status <- renderText({ 
-            "Please upload either a single RDS file or multiple Feather files."
+            "Please upload a single RDS file."
           })
         }
       }) 
