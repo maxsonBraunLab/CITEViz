@@ -13,7 +13,7 @@
 #' @importFrom tibble rownames_to_column
 #' 
 #' @return The relative path to the feather file that was generated. This value is returned invisibly.
-#' @export
+#' @noRd
 #'
 #' @examples \dontrun{
 #' myso <- readRDS("path/to/RDS_file.rds")
@@ -77,7 +77,7 @@ write_seurat_to_feather <- function(assay_or_reduction_name = NULL, seurat_objec
 #' @importFrom SeuratObject Assays Reductions
 #'
 #' @return The path to the sub-directory (in the format "feather_parent_dir/feather_file_prefix") where Feather files generated from the same input Seurat object are stored. This path is relative to the user's current working directory. This value is returned invisibly.
-#' @export
+#' @noRd
 #'
 #' @examples \dontrun{
 #' myso <- readRDS("path/to/RDS_file.rds")
@@ -134,7 +134,7 @@ create_feather_files <- function(seurat_object, feather_parent_dir = "citeviz_ar
 #' @importFrom SingleCellExperiment altExp reducedDimNames
 #'
 #' @return A string specifying the name of an alternate experiment (e.g., "ADT", "RNA", "SCT", etc.) in which the cell embeddings for a given reduction can be found.
-#' @export
+#' @noRd
 #'
 #' @examples \dontrun{
 #' sce_object <- readRDS("path/to/RDS_file_containing_SCE_object.rds")
@@ -175,7 +175,7 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 #' @importFrom utils tail
 #'
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
-#' @export
+#' @noRd
 #'
 #' @examples \dontrun{
 #' # if RDS file is uploaded by user
@@ -303,7 +303,7 @@ get_choices <- function(category, input_data_type, rds_object, arrow_file_list, 
 #' @importFrom SingleCellExperiment altExp colData logcounts mainExpName reducedDimNames reducedDim
 #' 
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data colummns would be PC1, PC2, etc).
-#' @export
+#' @noRd
 #'
 #' @examples \dontrun{
 #' # if RDS file is uploaded by user
