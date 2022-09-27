@@ -100,6 +100,9 @@ app_server <- function( input, output, session ) {
             # set valid_file_input_flag after reading in RDS so that a Seurat object is in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid seurat obj is read in)
             valid_file_input_flag(TRUE)
             
+            # need to render almost empty string here so that if user previously uploaded an invalid file and then uploaded a valid one afterwards, then the invalid file message gets cleared away.
+            output$file_validation_status <- renderText({ " " })
+            
             # check if object contains duplicate reduction names
             # set duplicate_reductions_flag after reading in RDS so that an RDS object is in memory before other parts of app that require a duplicate_reductions_flag==FALSE can run
             if (length(reductions_vector) == length(unique(reductions_vector))) {
