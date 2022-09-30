@@ -1,4 +1,4 @@
-# CITE-Viz
+# CITEViz
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/rcmdcheck.yaml/badge.svg)](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/rcmdcheck.yaml)
@@ -9,39 +9,39 @@
 
 ## Background
 
-The rapid advancement of new genomic sequencing technology has enabled the development of multi-omic single-cell sequencing assays. These assays profile multiple modalities in the same cell and can often yield new insights not revealed with a single modality. For example, CITE-Seq (Cellular Indexing of Transcriptomes and Epitopes by Sequencing) simultaneously profiles the single-cell RNA transcriptome and the surface protein expression. The extra dimension of surface protein markers can be used to further identify cell clusters – an essential step for downstream analyses and interpretation. Additionally, multi-dimensional datasets like CITE-Seq require nuanced visualization methods to accurately assess the data. To facilitate cell cluster classification and visualization in CITE-Seq, we developed CITE-Viz. 
+The rapid advancement of new genomic sequencing technology has enabled the development of multi-omic single-cell sequencing assays. These assays profile multiple modalities in the same cell and can often yield new insights not revealed with a single modality. For example, CITE-Seq (Cellular Indexing of Transcriptomes and Epitopes by Sequencing) simultaneously profiles the single-cell RNA transcriptome and the surface protein expression. The extra dimension of surface protein markers can be used to further identify cell clusters – an essential step for downstream analyses and interpretation. Additionally, multi-dimensional datasets like CITE-Seq require nuanced visualization methods to accurately assess the data. To facilitate cell cluster classification and visualization in CITE-Seq, we developed CITEViz. 
 
-## About CITE-Viz
+## About CITEViz
 
-CITE-Viz is a single-cell visualization platform with a custom module that replicates the interactive flow-cytometry gating workflow. With CITE-Viz, users can investigate CITE-Seq specific quality control (QC) metrics, view multi-omic co-expression feature plots, and classify cell clusters by iteratively gating on the abundance of cell surface markers. CITE-Viz was developed to make multi-modal single-cell analysis accessible to a wide variety of biologists, with the aim to discover new insights into their data and to facilitate novel hypothesis generation. If you use our package, please cite our paper: [CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq](https://www.biorxiv.org/content/10.1101/2022.05.15.491411v1)
+CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow-cytometry gating workflow. With CITEViz, users can investigate CITE-Seq specific quality control (QC) metrics, view multi-omic co-expression feature plots, and classify cell clusters by iteratively gating on the abundance of cell surface markers. CITEViz was developed to make multi-modal single-cell analysis accessible to a wide variety of biologists, with the aim to discover new insights into their data and to facilitate novel hypothesis generation. If you use our package, please cite our paper: [CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq](https://www.biorxiv.org/content/10.1101/2022.05.15.491411v1)
 
 ## Installation & Usage
 
-We recommend installing CITE-Viz through the RStudio IDE using the following commands:
+We recommend installing CITEViz through the RStudio IDE using the following commands:
 
 ```R
-devtools::install_github("maxsonBraunLab/CITE-Viz")
+devtools::install_github("maxsonBraunLab/CITEViz")
 library(CITEViz)
 run_app()
 ```
 
-CITE-Viz installation is currently facilitated with devtools, and the development team is working hard to submit the package to Bioconductor 3.16 with a release schedule of October 2022.
+CITEViz installation is currently facilitated with devtools, and the development team is working hard to submit the package to Bioconductor 3.16 with a release schedule of October 2022.
 
 ### Feature 1: Forward-Gates
 
-Arguably the most important feature for CITE-Viz, users can gate on a set of features (ADT, RNA, etc.) to subset cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE). Users can use one or multiple layers of gates to enrich for specific cell populations justl like flow cytometry. In the following example, we demonstrate a 2-layer gate to get CD11b-1 CD45-1 cells (mixture of myeloid and lymphoid cells) and CD8+ CD4- cells to get CD8 T cells:
+Arguably the most important feature for CITEViz, users can gate on a set of features (ADT, RNA, etc.) to subset cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE). Users can use one or multiple layers of gates to enrich for specific cell populations justl like flow cytometry. In the following example, we demonstrate a 2-layer gate to get CD11b-1 CD45-1 cells (mixture of myeloid and lymphoid cells) and CD8+ CD4- cells to get CD8 T cells:
 
 ![forward-gate](inst/app/www/T-cell-gates.gif)
 
 ### Feature 2: Back-Gates
 
-Unique to CITE-Viz, users can 'back-gate' on a selection of cells, and highlight them in feature space. We believe this feature can highlight cells in feature space from a "labels-first" or "top-down" workflow. In the following example, we back-gate on a selection of B-cells:
+Unique to CITEViz, users can 'back-gate' on a selection of cells, and highlight them in feature space. We believe this feature can highlight cells in feature space from a "labels-first" or "top-down" workflow. In the following example, we back-gate on a selection of B-cells:
 
 ![back-gate](inst/app/www/backgate-b-cells.png)
 
 ### Feature 3: Quality Control
 
-A set of quality control metrics can be assessed in CITE-Viz, split by any categorical metadata in the input Seurat object. This feature helps users identify potential faulty samples or batch effect. In the following example, CITE-Viz clearly displayed a difference in the Number of Unique ADTs between patient donors P1-P4 and P5-P8.
+A set of quality control metrics can be assessed in CITEViz, split by any categorical metadata in the input Seurat object. This feature helps users identify potential faulty samples or batch effect. In the following example, CITEViz clearly displayed a difference in the Number of Unique ADTs between patient donors P1-P4 and P5-P8.
 
 ![quality-control](inst/app/www/qc-unique-adt.png)
 
