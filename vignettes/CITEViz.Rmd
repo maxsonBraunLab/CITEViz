@@ -73,13 +73,16 @@ CITEViz will be uploaded to Bioconductor version 3.16, and the release date is c
 
 ## Data Input Format
 
-CITEViz accepts files in the RDS (.rds) format. The preferred rds file should include a Seurat object or list of Seurat objects; if a list of a single Seurat object is used, only the object labeled "integrated" will be used. A file can be uploaded using the depicted file upload box at the top of any page in CITEViz, and the same dataset will be retained for exploration across all tabs.
+CITEViz accepts files in the RDS (.rds) format. The preferred RDS file should include a Seurat object or a SingleCellExperiment object. If a list of a single Seurat object is used, only the object labeled "integrated" will be used. A file can be uploaded using the depicted file upload box at the top of any page in CITEViz, and the same dataset will be retained for exploration across all tabs.
 
 In this vignette, we used a PBMC dataset from Hao et. al. in the paper: [Integrated analysis of multimodal single-cell data](https://www.sciencedirect.com/science/article/pii/S0092867421005833)
 
+The test dataset in RDS format and the example gates for the gating part of this vignette can be found in the BioConductor 2022 Workshop here: https://github.com/gartician/CITEVizWorkshop/
+
+
 # Quality Control
 
-The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s Seurat object.
+The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s Seurat or SingleCellExperiment object. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value.
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
 knitr::include_graphics("../inst/app/www/qc-unique-adt.png")
@@ -119,7 +122,19 @@ knitr::include_graphics("../inst/app/www/feature_expression_CD14_CD16.png")
 
 ## Forward Gating
 
-A key feature of CITEViz is that users can sequentially gate (subset) cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE, etc.) based on a desired set of features (ADTs, genes, etc.). Users can use one or multiple layers of gates to explore specific cell populations in a process similar to flow cytometry. In the following example, we demonstrate a 2-layer gate to isolate cells with specific levels of CD11b-1 and CD45-1 (mixture of myeloid and lymphoid cells) from the whole cell population, followed by the isolation of CD8+ CD4- cells from this first gate to view the CD8+ T-cell subpopulation:
+A key feature of CITEViz is that users can sequentially gate (subset) cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE, etc.) based on a desired set of features (ADTs, genes, etc.). Users can use one or multiple layers of gates to explore specific cell populations in a process similar to flow cytometry. 
+
+When the user’s cursor hovers over each plot on the gating page, a plot toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. 
+
+To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. To rename the selected cell subset, double-click in the Subset_Name cell of the data table, type a new name, then press the Tab key or click outside of the table.
+
+Users can also click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+
+To permanently delete all gating information in the data table, click the "Clear All Data" button. To view detailed gating data, users can download this data in a variety of formats listed on the gating page.
+
+To reset the colors of the cells in the reduction plot, double-click anywhere in the feature scatter plot.
+
+In the following example, we demonstrate a 2-layer gate to isolate cells with specific levels of CD11b-1 and CD45-1 (mixture of myeloid and lymphoid cells) from the whole cell population, followed by the isolation of CD8+ CD4- cells from this first gate to view the CD8+ T-cell subpopulation:
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
 knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells.png")
@@ -127,7 +142,11 @@ knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells.png")
 
 ## Back-Gating
 
-Users can back-gate on a selection of cells and highlight them in feature space. On the back-gating page, users can highlight cells in feature space from a “labels-first” or “top-down” workflow. In the following example, we back-gate on a selection of B-cells:
+Users can back-gate on a selection of cells and highlight them in feature space. On the back-gating page, users can highlight cells in feature space from a “labels-first” or “top-down” workflow. For example, users can select a range of cells from the reduction plot (e.g. UMAP, PCA etc.) and locate them in the feature scatterplot for more extensive data exploration. 
+
+Cell population selection and naming methods are identical to the gating page. To reset the colors of the cells in the feature scatter plot, double-click anywhere in the reduction plot.
+
+In the following example, we back-gate on a selection of B-cells:
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
 knitr::include_graphics("../inst/app/www/backgate-b-cells.png")
@@ -214,7 +233,6 @@ View(diff_exp)
 | TYROBP    | 8.83e-219 | 2.51       | 0.28  | 0.98  | 1.83e-214 |
 | LINC00926 | 1.21e-216 | 1.65       | 0.828 | 0.02  | 2.51e-212 |
 
-The test dataset in RDS format and the example gates can be found in the BioConductor 2022 Workshop here: https://github.com/gartician/CITEVizWorkshop/
 
 # Session Info
 
