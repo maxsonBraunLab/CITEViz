@@ -7,7 +7,6 @@
 #' @importFrom bslib bs_theme
 #' @importFrom DT DTOutput
 #' @importFrom plotly plotlyOutput
-#' @importFrom vembedr embed_url
 #' 
 #' @noRd
 app_ui <- function(request) {
@@ -85,50 +84,18 @@ app_ui <- function(request) {
                
                p("This app was developed through the", a("Knight Campus Graduate Internship Program", href= "https://internship.uoregon.edu/bioinformatics"), "at the University of Oregon, in collaboration with both the", a("Maxson", href="https://www.maxsonlab.org/"), "and", a("Braun", href="https://www.braunlab.org/team.html"), "Labs at Oregon Health and Science University (OHSU)  in Portland, Oregon."),
                p("The purpose of this app is to allow users to interactively engage with their CITE-seq data though interactive plotting, subsetting and flow cytometry-like cell gating features. Although this app was originally created to investigate acute myeloid leukemia (AML), one of the fastest-growing blood cancers, it can also be used to explore many other CITE-seq datasets."), 
-               
+
+               h4(strong("How to Use this App")),
+               p("Please see the vignette in the Bioconductor page for CITEViz or in the CITEViz GitHub repo for detailed instructions on how to use this app."),
+
                hr(style = "border-top: 3px solid whitesmoke;"),
                
-               h3(strong("How to Use this App")), 
-               p("To begin, upload an .rds file of a single Seurat object or a list of Seurat objects (with one of the objects being an 'integrated' object) in the file upload box at the top of any page."),
-               
-               h5(strong("Quality Assurance (QA)")),
-               p("The Quality Assurance (QA) page allows the user to visualize data by several QA parameters including, but not limited to, mitochondrial ratio, RNA count per cell, and ADT count per cell, along different metadata separations. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value."),
-               img(src = "www/QA_page.png", width = "100%"),
-               
-               br(),
-               h5(strong("Clustering")),
-               p("The Clustering page allows the user to select from a dropdown of dimensionality reduction plots and color cells by different metadata while viewing plots and cluster relationships in two- and three-dimensional space."),
-               p("When the cursor hovers in the 2D reduction plot, the selection tools (box or lasso selection) appear for the user to choose from. The metadata for selected cells appears in the data table below the plots. The user also has the option to print or copy this data to clipboard."),
-               img(src = "www/clustering_page.png", width = "100%"), 
-               br(),
-               h5(strong("Gating")),
-               
-               p("The Gating page allows the user to select, gate, and subset cells by a variety of metadata parameters in the feature scatterplot. The user can input a name for a subset of cells to be gated by providing one in the text-input field of the sidebar panel prior to clicking the gate button. The user can also rename the selected cell subset by double-clicking in the Subset_Name cell of the data table, typing a new name, then pressing the Tab key or clicking outside of the table."),
-               p("The user may also click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, the user may also revert back to a previously created gate for further subsetting and gating."),
-               p("To permanently delete all gating information in the data table, the user can click the 'Clear All Data' button. To view detailed gating data, the user can download this data in a variety of formats listed on the gating page."),
-               p("To reset the colors of the cells in the reduction plot, double-click anywhere in the feature scatter plot."),
-               
-               vembedr::embed_url("https://youtu.be/JgaHlpWAKs4"),
-               br(),
-               
-               h5(strong("Backgating")),
-               p("The backgating feature works similarly to the Gating page, but allows the user to select a range of cells from the reduction plot (e.g. UMAP, PCA etc.) and locate them in the feature scatterplot for more extensive data exploration. Cell population selection and naming methods are identical to the gating page. To reset the colors of the cells in the feature scatter plot, double-click anywhere in the reduction plot."),
-               vembedr::embed_url("https://youtu.be/KD8vH1l_Ju4"),
-               
-               hr(style = "border-top: 3px solid whitesmoke;"),
-               
-               h3(strong("Resources")),
+               h4(strong("Resources")),
                p("Consider using the", a("Maxson-Braun Lab's pipeline", href="https://github.com/maxsonBraunLab/cite_seq"), "to generate a Seurat object (saved as an .rds file) that can be uploaded into this app for further data analysis."), 
                p("If you are researching white blood cells, please see the following", a("Human Immune Cell Marker Guide", href="https://media.cellsignal.com/www/pdfs/science/pathways/Immune-Cell-Markers-Human.pdf"), "reproduced courtesy of", a("Cell Signaling Technology, Inc.", href="https://www.cellsignal.com")), 
-               
-               hr(style = "border-top: 3px solid whitesmoke;"),
-               
-               # uncomment this citation section and update the actual citation below once CITE-Viz has been published
-               # h5(strong("How to Cite CITE-Viz")),
-               # p("For citing this app in a publication, use:"),
-               # tags$blockquote("Garth L. Kong, Thai T. Nguyen, Wesley K. Rosales, Anjali D. Panikar, John H. W. Cheney, Brittany M. Curtiss, Sarah A. Carratt, Theodore P. Braun, Julia E. Maxson. CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq.", style = "font-family: monospace;"),
-               
-               h5(strong("Acknowledgements")), 
+
+
+               h4(strong("Acknowledgements")), 
                p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
                p("Furthermore, the development team would like to thank faculty and advisors of the Bioinformatics and Genomics Masters Program at the University of Oregon, expressly, Dr. Leslie Coonrod, Dr. Stacey Wagner, Pete Batzel and Jason Sydes for their extensive time spent providing countless resources and much-appreciated wisdom in all things bioinformatics."),
                br(),
@@ -141,7 +108,7 @@ app_ui <- function(request) {
       tabPanel("Quality Assurance",
                
                h3(strong("Quality Assurance"), style = "margin-top: 0;"),
-               p("This page contains plots for quality assurance (QA) of Seurat objects that have been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+               p("This page contains plots for quality assurance (QA) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
                
                #container for sidebar panel and main panel
                sidebarLayout(
@@ -182,7 +149,7 @@ app_ui <- function(request) {
       tabPanel("Clustering", 
                
                h3(strong("Clustering"), style = "margin-top: 0;"),
-               p("This page contains cluster plots generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+               p("This page contains cluster plots generated from CITE-seq data in the uploaded file. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
                
                #container for sidebar panel and main panel
                sidebarLayout(
@@ -245,7 +212,7 @@ app_ui <- function(request) {
                  tabPanel("Expression",
                           
                           h3(strong("Expression"), style = "margin-top: 0;"),
-                          p("This page contains cluster plots colored by expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                          p("This page contains cluster plots colored by expression values generated from CITE-seq data in the uploaded file. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
                           
                           #container for sidebar panel and main panel
                           sidebarLayout(
@@ -288,7 +255,7 @@ app_ui <- function(request) {
                 tabPanel("Co-Expression",
                          
                          h3(strong("Co-Expression"), style = "margin-top: 0;"),
-                         p("This page contains cluster plots colored by co-expression values generated from single-cell data in the input Seurat object. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                         p("This page contains cluster plots colored by co-expression values generated from CITE-seq data in the uploaded file. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
                          
                          #container for sidebar panel and main panel
                          sidebarLayout(
