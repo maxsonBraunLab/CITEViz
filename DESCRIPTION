@@ -28,11 +28,13 @@ Imports:
     rlang,
     SeuratObject,
     shiny (>= 1.6.0),
+    SingleCellExperiment,
     stats,
     tibble,
+    tools,
     vembedr
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Suggests:
     knitr,
     BiocStyle,

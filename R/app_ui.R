@@ -28,16 +28,16 @@ app_ui <- function(request) {
           # to remove
           #style = "margin-left: 0; padding-left: 1rem; padding-right: 1rem;",
           fileInput(
-            inputId = "rds_input_file", 
+            inputId = "file_input", 
             placeholder = "Upload an RDS (.rds) file",
-            accept = ".rds",
+            accept = c(".rds"),
             label = NULL,
             multiple = FALSE)
         ),
         div(
           # to remove
           # style = "padding-left: 1rem; padding-right: 1rem;",
-          textOutput(outputId = "reduction_validation_status")
+          textOutput(outputId = "file_validation_status")
         )
       ),
       
@@ -99,7 +99,8 @@ app_ui <- function(request) {
                h5(strong("Clustering")),
                p("The Clustering page allows the user to select from a dropdown of dimensionality reduction plots and color cells by different metadata while viewing plots and cluster relationships in two- and three-dimensional space."),
                p("When the cursor hovers in the 2D reduction plot, the selection tools (box or lasso selection) appear for the user to choose from. The metadata for selected cells appears in the data table below the plots. The user also has the option to print or copy this data to clipboard."),
-               img(src = "www/clustering_page.png", width = "100%"), 
+               img(src = "www/clustering_page.png", width = "100%"),
+              
                br(),
                h5(strong("Gating")),
                
