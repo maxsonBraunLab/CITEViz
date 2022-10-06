@@ -31,7 +31,13 @@ CITEViz installation is currently facilitated with devtools, and the development
 
 Arguably the most important feature for CITEViz, users can gate on a set of features (ADT, RNA, etc.) to subset cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE). Users can use one or multiple layers of gates to enrich for specific cell populations justl like flow cytometry. In the following example, we demonstrate a 2-layer gate to get CD11b-1 CD45-1 cells (mixture of myeloid and lymphoid cells) and CD8+ CD4- cells to get CD8 T cells:
 
-![forward-gate](inst/app/www/T-cell-gates.gif)
+1. Select cells with relatively low levels of CD11b-1 and CD45-1.
+
+![forward-gate1](inst/app/www/gating_CD8_T_Cells.png)
+
+2. From the cells in the first gate, select cells with low levels of CD4 and high levels of CD8.
+
+![forward-gate2](inst/app/www/gating_CD8_T_Cells2.png)
 
 ### Feature 2: Back-Gates
 
