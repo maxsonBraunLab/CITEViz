@@ -32,7 +32,9 @@ Imports:
     stats,
     tibble,
     tools,
-    vembedr
+    vembedr,
+    RCurl,
+    Seurat
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 Suggests:
