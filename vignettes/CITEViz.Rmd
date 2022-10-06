@@ -84,17 +84,25 @@ The test dataset in RDS format and the example gates for the gating part of this
 
 The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s Seurat or SingleCellExperiment object. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value.
 
+
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/qc-unique-adt.png")
+knitr::include_graphics("../inst/app/www/qc-unique-adt2.png")
 ```
 
 # Clustering 
 
-The Clustering page allows the user to view cell clusters in two- and three-dimensional space. These clusters can be colored by any categorical metadata, and the user can select dimensionality reductions (e.g., UMAP, PCA, etc.) to view from a dropdown menu. When the user’s cursor hovers over the 2D reduction plot, a plot toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. The metadata for selected cells appears in the data table below the plots, and the user can print or copy this data to their clipboard.
+The Clustering page allows the user to view cell clusters in two- and three-dimensional space. These clusters can be colored by any categorical metadata, and the user can select dimensionality reductions (e.g., UMAP, PCA, etc.) to view from a dropdown menu. 
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/clustering_page.png")
+knitr::include_graphics("../inst/app/www/clustering_page2.png")
 ```
+
+When the user’s cursor hovers over the 2D reduction plot, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. The metadata for selected cells appears in the data table below the plots, and the user can print or copy this data to their clipboard.
+
+```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
+knitr::include_graphics("../inst/app/www/clustering_plotly_toolbox.png")
+```
+
 
 # Feature Expression
 
@@ -114,7 +122,9 @@ knitr::include_graphics("../inst/app/www/feature_expression_CD8.png")
 Co-expression of features greatly facilitates a holistic view of single-cell multi-omic datasets. In 2D feature expression, cells in a dimensional reduction plot are colored by expression levels for two gene and/or ADT features simultaneously. The user can select specific gene and/or ADT features from dropdown menus. CITEViz can visualize co-expression of features from the same assay (i.e. two genes or two ADTs) or two features from different assays, as shown below (i.e. one gene and one ADT).
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/feature_expression_CD14_CD16.png")
+# knitr::include_graphics("../inst/app/www/feature_expression_color_matrix.png")
+
+knitr::include_graphics("../inst/app/www/feature_expression_CD14_CD16_2.png")
 ```
 
 
@@ -124,32 +134,51 @@ knitr::include_graphics("../inst/app/www/feature_expression_CD14_CD16.png")
 
 A key feature of CITEViz is that users can sequentially gate (subset) cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE, etc.) based on a desired set of features (ADTs, genes, etc.). Users can use one or multiple layers of gates to explore specific cell populations in a process similar to flow cytometry. 
 
-When the user’s cursor hovers over each plot on the gating page, a plot toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. 
+### General Workflow:
 
-To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. To rename the selected cell subset, double-click in the Subset_Name cell of the data table, type a new name, then press the Tab key or click outside of the table.
+1. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, and reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
+2. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
+3. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in the [interactive data table](https://rstudio.github.io/DT/) below the plots.
 
-Users can also click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+   + **Note:** To rename the selected cell subset after gating, double-click in the Subset_Name area of the data table, type a new name, then press the Tab key or click outside of the table.
 
-To permanently delete all gating information in the data table, click the "Clear All Data" button. To view detailed gating data, users can download this data in a variety of formats listed on the gating page.
+### Additional Features:
 
-To reset the colors of the cells in the reduction plot, double-click anywhere in the feature scatter plot.
+* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+* To permanently delete all gating information in the data table, click the "Clear All Data" button. 
+* To view detailed gating data, users can download this data in a variety of formats listed at the bottom of the gating page.
+* To reset the colors of the cells in the reduction plot, double-click anywhere in the feature scatter plot.
 
+### Example:
+
+<!-- 
 In the following example, we demonstrate a 2-layer gate to isolate cells with specific levels of CD11b-1 and CD45-1 (mixture of myeloid and lymphoid cells) from the whole cell population, followed by the isolation of CD8+ CD4- cells from this first gate to view the CD8+ T-cell subpopulation:
+-->
+
+In the following example, we demonstrate a gate to isolate CD8+ CD4- cells and view the CD8+ T-cell subpopulation:
+
+```{r, echo = FALSE, out.width = "60%", fig.align="center"}
+knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells_sidepanel.png")
+```
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells.png")
+knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells3.png")
 ```
 
 ## Back-Gating
 
 Users can back-gate on a selection of cells and highlight them in feature space. On the back-gating page, users can highlight cells in feature space from a “labels-first” or “top-down” workflow. For example, users can select a range of cells from the reduction plot (e.g. UMAP, PCA etc.) and locate them in the feature scatterplot for more extensive data exploration. 
 
+### General Workflow:
+
 Cell population selection and naming methods are identical to the gating page. To reset the colors of the cells in the feature scatter plot, double-click anywhere in the reduction plot.
+
+### Example:
 
 In the following example, we back-gate on a selection of B-cells:
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/backgate-b-cells.png")
+knitr::include_graphics("../inst/app/www/backgate-b-cells2.png")
 ```
 
 # Downstream Analysis
@@ -160,10 +189,11 @@ CITEViz gates contain a rich resource of metadata that can facilitate further do
 
 **1. B-Cell Gating Scheme**
 
-To isolate B-cells, we can plot the whole cell population along the IgD (x-axis) and CD27 (y-axis) features. Then, we can use the box-selection tool to subset the cells expressing IgD on the right side of the feature scatter plot:
+To isolate B-cells, we can plot the whole cell population along the IgD (x-axis) and CD27 (y-axis) features from the ADT assay. Then, we can use the box-selection tool to subset the cells expressing IgD on the right side of the feature scatter plot:
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/B-Cells.png")
+
+knitr::include_graphics("../inst/app/www/B-Cells2.png")
 ```
 
 To download the gating data, click the "List (.rds)" button at the bottom of the gating page. Here, we saved the B-cell gating data in a custom file named `B-cells.rds`. 
@@ -173,7 +203,7 @@ To download the gating data, click the "List (.rds)" button at the bottom of the
 Once B-cells are isolated, the user can click the "Reset Scatter" button to to display the entire cell population in the feature scatter plot again. To isolate NK-cells, we can plot the whole cell population along the CD3-1 (x-axis) and CD56-1 (y-axis) features. Then, we can use the box-selection tool to subset the cells that are CD3-negative and CD56-positive in the upper left corner of the feature scatter plot:
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/NK-Cells.png")
+knitr::include_graphics("../inst/app/www/NK-Cells2.png")
 ```
 
 To download the gating data, click the "List (.rds)" button at the bottom of the gating page. Here, we saved the NK-cell gating data in a custom file named `NK-cells.rds`. 
@@ -221,17 +251,17 @@ diff_exp <- FindMarkers(pbmc_small, ident.1 = b_barcodes, ident.2 = nk_barcodes)
 View(diff_exp)
 ```
 
-|           | p_val                 | avg_log2FC | pct.1 | pct.2 | p_val_adj             |
-|-----------|-----------------------|------------|-------|-------|-----------------------|
-| MS4A1     | 3.07e-279 | 3.17       | 0.983 | 0.03  | 6.38e-275 |
-| CD79A     | 1.99e-278 | 2.96       | 0.978 | 0.02  | 4.14e-274  |
-| IGHD      | 1.29e-272  | 3.22       | 0.957 | 0.01  | 2.67e-268 |
-| IGHM      | 9.57e-266 | 2.50       | 0.985 | 0.08  | 1.98e-261 |
-| BANK1     | 1.21e-258 | 2.29       | 0.93  | 0.01  | 2.50e-254 |
-| RALGPS2   | 2.69e-244 | 2.34       | 0.942 | 0.07  | 5.59e-240 |
-| CD79B     | 1.50e-222 | 2.17       | 0.949 | 0.16  | 3.12e-218 |
-| TYROBP    | 8.83e-219 | 2.51       | 0.28  | 0.98  | 1.83e-214 |
-| LINC00926 | 1.21e-216 | 1.65       | 0.828 | 0.02  | 2.51e-212 |
+|           | p_val     | avg_log2FC | pct.1 | pct.2 | p_val_adj  |
+|-----------|-----------|------------|-------|-------|------------|
+| MS4A1     | 3.07e-279 |     3.17        | 0.983 | 0.03  | 6.38e-275 |
+| CD79A     | 1.99e-278 |     2.96        | 0.978 | 0.02  | 4.14e-274  |
+| IGHD      | 1.29e-272 |     3.22        | 0.957 | 0.01  | 2.67e-268 |
+| IGHM      | 9.57e-266 |     2.50      | 0.985 | 0.08  | 1.98e-261 |
+| BANK1     | 1.21e-258 |     2.29      | 0.93  | 0.01  | 2.50e-254 |
+| RALGPS2   | 2.69e-244 |     2.34      | 0.942 | 0.07  | 5.59e-240 |
+| CD79B     | 1.50e-222 |     2.17      | 0.949 | 0.16  | 3.12e-218 |
+| TYROBP    | 8.83e-219 |     2.51      | 0.28  | 0.98  | 1.83e-214 |
+| LINC00926 | 1.21e-216 |     1.65      | 0.828 | 0.02  | 2.51e-212 |
 
 
 # Session Info
