@@ -203,7 +203,7 @@ knitr::include_graphics("../inst/app/www/backgate-b-cells.png")
 
 ## Differential Expression Analysis Between Two Cell Populations
 
-CITEViz gates contain a rich resource of metadata that can facilitate further downstream analyses. In the tutorial below, B-cell and NK-cell clusters are isolated in CITEViz, then re-imported into Seurat for differential expression analysis.
+CITEViz gates contain a rich resource of metadata that can facilitate further downstream analyses. In the tutorial below, B-cell and NK-cell clusters are isolated in CITEViz, then re-imported into [Seurat v4](https://satijalab.org/seurat/) (Hao et al. 2021) for differential expression analysis.
 
 **1. B-Cell Gating Scheme**
 
