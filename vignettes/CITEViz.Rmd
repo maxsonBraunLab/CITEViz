@@ -103,7 +103,7 @@ knitr::include_graphics("../inst/app/www/clustering_page.png")
 
 When the user’s cursor hovers over the 2D reduction plot, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. The metadata for selected cells appears in the scrollable, interactive data table below the plots, and the user can print or copy this data to their clipboard.
 
-```{r, echo = FALSE, out.width = "80%", fig.align="center"}
+```{r, echo = FALSE, out.width = "70%", fig.align="center"}
 knitr::include_graphics("../inst/app/www/clustering_plotly_toolbox.png")
 ```
 
@@ -141,11 +141,6 @@ A key feature of CITEViz is that users can iteratively gate (subset) cells using
 ### General Workflow
 
 1. **Select plot settings:** From dropdown menus in the sidebar panel, the user can select an assay (e.g. ADT) and two assay features (e.g. CD4, CD8) for which to plot normalized expression levels. The user can also select a reduction (e.g. UMAP) for which to plot dimensional reduction embeddings, and can color the cells in the reduction plot by a discrete metadata category (e.g. celltype).
-
-```{r, echo = FALSE, out.width = "60%", fig.align="center"}
-knitr::include_graphics("../inst/app/www/gating_CD8_T_Cells_sidepanel.png")
-```
-
 2. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, or reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
 3. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
 4. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
