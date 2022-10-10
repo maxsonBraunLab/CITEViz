@@ -18,7 +18,7 @@ app_ui <- function(request) {
     # Your application UI logic 
     navbarPage(
       id = "navbar_pg",
-      title = div(icon("earlybirds", lib="font-awesome"), "CITE-Viz"),
+      title = div(icon("earlybirds", lib="font-awesome"), "CITEViz"),
       collapsible = TRUE,
       fluid = TRUE,
       theme = bslib::bs_theme(bootswatch = "flatly"),
@@ -484,9 +484,9 @@ app_ui <- function(request) {
       ), # end of navbarMenu
       
       # ---------- Tab for app exit button in navmenu ----------
-      tabPanel(title = "Exit",
-               value = "exit",
-               icon = icon("fa-duotone fa-circle-xmark", lib = "font-awesome")
+      tabPanel(title = "EXIT",
+               value = "exit", # server-side value to look for when checking if user has clicked Exit tab
+               icon = icon("xmark", lib = "font-awesome")
                ) # end of tabPanel
       
     ) # end of navbarPage
