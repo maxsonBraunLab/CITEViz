@@ -486,7 +486,7 @@ app_ui <- function(request) {
       # ---------- Tab for app exit button in navmenu ----------
       tabPanel(title = "EXIT",
                value = "exit", # server-side value to look for when checking if user has clicked Exit tab
-               icon = icon("xmark", lib = "font-awesome")
+               icon = icon("arrow-right-from-bracket", lib = "font-awesome")
                ) # end of tabPanel
       
     ) # end of navbarPage
