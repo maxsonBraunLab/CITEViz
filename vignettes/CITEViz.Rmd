@@ -63,15 +63,21 @@ knitr::include_graphics("citeviz-logo-light-cropped.png")
 Make sure you have R version **4.2.0** or later installed. We recommend installing CITEViz through the RStudio IDE using the following commands:
 
 ```{r eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
 BiocManager::install("CITEViz")
-library(CITEViz)
 ```
 
 ## Running CITEViz
 
-To open the interactive CITEViz user interface, use the following command:
+To run CITEViz, use the following commands:
 
 ```{r eval=FALSE}
+# load package
+library(CITEViz)
+
+# run CITEViz
 run_app()
 ```
 
