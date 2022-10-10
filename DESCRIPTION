@@ -12,7 +12,7 @@ Authors@R: c(
     person('Theodore', 'Braun', email = 'braunt@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-6248-2143')),
     person('Julia', 'Maxson', email = 'maxsonj@ohsu.edu', role = 'rev', comment = c(ORCID = '0000-0002-3871-7221'))
     )
-Description: CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow cytometry workflow in CITE-Seq. Users can can isolate cell populations of interest using the protein assay in CITE-Seq with minimal computational training. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and evaluation of clusters.
+Description: CITEViz is an RShiny app that allows users to classify cell types in CITE-Seq data via cellular surface protein levels. Similar to flow cytometry, users can physically draw gates and filter on a mixture of cells, and the selected cells are immediately highlighted in dimensional reduction space (e.g. UMAP, tSNE, PCA). This workflow provides rapid feedback to the users to help classify cell types. Additional features of CITEViz includes assessment of quality control metrics, feature visualization (feature expression and co-expression), and plots of cell clusters (2D and optionally 3D). The input of CITEViz is a pre-processed Seurat/SingleCelExperiment object with assays containing normalized RNA/SCT (single-cell transform) and ADT (antibody-derived tag) count data, as well as data for at least one dimensional reduction (e.g. UMAP, PCA, etc.).
 License: MIT + file LICENSE
 Imports:
     bslib,
