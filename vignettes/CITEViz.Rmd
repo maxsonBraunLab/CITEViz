@@ -86,15 +86,16 @@ run_app()
 
 CITEViz accepts files in the RDS (.rds) format. The preferred RDS file should include a [Seurat](https://satijalab.org/seurat/) object or a [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) object. If a list of a single Seurat object is used, only the object labeled "integrated" will be used. 
 
-**Sample data:** In this vignette, we used a 10K cell down-sample of the PBMC dataset from [Hao et. al. 2021](https://doi.org/10.1016/j.cell.2021.04.048). The sample PBMC dataset (in RDS format) for this vignette can be downloaded from Google Drive [here](https://drive.google.com/file/d/1GLRx8KEh_erayt7FhhcWeWR7uyWEVESt/view?usp=sharing).
+**Sample data:** In this vignette, we used a 10K cell down-sample of the PBMC dataset from [Hao et. al. 2021](https://doi.org/10.1016/j.cell.2021.04.048). The sample PBMC dataset (`small_pbmc.rds`) for this vignette can be downloaded from Google Drive [here](https://drive.google.com/drive/folders/1rdXWVMkAshsEM9C-xtixLMsRO4AK3Lgf).
 
 **Getting started:** After calling `run_app()` to start CITEViz, a file can be uploaded using the file upload box at the top of any page in CITEViz. After clicking the file upload box, a file explorer window containing files in the user's local filesystem will open. The user can select an RDS file containing CITE-seq data to upload, and the same dataset will be retained for exploration across all tabs. 
 
 
 ## Data Export
 
-CITEViz uses interactive data visualization and exploration packages such as [Plotly](https://plotly-r.com/) and [DT](https://rstudio.github.io/DT/). `Plotly` plots can be exported as PNG files, and `DT` datatables
-can be copied, printed, or exported as files for downstream analysis.
+CITEViz uses interactive data visualization and exploration packages such as [Plotly](https://plotly-r.com/) and [DT](https://rstudio.github.io/DT/). `Plotly` plots can be exported as PNG files, and `DT` datatables can be copied, printed, or exported as files for downstream analysis. 
+
+After gating for cell populations of interest (see [Gating][Gating] section of this vignette), the metadata for each gate is saved in an internal Gate object. These metadata include cell barcodes that can facilitate downstream analysis such as differential gene expression (see [Downstream Analysis][Downstream Analysis] section of this vignette). To download this gating data as a list of gates in RDS format, the user can click the "List (.rds)" button at the bottom of the gating page.
 
 
 # Quality Control
@@ -210,7 +211,10 @@ knitr::include_graphics("backgate-b-cells.png")
 
 ## Differential Expression Analysis Between Two Cell Populations
 
-CITEViz gates contain a rich resource of metadata that can facilitate further downstream analyses. In the tutorial below, B-cell and NK-cell clusters are isolated in CITEViz, then re-imported into [Seurat](https://satijalab.org/seurat/) for differential expression analysis.
+CITEViz gates contain a rich resource of metadata that can facilitate further downstream analyses. For a runnable example of downstream analysis, consider looking through the [CITEViz BioConductor Workshop 2022](https://github.com/gartician/CITEVizWorkshop).
+
+In the tutorial below, B-cell and NK-cell clusters are isolated in CITEViz, then re-imported into [Seurat](https://satijalab.org/seurat/) for differential expression analysis.
+
 
 **1. B-Cell Gating Scheme**
 
