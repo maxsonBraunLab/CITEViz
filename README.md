@@ -5,7 +5,7 @@
 [![BiocCheck](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/check-bioc.yml)
 <!-- badges: end -->
 
-<img src="inst/app/www/citeviz-logo-light-cropped.png" alt="drawing" width="200"/>
+<img src="vignettes/citeviz-logo-light-cropped.png" alt="drawing" width="200"/>
 
 ## Background
 
@@ -33,29 +33,29 @@ Arguably the most important feature for CITEViz, users can gate on a set of feat
 
 1. Select cells with relatively low levels of CD11b-1 and CD45-1.
 
-![forward-gate1](inst/app/www/gating_CD8_T_Cells.png)
+![forward-gate1](vignettes/gating_CD8_T_Cells.png)
 
 2. From the cells in the first gate, select cells with low levels of CD4 and high levels of CD8.
 
-![forward-gate2](inst/app/www/gating_CD8_T_Cells2.png)
+![forward-gate2](vignettes/gating_CD8_T_Cells2.png)
 
 ### Feature 2: Back-Gates
 
 Unique to CITEViz, users can 'back-gate' on a selection of cells, and highlight them in feature space. We believe this feature can highlight cells in feature space from a "labels-first" or "top-down" workflow. In the following example, we back-gate on a selection of B-cells:
 
-![back-gate](inst/app/www/backgate-b-cells.png)
+![back-gate](vignettes/backgate-b-cells.png)
 
 ### Feature 3: Quality Control
 
 A set of quality control metrics can be assessed in CITEViz, split by any categorical metadata in the input Seurat object. This feature helps users identify potential faulty samples or batch effect. In the following example, CITEViz clearly displayed a difference in the Number of Unique ADTs between patient donors P1-P4 and P5-P8.
 
-![quality-control](inst/app/www/qc-unique-adt.png)
+![quality-control](vignettes/qc-unique-adt.png)
 
 ### Feature 4: Feature (co-)Expression
 
 Co-Expression of features greatly facilitates a holistic view of single-cell multi-omic datasets. For example, this co-expression plot of CD14 and CD16 protein expression show cell population heterogeneity in monocytes in the left cluster. Most monocytes have high CD14 cells and moderate CD16, except for a specific population at the bottom dip that have high CD16 and low CD14. 
 
-![co-expression](inst/app/www/co-expression.png)
+![co-expression](vignettes/co-expression.png)
 
 ## References
 
