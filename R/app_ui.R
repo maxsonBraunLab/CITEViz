@@ -481,7 +481,14 @@ app_ui <- function(request) {
                             ) #end of main panel
                           ) #end of sidebarLayout
                  ) # end of tabPanel
-      ) # end of navbarMenu
+      ), # end of navbarMenu
+      
+      # ---------- Tab for app exit button in navmenu ----------
+      tabPanel(title = "Exit",
+               value = "exit",
+               icon = icon("fa-duotone fa-circle-xmark", lib = "font-awesome")
+               ) # end of tabPanel
+      
     ) # end of navbarPage
   )
 }
