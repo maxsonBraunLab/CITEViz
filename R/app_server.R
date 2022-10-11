@@ -10,7 +10,8 @@
 #' @importFrom dplyr filter last left_join
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
 #' @importFrom rlang is_empty
-#' @importFrom SeuratObject Assays DefaultAssay Embeddings FetchData GetAssayData Reductions
+#' @importFrom SeuratObject Reductions
+#' @importFrom SingleCellExperiment applySCE reducedDimNames
 #' @importFrom stats as.formula quantile
 #' @importFrom tools file_ext
 #'
@@ -95,7 +96,7 @@ app_server <- function( input, output, session ) {
             else if (inherits(rds_obj, "SingleCellExperiment")){
               input_data_type(as.integer(2))
               myso(rds_obj)
-              reductions_vector <- unlist(SingleCellExperiment::applySCE(myso(), reducedDimNames))
+              reductions_vector <- unlist(SingleCellExperiment::applySCE(myso(), SingleCellExperiment::reducedDimNames))
             }
             # set valid_file_input_flag after reading in RDS so that a Seurat object is in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid seurat obj is read in)
             valid_file_input_flag(TRUE)
