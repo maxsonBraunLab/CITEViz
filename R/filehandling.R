@@ -43,7 +43,7 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 #' @import magrittr
 #' @importFrom SeuratObject Assays Reductions GetAssayData
 #' @importFrom dplyr select
-#' @importFrom SingleCellExperiment altExp altExpNames colData mainExpName reducedDimNames
+#' @importFrom SingleCellExperiment altExp altExpNames applySCE colData mainExpName reducedDimNames
 #'
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
 #' @noRd
@@ -99,8 +99,9 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
         colnames()
     }
     else if (category == "reductions") {
-      menu_choices <- unlist(SingleCellExperiment::applySCE(rds_object, 
-                                                            reducedDimNames))
+      menu_choices <- unlist(
+        SingleCellExperiment::applySCE(rds_object, 
+                                       SingleCellExperiment::reducedDimNames))
     }
     else if (category == "assays") {
       menu_choices <- c(SingleCellExperiment::mainExpName(rds_object), 
@@ -124,8 +125,7 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
 #' @param assay_data_to_get Character vector specifying the column(s) from assay data to get (i.e. if the assay is "ADT", then a possible value for assay_data_to_get may be c("ab-CD10", "ab-CD38")). Can be NULL if not retrieving any assay data.
 #' 
 #' @import magrittr
-#' @importFrom SeuratObject GetAssayData Embeddings
-#' @importFrom tibble column_to_rownames
+#' @importFrom SeuratObject Embeddings GetAssayData
 #' @importFrom SingleCellExperiment altExp colData logcounts mainExpName reducedDimNames reducedDim
 #' 
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data columns would be PC1, PC2, etc).
@@ -164,15 +164,14 @@ get_data <- function(category, input_data_type, rds_object, input_file_df, assay
       # we need, at most, 3 reduction dimensions for plotting, so don't get more than 3 dimensions
       # if a reduction doesn't have 3 dimensions (i.e. if PCA data only contains PC1 and PC2),
       # then just get whatever is there
-      num_components <- ncol(SeuratObject::Embeddings(object = rds_object, 
-                                                      reduction = reduction_name))
+      all_data <- SeuratObject::Embeddings(object = rds_object, 
+                                           reduction = reduction_name)
+      num_components <- ncol(all_data)
       if (num_components < 3) {
-        data <- SeuratObject::Embeddings(object = rds_object, 
-                                         reduction = reduction_name)
+        data <- all_data
       }
       else {
-        data <- SeuratObject::Embeddings(object = rds_object, 
-                                         reduction = reduction_name)[, seq(1, 3)]
+        data <- all_data[, seq(1, 3)]
       }
     }
   }
