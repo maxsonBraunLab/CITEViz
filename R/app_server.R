@@ -1301,12 +1301,6 @@ app_server <- function( input, output, session ) {
           saveRDS(gate_list(), file = file)
         }
       )
-      output$download_as_df_rds <- downloadHandler(
-        filename = "gate_info_df.rds",
-        content = function(file) {
-          saveRDS(reactive_gating_df(), file = file)
-        }
-      )
       
     })  # belongs to OBSERVE WRAPPER for gating tab
     
@@ -1657,12 +1651,6 @@ app_server <- function( input, output, session ) {
         filename = "backgate_info_list.rds",
         content = function(file) {
           saveRDS(gate_list_bg(), file = file)
-        }
-      )
-      output$download_as_df_rds_bg <- downloadHandler(
-        filename = "backgate_info_df.rds",
-        content = function(file) {
-          saveRDS(reactive_gating_df_bg(), file = file)
         }
       )
       

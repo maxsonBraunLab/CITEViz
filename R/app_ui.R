@@ -395,8 +395,7 @@ app_ui <- function(request) {
                                 column(12,
                                        p(strong("To view detailed gating data, download as:")),
                                        div(
-                                         downloadButton("download_as_list_rds", "List (.rds)"),
-                                         downloadButton("download_as_df_rds", "Dataframe (.rds)")
+                                         downloadButton("download_as_list_rds", "List (.rds)")
                                        )
                                 )
                               ),
@@ -469,8 +468,7 @@ app_ui <- function(request) {
                                 column(12,
                                        p(strong("To view detailed backgating data, download as:")),
                                        div(
-                                         downloadButton("download_as_list_rds_bg", "List (.rds)"),
-                                         downloadButton("download_as_df_rds_bg", "Dataframe (.rds)")
+                                         downloadButton("download_as_list_rds_bg", "List (.rds)")
                                        )
                                 )
                               ),
