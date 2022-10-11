@@ -1,6 +1,6 @@
 Package: CITEViz
 Title: "CITEViz: Replicating the interactive flow cytometry workflow in CITE-Seq"
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
