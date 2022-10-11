@@ -25,6 +25,17 @@ app_server <- function( input, output, session ) {
   
   # Your application server logic
   
+  # ---------- Exiting/stopping app ----------
+  # if user clicks "Exit" tab in navbar, 
+  # input$navbar_pg changes to value of Exit tab (value = "exit"),
+  # and app closes
+  observe({
+    if (input$navbar_pg == "exit") {
+      stopApp()
+    }
+  })
+  
+  
   # ---------- Filehandling ---------- 
   # Putting everything in an observe function will put everything in the server function into the same environment allowing for
   # a single read of the uploaded seurat object instead of a read every time myso is called in render* function.
