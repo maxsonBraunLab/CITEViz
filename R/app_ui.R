@@ -27,16 +27,16 @@ app_ui <- function(request) {
           # to remove
           #style = "margin-left: 0; padding-left: 1rem; padding-right: 1rem;",
           fileInput(
-            inputId = "rds_input_file", 
+            inputId = "file_input", 
             placeholder = "Upload an RDS (.rds) file",
-            accept = ".rds",
+            accept = c(".rds"),
             label = NULL,
             multiple = FALSE)
         ),
         div(
           # to remove
           # style = "padding-left: 1rem; padding-right: 1rem;",
-          textOutput(outputId = "reduction_validation_status")
+          textOutput(outputId = "file_validation_status")
         )
       ),
       

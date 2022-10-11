@@ -1,6 +1,6 @@
 Package: CITEViz
-Title: CITEViz
-Version: 0.99.1
+Title: "CITEViz: Replicating the interactive flow cytometry workflow in CITE-Seq"
+Version: 0.99.3
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
@@ -28,8 +28,13 @@ Imports:
     rlang,
     SeuratObject,
     shiny (>= 1.6.0),
+    SingleCellExperiment,
     stats,
-    tibble
+    tibble,
+    tools,
+    vembedr,
+    RCurl,
+    Seurat
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 Suggests:
