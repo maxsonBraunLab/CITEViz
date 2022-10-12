@@ -30,6 +30,41 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 }
 
 
+#' Check if alternate experiments in a SingleCellExperiment (SCE) object inherit from a given class.
+#'
+#' @description By default, alternate experiments in a SingleCellExperiment object will inherit from the SummarizedExperiment class. However, sometimes SCE objects created from Seurat-processed data and converted to SCE within Seurat may have alternate experiments that inherit from both the SCE and SummarizedExperiment classes. This multiple inheritance affects the data slots present in an alternate experiment object as well as the methods that can be used to access data from alternate experiments in a SCE object. This function can be used to check if alternate experiments in a SingleCellExperiment (SCE) object also inherit from a class other than SummarizedExperiment, such as the SingleCellExperiment class. 
+#'
+#' @param sce_object A SingleCellExperiment object containing CITE-seq data and, by extension, at least one alternate experiment.
+#' @param class_name A string containing the name of a class for which class inheritance of alternate experiments in a SingleCellExperiment object is to be tested. 
+#'
+#' @importFrom SingleCellExperiment altExps
+#'
+#' @return A Boolean value. If all alternate experiments in a SingleCellExperiment (SCE) object inherit from a given class, then this return value is TRUE. If one or more alternate experiments in a SingleCellExperiment (SCE) object do not inherit from a given class, then this return value is FALSE.
+#' @noRd
+#'
+#' @examples \dontrun{
+#' sce_object <- readRDS("path/to/RDS_file_containing_SCE_object.rds")
+#' 
+#' altExps_inherit_class(sce_object, class_name = "SingleCellExperiment")
+#' }
+altExps_inherit_class <- function(sce_object, class_name) {
+  inherits_from_class <- NULL
+  altExp_inheritance_results <- lapply(
+    SingleCellExperiment::altExps(sce_object), 
+    inherits, 
+    what = class_name)
+  # check if FALSE is anywhere in the inheritance results list
+  # this accounts for cases where some alt experiments inherit from a given class but others don't 
+  if (FALSE %in% altExp_inheritance_results) {
+    inherits_from_class <- FALSE
+  }
+  else {
+    inherits_from_class <- TRUE
+  }
+  return(inherits_from_class)
+}
+
+
 #' Get dropdown menu options for selectInput elements in CITEViz.
 #' 
 #' @description  This function retrieves various categories of data (e.g., metadata, reductions, or assays) from user-uploaded input file(s) (e.g., an RDS file containing a Seurat object) and returns a character vector of items with which to populate a dropdown menu in the CITEViz user interface. This function can also get subchoices for a dropdown menu after a user has selected an assay they want to view. For example, if a user selects the "ADT" assay, then this function will return a vector of all the possible ADTs a user can choose to view from their input data. If a user selects the "RNA" assay, then this function will return a vector of all the genes a user can choose to view from their input data.
@@ -84,6 +119,7 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
   
   # if input data type is a SingleCellExperiment object from an RDS file
   else if (input_data_type == 2  & !is.null(rds_object)) {
+
     if (is.null(category) & !is.null(assay_name)) {
       if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
         menu_choices <- rownames(rds_object)
@@ -99,9 +135,14 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
         colnames()
     }
     else if (category == "reductions") {
-      menu_choices <- unlist(
-        SingleCellExperiment::applySCE(rds_object, 
-                                       SingleCellExperiment::reducedDimNames))
+      if (altExps_inherit_class(rds_object, "SingleCellExperiment")) {
+        menu_choices <- unlist(
+          SingleCellExperiment::applySCE(rds_object, 
+                                         SingleCellExperiment::reducedDimNames))
+      }
+      else {
+        menu_choices <- SingleCellExperiment::reducedDimNames(rds_object)
+      }
     }
     else if (category == "assays") {
       menu_choices <- c(SingleCellExperiment::mainExpName(rds_object), 
@@ -127,6 +168,7 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
 #' @import magrittr
 #' @importFrom SeuratObject Embeddings GetAssayData
 #' @importFrom SingleCellExperiment altExp colData logcounts mainExpName reducedDimNames reducedDim
+#' @importFrom SummarizedExperiment assay assayNames
 #' 
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data columns would be PC1, PC2, etc).
 #' @noRd
@@ -181,14 +223,22 @@ get_data <- function(category, input_data_type, rds_object, input_file_df, assay
       data <- SingleCellExperiment::colData(rds_object)
     }
     else if (category == "assays" & !is.null(assay_name)) {
+      count_datatype_to_get <- "logcounts"
+      experiment_obj <- NULL
+      
       if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
-        data <- t(as.matrix(SingleCellExperiment::logcounts(rds_object)))
+        experiment_obj <- rds_object
       }
       else {
-        alt_exp_obj <- SingleCellExperiment::altExp(x = rds_object, 
-                                                    e = assay_name)
-        data <- t(as.matrix(SingleCellExperiment::logcounts(alt_exp_obj)))
+        experiment_obj <- SingleCellExperiment::altExp(x = rds_object, 
+                                                       e = assay_name)
       }
+      count_datatypes_list <- SummarizedExperiment::assayNames(experiment_obj)
+      if (!("logcounts" %in% count_datatypes_list) & ("normcounts" %in% count_datatypes_list)){
+        count_datatype_to_get <- "normcounts"
+      }
+      data <- t(SummarizedExperiment::assay(x = experiment_obj,
+                                            i = count_datatype_to_get))
     }
     else if (category == "reductions" & !is.null(reduction_name)) {
       main_exp_reductions <- SingleCellExperiment::reducedDimNames(rds_object)
@@ -200,7 +250,8 @@ get_data <- function(category, input_data_type, rds_object, input_file_df, assay
                                                      type = reduction_name, 
                                                      withDimnames = FALSE)
       }
-      else {
+      # else if the alt experiments inherit from SCE class and, thus, contain reduction embeddings data that is stored somewhere other than in the main experiment of the parent SCE object
+      else if (altExps_inherit_class(rds_object, "SingleCellExperiment")){
         # find which alternate experiment a reduction can be found under
         alt_exp_names_list <- SingleCellExperiment::altExpNames(rds_object)
         assay_name <- lapply(alt_exp_names_list, 

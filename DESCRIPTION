@@ -32,6 +32,7 @@ Imports:
     shiny (>= 1.6.0),
     SingleCellExperiment,
     stats,
+    SummarizedExperiment,
     tibble,
     tools
 Encoding: UTF-8
