@@ -29,7 +29,7 @@ author:
     affiliation:
       "Knight Cancer Institute, Oregon Health and Science University"
 
-package: CITEViz 0.99.0
+package: CITEViz 0.99.5
 output:
     BiocStyle::html_document:
       toc: true
@@ -84,7 +84,11 @@ run_app()
 
 ## Data Input Format
 
-CITEViz accepts files in the RDS (.rds) format. The preferred RDS file should include a [Seurat](https://satijalab.org/seurat/) object or a [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) object. If a list of a single Seurat object is used, only the object labeled "integrated" will be used. 
+CITEViz accepts files in the **RDS (.rds) format**. The preferred RDS file should include a [Seurat](https://satijalab.org/seurat/) object or a [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) object. If a list of a single `Seurat` object is used, only the object labeled "integrated" will be used. 
+
+The input `Seurat` or `SingleCellExperiment` object must contain cell embeddings data for **at least one dimensional reduction method** (e.g. PCA, UMAP, tSNE, etc.). If the object contains data for more than one reduction, each reduction must have a unique name. 
+
+If inputting a `SingleCellExperiment` object, the main experiment and any alternative experiments in the `SingleCellExperiment` object must contain assay count data stored as **"logcounts"** (log-transformed, normalized counts) or **"normcounts"** (normalized counts). Please refer to the [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) PDF reference manual on Bioconductor for help on how to determine the types of count data present in your SCE object. By default, CITEViz will use the logcounts for plotting expression data. If logcounts are not available, then CITEViz will use normcounts. If using a `SingleCellExperiment` object that was generated from Seurat-processed data or converted from a `Seurat` object, then the logcounts in the `SingleCellExperiment` object are analogous to the counts in the "data" slot for a given assay in a `Seurat` object.
 
 **Sample data:** In this vignette, we used a 10K cell down-sample of the PBMC dataset from [Hao et. al. 2021](https://doi.org/10.1016/j.cell.2021.04.048). The sample PBMC dataset (`small_pbmc.rds`) for this vignette can be downloaded from Google Drive [here](https://drive.google.com/drive/folders/1rdXWVMkAshsEM9C-xtixLMsRO4AK3Lgf).
 
@@ -100,7 +104,7 @@ After gating for cell populations of interest (see [Gating][Gating] section of t
 
 # Quality Control
 
-The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s Seurat or SingleCellExperiment object. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value.
+The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s `Seurat` or `SingleCellExperiment` object. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value.
 
 ```{r, echo = FALSE, out.width = "100%", out.height = "125%", fig.align="center"}
 knitr::include_graphics("qc-unique-adt.png")
@@ -237,9 +241,9 @@ knitr::include_graphics("NK-Cells.png")
 
 To download the gating data, click the "List (.rds)" button at the bottom of the gating page. Here, we saved the NK-cell gating data in a custom file named `NK-cells.rds`. 
 
-**3. Differential Expression in Seurat**
+**3. Differential Expression in `Seurat`**
 
-Once two cell populations of interest are isolated, the gating data can be read back into Seurat to facilitate differential expression as follows:
+Once two cell populations of interest are isolated, the gating data can be read back into `Seurat` to facilitate differential expression as follows:
 
 ```{r eval=FALSE}
 library(Seurat)
