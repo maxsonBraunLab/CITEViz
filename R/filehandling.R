@@ -65,6 +65,65 @@ altExps_inherit_class <- function(sce_object, class_name) {
 }
 
 
+# helper function for get_choices
+get_choices_from_seurat <- function(category, seurat_object, input_file_df, assay_name = NULL) {
+  menu_choices <- NULL
+  if (is.null(category) & !is.null(assay_name)) {
+    menu_choices <- rownames(SeuratObject::GetAssayData(object = seurat_object, 
+                                                        slot = "data",
+                                                        assay = assay_name))
+  }
+  else if (category == "metadata") {
+    menu_choices <- seurat_object[[]] %>%
+      dplyr::select(where(is.factor) | where(is.character)) %>% 
+      colnames()
+  }
+  else if (category == "reductions") {
+    menu_choices <- SeuratObject::Reductions(seurat_object)
+  }
+  else if (category == "assays") {
+    menu_choices <- SeuratObject::Assays(object = seurat_object)
+  }
+  return(menu_choices)
+}
+
+
+# helper function for get_choices
+get_choices_from_sce <- function(category, sce_object, input_file_df, assay_name = NULL) {
+  menu_choices <- NULL
+  if (is.null(category) & !is.null(assay_name)) {
+    if (SingleCellExperiment::mainExpName(sce_object) == assay_name) {
+      menu_choices <- rownames(sce_object)
+    }
+    else {
+      menu_choices <- rownames(SingleCellExperiment::altExp(x = sce_object,
+                                                            e = assay_name))
+    }
+  }
+  else if (category == "metadata") {
+    menu_choices <- as.data.frame(SingleCellExperiment::colData(sce_object)) %>% 
+      dplyr::select(where(is.factor) | where(is.character)) %>%
+      colnames()
+  }
+  else if (category == "reductions") {
+    if (altExps_inherit_class(sce_object, "SingleCellExperiment")) {
+      menu_choices <- unlist(
+        SingleCellExperiment::applySCE(sce_object, 
+                                       SingleCellExperiment::reducedDimNames))
+    }
+    else {
+      menu_choices <- SingleCellExperiment::reducedDimNames(sce_object)
+    }
+  }
+  else if (category == "assays") {
+    menu_choices <- c(SingleCellExperiment::mainExpName(sce_object), 
+                      SingleCellExperiment::altExpNames(sce_object))
+  }
+  return(menu_choices)
+}
+
+
+
 #' Get dropdown menu options for selectInput elements in CITEViz.
 #' 
 #' @description  This function retrieves various categories of data (e.g., metadata, reductions, or assays) from user-uploaded input file(s) (e.g., an RDS file containing a Seurat object) and returns a character vector of items with which to populate a dropdown menu in the CITEViz user interface. This function can also get subchoices for a dropdown menu after a user has selected an assay they want to view. For example, if a user selects the "ADT" assay, then this function will return a vector of all the possible ADTs a user can choose to view from their input data. If a user selects the "RNA" assay, then this function will return a vector of all the genes a user can choose to view from their input data.
@@ -99,58 +158,158 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
   menu_choices <- NULL
   # if input data type is a Seurat object from an RDS file
   if (input_data_type == 1  & !is.null(rds_object)) {
-    if (is.null(category) & !is.null(assay_name)) {
-      menu_choices <- rownames(SeuratObject::GetAssayData(object = rds_object, 
-                                                          slot = "data",
-                                                          assay = assay_name))
-    }
-    else if (category == "metadata") {
-      menu_choices <- rds_object[[]] %>%
-        dplyr::select(where(is.factor) | where(is.character)) %>% 
-        colnames()
-    }
-    else if (category == "reductions") {
-      menu_choices <- SeuratObject::Reductions(rds_object)
-    }
-    else if (category == "assays") {
-      menu_choices <- SeuratObject::Assays(object = rds_object)
-    }
+    # if (is.null(category) & !is.null(assay_name)) {
+    #   menu_choices <- rownames(SeuratObject::GetAssayData(object = rds_object, 
+    #                                                       slot = "data",
+    #                                                       assay = assay_name))
+    # }
+    # else if (category == "metadata") {
+    #   menu_choices <- rds_object[[]] %>%
+    #     dplyr::select(where(is.factor) | where(is.character)) %>% 
+    #     colnames()
+    # }
+    # else if (category == "reductions") {
+    #   menu_choices <- SeuratObject::Reductions(rds_object)
+    # }
+    # else if (category == "assays") {
+    #   menu_choices <- SeuratObject::Assays(object = rds_object)
+    # }
+    menu_choices <- get_choices_from_seurat(category, rds_object, input_file_df, assay_name)
   }
   
   # if input data type is a SingleCellExperiment object from an RDS file
   else if (input_data_type == 2  & !is.null(rds_object)) {
 
-    if (is.null(category) & !is.null(assay_name)) {
-      if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
-        menu_choices <- rownames(rds_object)
-      }
-      else {
-        menu_choices <- rownames(SingleCellExperiment::altExp(x = rds_object,
-                                                              e = assay_name))
-      }
-    }
-    else if (category == "metadata") {
-      menu_choices <- as.data.frame(SingleCellExperiment::colData(rds_object)) %>% 
-        dplyr::select(where(is.factor) | where(is.character)) %>%
-        colnames()
-    }
-    else if (category == "reductions") {
-      if (altExps_inherit_class(rds_object, "SingleCellExperiment")) {
-        menu_choices <- unlist(
-          SingleCellExperiment::applySCE(rds_object, 
-                                         SingleCellExperiment::reducedDimNames))
-      }
-      else {
-        menu_choices <- SingleCellExperiment::reducedDimNames(rds_object)
-      }
-    }
-    else if (category == "assays") {
-      menu_choices <- c(SingleCellExperiment::mainExpName(rds_object), 
-                        SingleCellExperiment::altExpNames(rds_object))
-    }
+    # if (is.null(category) & !is.null(assay_name)) {
+    #   if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
+    #     menu_choices <- rownames(rds_object)
+    #   }
+    #   else {
+    #     menu_choices <- rownames(SingleCellExperiment::altExp(x = rds_object,
+    #                                                           e = assay_name))
+    #   }
+    # }
+    # else if (category == "metadata") {
+    #   menu_choices <- as.data.frame(SingleCellExperiment::colData(rds_object)) %>% 
+    #     dplyr::select(where(is.factor) | where(is.character)) %>%
+    #     colnames()
+    # }
+    # else if (category == "reductions") {
+    #   if (altExps_inherit_class(rds_object, "SingleCellExperiment")) {
+    #     menu_choices <- unlist(
+    #       SingleCellExperiment::applySCE(rds_object, 
+    #                                      SingleCellExperiment::reducedDimNames))
+    #   }
+    #   else {
+    #     menu_choices <- SingleCellExperiment::reducedDimNames(rds_object)
+    #   }
+    # }
+    # else if (category == "assays") {
+    #   menu_choices <- c(SingleCellExperiment::mainExpName(rds_object), 
+    #                     SingleCellExperiment::altExpNames(rds_object))
+    # }
+    menu_choices <- get_choices_from_sce(category, rds_object, input_file_df, assay_name)
   }
   return(sort(as.vector(menu_choices)))
 }
+
+
+
+# helper function for get_data
+get_data_from_seurat <- function(category, seurat_object, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
+  data <- NULL
+ 
+  if (category == "metadata") {
+    # get all metadata in seurat object
+    data <- seurat_object[[]]
+  }
+  else if (category == "assays" & !is.null(assay_name)) {
+    # get count data from seurat object for a given assay (ADT, RNA, etc) 
+    # and transpose it so that colnames are RNAs/ADTs/etc and rownames are cell barcodes, 
+    # for consistency with the way assay data is accessed in the app server
+    data <- t(as.data.frame(
+      SeuratObject::GetAssayData(object = seurat_object, 
+                                 slot = "data",
+                                 assay = assay_name))[assay_data_to_get, ])
+  }
+  else if (category == "reductions" & !is.null(reduction_name)) {
+    # we need, at most, 3 reduction dimensions for plotting, so don't get more than 3 dimensions
+    # if a reduction doesn't have 3 dimensions (i.e. if PCA data only contains PC1 and PC2),
+    # then just get whatever is there
+    all_data <- SeuratObject::Embeddings(object = seurat_object, 
+                                         reduction = reduction_name)
+    num_components <- ncol(all_data)
+    if (num_components < 3) {
+      data <- all_data
+    }
+    else {
+      data <- all_data[, seq(1, 3)]
+    }
+  }
+  return(data)
+}
+
+
+# helper function for get_data
+get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
+  
+  data <- NULL
+  if (category == "metadata") {
+    data <- SingleCellExperiment::colData(sce_object)
+  }
+  else if (category == "assays" & !is.null(assay_name)) {
+    count_datatype_to_get <- "logcounts"
+    experiment_obj <- NULL
+    if (SingleCellExperiment::mainExpName(sce_object) == assay_name) {
+      experiment_obj <- sce_object
+    }
+    else {
+      experiment_obj <- SingleCellExperiment::altExp(x = sce_object, 
+                                                     e = assay_name)
+    }
+    count_datatypes_list <- SummarizedExperiment::assayNames(experiment_obj)
+    if (!("logcounts" %in% count_datatypes_list) & ("normcounts" %in% count_datatypes_list)){
+      count_datatype_to_get <- "normcounts"
+    }
+    data <- t(SummarizedExperiment::assay(x = experiment_obj,
+                                          i = count_datatype_to_get))
+  }
+  else if (category == "reductions" & !is.null(reduction_name)) {
+    main_exp_reductions <- SingleCellExperiment::reducedDimNames(sce_object)
+    # match the reduction name exactly when searching if it's within a list
+    reduction_finder_results <- grepl(pattern = paste0("^", reduction_name, "$"), 
+                                      x = main_exp_reductions)
+    if (TRUE %in% reduction_finder_results) {
+      all_data <- SingleCellExperiment::reducedDim(sce_object, 
+                                                   type = reduction_name, 
+                                                   withDimnames = FALSE)
+    }
+    # else if the alt experiments inherit from SCE class and, thus, contain reduction embeddings data that is stored somewhere other than in the main experiment of the parent SCE object
+    else if (altExps_inherit_class(sce_object, "SingleCellExperiment")){
+      # find which alternate experiment a reduction can be found under
+      alt_exp_names_list <- SingleCellExperiment::altExpNames(sce_object)
+      assay_name <- lapply(alt_exp_names_list, 
+                           FUN = find_reduction_in_altSCE, 
+                           sce_object = sce_object, 
+                           reduction_name = reduction_name) %>% unlist()
+      alt_exp_obj <- SingleCellExperiment::altExp(x = sce_object,
+                                                  e = assay_name)
+      all_data <- SingleCellExperiment::reducedDim(alt_exp_obj,
+                                                   type = reduction_name, 
+                                                   withDimnames = FALSE)
+    }
+    num_components <- ncol(all_data)
+    if (num_components < 3) {
+      data <- all_data
+    }
+    else {
+      data <- all_data[, seq(1, 3)]
+    }
+  }
+  return(data)
+}
+
+
 
 
 #' Get CITE-seq data from an object read in form an RDS file. 
@@ -189,89 +348,102 @@ get_data <- function(category, input_data_type, rds_object, input_file_df, assay
   data <- NULL
   # if input data type is a Seurat object from an RDS file
   if (input_data_type == 1 & !is.null(rds_object)) {
-    if (category == "metadata") {
-      # get all metadata in seurat object
-      data <- rds_object[[]]
-    }
-    else if (category == "assays" & !is.null(assay_name)) {
-      # get count data from seurat object for a given assay (ADT, RNA, etc) 
-      # and transpose it so that colnames are RNAs/ADTs/etc and rownames are cell barcodes, 
-      # for consistency with the way assay data is accessed in the app server
-      data <- t(as.data.frame(
-        SeuratObject::GetAssayData(object = rds_object, 
-                                   slot = "data",
-                                   assay = assay_name))[assay_data_to_get, ])
-    }
-    else if (category == "reductions" & !is.null(reduction_name)) {
-      # we need, at most, 3 reduction dimensions for plotting, so don't get more than 3 dimensions
-      # if a reduction doesn't have 3 dimensions (i.e. if PCA data only contains PC1 and PC2),
-      # then just get whatever is there
-      all_data <- SeuratObject::Embeddings(object = rds_object, 
-                                           reduction = reduction_name)
-      num_components <- ncol(all_data)
-      if (num_components < 3) {
-        data <- all_data
-      }
-      else {
-        data <- all_data[, seq(1, 3)]
-      }
-    }
+    data <- get_data_from_seurat(category, 
+                                 rds_object, 
+                                 input_file_df, 
+                                 assay_name, 
+                                 reduction_name, 
+                                 assay_data_to_get)
+    # if (category == "metadata") {
+    #   # get all metadata in seurat object
+    #   data <- rds_object[[]]
+    # }
+    # else if (category == "assays" & !is.null(assay_name)) {
+    #   # get count data from seurat object for a given assay (ADT, RNA, etc) 
+    #   # and transpose it so that colnames are RNAs/ADTs/etc and rownames are cell barcodes, 
+    #   # for consistency with the way assay data is accessed in the app server
+    #   data <- t(as.data.frame(
+    #     SeuratObject::GetAssayData(object = rds_object, 
+    #                                slot = "data",
+    #                                assay = assay_name))[assay_data_to_get, ])
+    # }
+    # else if (category == "reductions" & !is.null(reduction_name)) {
+    #   # we need, at most, 3 reduction dimensions for plotting, so don't get more than 3 dimensions
+    #   # if a reduction doesn't have 3 dimensions (i.e. if PCA data only contains PC1 and PC2),
+    #   # then just get whatever is there
+    #   all_data <- SeuratObject::Embeddings(object = rds_object, 
+    #                                        reduction = reduction_name)
+    #   num_components <- ncol(all_data)
+    #   if (num_components < 3) {
+    #     data <- all_data
+    #   }
+    #   else {
+    #     data <- all_data[, seq(1, 3)]
+    #   }
+    # }
   }
   # if input data type is a SingleCellExperiment object from an RDS file
   else if (input_data_type == 2  & !is.null(rds_object)) {
-    if (category == "metadata") {
-      data <- SingleCellExperiment::colData(rds_object)
-    }
-    else if (category == "assays" & !is.null(assay_name)) {
-      count_datatype_to_get <- "logcounts"
-      experiment_obj <- NULL
-      
-      if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
-        experiment_obj <- rds_object
-      }
-      else {
-        experiment_obj <- SingleCellExperiment::altExp(x = rds_object, 
-                                                       e = assay_name)
-      }
-      count_datatypes_list <- SummarizedExperiment::assayNames(experiment_obj)
-      if (!("logcounts" %in% count_datatypes_list) & ("normcounts" %in% count_datatypes_list)){
-        count_datatype_to_get <- "normcounts"
-      }
-      data <- t(SummarizedExperiment::assay(x = experiment_obj,
-                                            i = count_datatype_to_get))
-    }
-    else if (category == "reductions" & !is.null(reduction_name)) {
-      main_exp_reductions <- SingleCellExperiment::reducedDimNames(rds_object)
-      # match the reduction name exactly when searching if it's within a list
-      reduction_finder_results <- grepl(pattern = paste0("^", reduction_name, "$"), 
-                             x = main_exp_reductions)
-      if (TRUE %in% reduction_finder_results) {
-        all_data <- SingleCellExperiment::reducedDim(rds_object, 
-                                                     type = reduction_name, 
-                                                     withDimnames = FALSE)
-      }
-      # else if the alt experiments inherit from SCE class and, thus, contain reduction embeddings data that is stored somewhere other than in the main experiment of the parent SCE object
-      else if (altExps_inherit_class(rds_object, "SingleCellExperiment")){
-        # find which alternate experiment a reduction can be found under
-        alt_exp_names_list <- SingleCellExperiment::altExpNames(rds_object)
-        assay_name <- lapply(alt_exp_names_list, 
-                             FUN = find_reduction_in_altSCE, 
-                             sce_object = rds_object, 
-                             reduction_name = reduction_name) %>% unlist()
-        alt_exp_obj <- SingleCellExperiment::altExp(x = rds_object,
-                                                    e = assay_name)
-        all_data <- SingleCellExperiment::reducedDim(alt_exp_obj,
-                                                     type = reduction_name, 
-                                                     withDimnames = FALSE)
-      }
-      num_components <- ncol(all_data)
-      if (num_components < 3) {
-        data <- all_data
-      }
-      else {
-        data <- all_data[, seq(1, 3)]
-      }
-    }
+    data <- get_data_from_sce(category, 
+                              rds_object, 
+                              input_file_df, 
+                              assay_name, 
+                              reduction_name, 
+                              assay_data_to_get)
+    
+  #   if (category == "metadata") {
+  #     data <- SingleCellExperiment::colData(rds_object)
+  #   }
+  #   else if (category == "assays" & !is.null(assay_name)) {
+  #     count_datatype_to_get <- "logcounts"
+  #     experiment_obj <- NULL
+  #     
+  #     if (SingleCellExperiment::mainExpName(rds_object) == assay_name) {
+  #       experiment_obj <- rds_object
+  #     }
+  #     else {
+  #       experiment_obj <- SingleCellExperiment::altExp(x = rds_object, 
+  #                                                      e = assay_name)
+  #     }
+  #     count_datatypes_list <- SummarizedExperiment::assayNames(experiment_obj)
+  #     if (!("logcounts" %in% count_datatypes_list) & ("normcounts" %in% count_datatypes_list)){
+  #       count_datatype_to_get <- "normcounts"
+  #     }
+  #     data <- t(SummarizedExperiment::assay(x = experiment_obj,
+  #                                           i = count_datatype_to_get))
+  #   }
+  #   else if (category == "reductions" & !is.null(reduction_name)) {
+  #     main_exp_reductions <- SingleCellExperiment::reducedDimNames(rds_object)
+  #     # match the reduction name exactly when searching if it's within a list
+  #     reduction_finder_results <- grepl(pattern = paste0("^", reduction_name, "$"), 
+  #                            x = main_exp_reductions)
+  #     if (TRUE %in% reduction_finder_results) {
+  #       all_data <- SingleCellExperiment::reducedDim(rds_object, 
+  #                                                    type = reduction_name, 
+  #                                                    withDimnames = FALSE)
+  #     }
+  #     # else if the alt experiments inherit from SCE class and, thus, contain reduction embeddings data that is stored somewhere other than in the main experiment of the parent SCE object
+  #     else if (altExps_inherit_class(rds_object, "SingleCellExperiment")){
+  #       # find which alternate experiment a reduction can be found under
+  #       alt_exp_names_list <- SingleCellExperiment::altExpNames(rds_object)
+  #       assay_name <- lapply(alt_exp_names_list, 
+  #                            FUN = find_reduction_in_altSCE, 
+  #                            sce_object = rds_object, 
+  #                            reduction_name = reduction_name) %>% unlist()
+  #       alt_exp_obj <- SingleCellExperiment::altExp(x = rds_object,
+  #                                                   e = assay_name)
+  #       all_data <- SingleCellExperiment::reducedDim(alt_exp_obj,
+  #                                                    type = reduction_name, 
+  #                                                    withDimnames = FALSE)
+  #     }
+  #     num_components <- ncol(all_data)
+  #     if (num_components < 3) {
+  #       data <- all_data
+  #     }
+  #     else {
+  #       data <- all_data[, seq(1, 3)]
+  #     }
+  #   }
   }
   return(as.data.frame(data))
 }
