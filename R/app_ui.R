@@ -40,7 +40,7 @@ app_ui <- function(request) {
         )
       ),
       
-      footer = tags$footer(a(icon("github"), href="https://github.com/maxsonBraunLab/CITE-Viz"), "| Made with", icon("heart"), "at UO + OHSU", 
+      footer = tags$footer(a(icon("github"), href="https://github.com/maxsonBraunLab/CITEViz"), "| Made with", icon("heart"), "at UO + OHSU" 
                            # to remove
                            # style = "
                            # background-image: linear-gradient(to right, #004F6E, #8D1D58);
@@ -83,20 +83,20 @@ app_ui <- function(request) {
                ),
                
                p("This app was developed through the", a("Knight Campus Graduate Internship Program", href= "https://internship.uoregon.edu/bioinformatics"), "at the University of Oregon, in collaboration with both the", a("Maxson", href="https://www.maxsonlab.org/"), "and", a("Braun", href="https://www.braunlab.org/team.html"), "Labs at Oregon Health and Science University (OHSU)  in Portland, Oregon."),
-               p("The purpose of this app is to allow users to interactively engage with their CITE-seq data though interactive plotting, subsetting and flow cytometry-like cell gating features. Although this app was originally created to investigate acute myeloid leukemia (AML), one of the fastest-growing blood cancers, it can also be used to explore many other CITE-seq datasets."), 
+               p("The purpose of this app is to allow users to interactively engage with their CITE-seq data though interactive plotting, subsetting and flow cytometry-like cell gating features."), 
 
                h4(strong("How to Use this App")),
-               p("Please see the vignette in the Bioconductor page for CITEViz or in the CITEViz GitHub repo for detailed instructions on how to use this app."),
+               p("Please see the CITEViz vignette on Bioconductor or on", a("GitHub", href="https://github.com/maxsonBraunLab/CITEViz"), "for detailed instructions on how to use this app."),
 
                hr(style = "border-top: 3px solid whitesmoke;"),
                
                h4(strong("Resources")),
-               p("Consider using the", a("Maxson-Braun Lab's pipeline", href="https://github.com/maxsonBraunLab/cite_seq"), "to generate a Seurat object (saved as an .rds file) that can be uploaded into this app for further data analysis."), 
+               p("Consider using the", a("Maxson-Braun Lab's CITE-seq pipeline", href="https://github.com/maxsonBraunLab/cite_seq"), "to generate a Seurat object (saved as an .rds file) that can be uploaded into this app for further data analysis."), 
                p("If you are researching white blood cells, please see the following", a("Human Immune Cell Marker Guide", href="https://media.cellsignal.com/www/pdfs/science/pathways/Immune-Cell-Markers-Human.pdf"), "reproduced courtesy of", a("Cell Signaling Technology, Inc.", href="https://www.cellsignal.com")), 
 
 
                h4(strong("Acknowledgements")), 
-               p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"end cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
+               p("The development team would like to express sincere gratitude to this project's principal investigators, Dr. Julia Maxson and Dr. Ted Braun, and our project mentor, Garth Kong, for their guidance, encouragement and experience in the realm of blood cancers and CITE-seq data processing, not to mention their dedication to", a('"ending cancer as we know it."', href ="https://ohsufoundation.org/stories/teaming-up-against-cancer-a-message-from-brian-druker-md/"), 'Their innumerable technical contributions helped bring this project to fruition.'),
                p("Furthermore, the development team would like to thank faculty and advisors of the Bioinformatics and Genomics Masters Program at the University of Oregon, expressly, Dr. Leslie Coonrod, Dr. Stacey Wagner, Pete Batzel and Jason Sydes for their extensive time spent providing countless resources and much-appreciated wisdom in all things bioinformatics."),
                br(),
                br(), 
