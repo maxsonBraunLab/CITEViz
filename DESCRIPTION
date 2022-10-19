@@ -1,6 +1,6 @@
 Package: CITEViz
 Title: "CITEViz: Replicating the interactive flow cytometry workflow in CITE-Seq"
-Version: 0.99.5
+Version: 0.99.6
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
@@ -32,6 +32,7 @@ Imports:
     shiny (>= 1.6.0),
     SingleCellExperiment,
     stats,
+    SummarizedExperiment,
     tibble,
     tools
 Encoding: UTF-8

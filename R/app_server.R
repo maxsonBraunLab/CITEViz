@@ -11,7 +11,6 @@
 #' @importFrom plotly add_histogram2dcontour add_markers config event_data event_register ggplotly layout plot_ly renderPlotly
 #' @importFrom rlang is_empty
 #' @importFrom SeuratObject Reductions
-#' @importFrom SingleCellExperiment applySCE reducedDimNames
 #' @importFrom stats as.formula quantile
 #' @importFrom tools file_ext
 #'
@@ -100,14 +99,16 @@ app_server <- function( input, output, session ) {
                 #if integrated obj is not in list of objs, and the obj from the RDS file is just a single Seurat obj and not a list
                 myso(rds_obj)
               }
-              
               reductions_vector <- SeuratObject::Reductions(myso())
             }
             # else if object read in from RDS file is a SingleCellExperiment object
             else if (inherits(rds_obj, "SingleCellExperiment")){
               input_data_type(as.integer(2))
               myso(rds_obj)
-              reductions_vector <- unlist(SingleCellExperiment::applySCE(myso(), SingleCellExperiment::reducedDimNames))
+              reductions_vector <- get_choices("reductions",
+                                               input_data_type(),
+                                               myso(), 
+                                               input_file_df)
             }
             # set valid_file_input_flag after reading in RDS so that a Seurat object is in memory before other parts of app that require a true valid_file_input_flag can run (that way a "true" flag doesn't prematurely trigger other events to happen before a valid seurat obj is read in)
             valid_file_input_flag(TRUE)
@@ -767,7 +768,7 @@ app_server <- function( input, output, session ) {
           #create string for reduction to plot
           reduc <- input$reduction_expr_2d
           
-          #selected metadata to color clusters by
+          #selected features to color clusters by
           color_x <- input$x_axis_feature
           color_y <- input$y_axis_feature
          
