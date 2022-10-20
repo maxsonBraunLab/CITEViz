@@ -7,8 +7,7 @@
 get_color_matrix_df(ngrid = 16)
 }
 \arguments{
-\item{ngrid}{integer setting the resolution (dimensions) of color 
-grid (e.g., ngrid = 16 sets a 16x16 color grid). Default is ngrid=16.}
+\item{ngrid}{integer setting the resolution (dimensions) of color grid (e.g., ngrid = 16 sets a 16x16 color grid). Default is ngrid=16.}
 }
 \value{
 dataframe for use in coexpression legend
