@@ -1,6 +1,6 @@
 Package: CITEViz
 Title: "CITEViz: Replicating the interactive flow cytometry workflow in CITE-Seq"
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(
     person('Garth', 'Kong', email = 'kongga2017@gmail.com', role = c('cre', 'aut'), comment = c(ORCID = '0000-0001-5262-5406')),
     person('Thai', 'Nguyen', email = 'tnguye14@uoregon.edu', role = 'aut', comment = c(ORCID = '0000-0002-8988-4003')),
@@ -25,15 +25,14 @@ Imports:
     magrittr,
     methods,
     plotly,
-    RCurl,
     rlang,
-    Seurat,
     SeuratObject,
     shiny (>= 1.6.0),
     SingleCellExperiment,
     stats,
     SummarizedExperiment,
     tibble,
+    tidyselect (>= 1.2.0),
     tools
 Encoding: UTF-8
 RoxygenNote: 7.2.1
@@ -41,6 +40,8 @@ Suggests:
     knitr,
     BiocStyle,
     rmarkdown,
+    RCurl,
+    Seurat,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
