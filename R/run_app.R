@@ -10,10 +10,8 @@
 #' 
 #' @return Initialization of CITEViz app
 #' 
-#' @examples 
-#' \dontrun{
+#' @examples
 #' run_app()
-#' }
 #'
 run_app <- function(
   onStart = NULL,

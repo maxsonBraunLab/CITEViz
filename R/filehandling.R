@@ -11,12 +11,6 @@
 #' @return A string specifying the name of an alternate experiment (e.g., "ADT", "RNA", "SCT", etc.) in which the cell embeddings for a given reduction can be found.
 #' @noRd
 #'
-#' @examples \dontrun{
-#' sce_object <- readRDS("path/to/RDS_file_containing_SCE_object.rds")
-#' alt_exp_name <- SingleCellExperiment::altExpNames(sce_object)[1]
-#' reduction_name <- "UMAP"
-#' alt_exp_of_desired_reduction <- find_reduction_in_altSCE(alt_exp_name, sce_object, reduction_name)
-#' }
 find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
   alt_exp_object <- SingleCellExperiment::altExp(x = sce_object, 
                                                  e = alt_exp_name)
@@ -42,11 +36,6 @@ find_reduction_in_altSCE <- function(alt_exp_name, sce_object, reduction_name) {
 #' @return A Boolean value. If all alternate experiments in a SingleCellExperiment (SCE) object inherit from a given class, then this return value is TRUE. If one or more alternate experiments in a SingleCellExperiment (SCE) object do not inherit from a given class, then this return value is FALSE.
 #' @noRd
 #'
-#' @examples \dontrun{
-#' sce_object <- readRDS("path/to/RDS_file_containing_SCE_object.rds")
-#' 
-#' altExps_inherit_class(sce_object, class_name = "SingleCellExperiment")
-#' }
 altExps_inherit_class <- function(sce_object, class_name) {
   inherits_from_class <- NULL
   altExp_inheritance_results <- lapply(
@@ -81,16 +70,6 @@ altExps_inherit_class <- function(sce_object, class_name) {
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' myso <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_choices("metadata", 
-#' seurat_object = myso, 
-#' input_file_df = input_file_data, 
-#' assay_name = NULL)
-#' }
 get_choices_from_seurat <- function(category, seurat_object, input_file_df, assay_name = NULL) {
   menu_choices <- NULL
   if (is.null(category) & !is.null(assay_name)) {
@@ -129,17 +108,6 @@ get_choices_from_seurat <- function(category, seurat_object, input_file_df, assa
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' my_sce <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_choices("metadata", 
-#' sce_object = my_sce, 
-#' input_file_df = input_file_data, 
-#' assay_name = NULL)
-#' }
-#' 
 get_choices_from_sce <- function(category, sce_object, input_file_df, assay_name = NULL) {
   menu_choices <- NULL
   if (is.null(category) & !is.null(assay_name)) {
@@ -187,18 +155,6 @@ get_choices_from_sce <- function(category, sce_object, input_file_df, assay_name
 #' @return A character vector of items with which to populate a dropdown menu in the CITEViz UI, sorted in ascending order.
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' myso <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_choices("metadata", 
-#' input_data_type = 2, 
-#' rds_object = myso, 
-#' input_file_df = input_file_data, 
-#' assay_name = NULL)
-#' }
-#' 
 get_choices <- function(category, input_data_type, rds_object, input_file_df, assay_name = NULL) {
   menu_choices <- NULL
   # if input data type is a Seurat object from an RDS file
@@ -230,17 +186,6 @@ get_choices <- function(category, input_data_type, rds_object, input_file_df, as
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data columns would be PC1, PC2, etc).
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' myso <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_data("reductions", 
-#' seurat_object = myso, 
-#' input_file_df = input_file_data, 
-#' reduction_name = "pca")
-#' }
-#' 
 get_data_from_seurat <- function(category, seurat_object, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
   
   data <- NULL
@@ -293,17 +238,6 @@ get_data_from_seurat <- function(category, seurat_object, input_file_df, assay_n
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data columns would be PC1, PC2, etc).
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' my_sce <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_data("reductions", 
-#' sce_object = my_sce, 
-#' input_file_df = input_file_data, 
-#' reduction_name = "pca")
-#' }
-#' 
 get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
   
   data <- NULL
@@ -379,18 +313,6 @@ get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = 
 #' @return A dataframe containing metadata, assay count data, or reduction embeddings data that was generated in a Seurat-processed CITE-seq experiment. The rownames of the dataframe are cell barcodes, and the column names are metadata columns, assay columns (i.e. if assay is "RNA", then assay columns would be genes), or reduction embedding columns (i.e. if the reduction is "pca", the embedding data columns would be PC1, PC2, etc).
 #' @noRd
 #'
-#' @examples \dontrun{
-#' # if RDS file is uploaded by user
-#' myso <- readRDS("path/to/RDS_file.rds")
-#' input_file_data <- input$file_input
-#' 
-#' get_data("reductions", 
-#' input_data_type = 2, 
-#' rds_object = myso, 
-#' input_file_df = input_file_data, 
-#' reduction_name = "pca")
-#' }
-#' 
 get_data <- function(category, input_data_type, rds_object, input_file_df, assay_name = NULL, reduction_name = NULL, assay_data_to_get = NULL) {
   data <- NULL
   # if input data type is a Seurat object from an RDS file

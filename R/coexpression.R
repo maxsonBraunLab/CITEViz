@@ -12,7 +12,6 @@
 #' @param quad22 integer
 #'
 #' @return numeric vector for color values used in coexpression plot
-#' @export
 #'
 #' @examples
 #' ngrid <- 16
@@ -54,7 +53,6 @@ get_bilinear_val <- function(x,y,ngrid,quad11,quad21,quad12,quad22){
 #' @importFrom grDevices rgb
 #'
 #' @return dataframe for use in coexpression legend
-#' @export
 #'
 #' @examples
 #' get_color_matrix_df(10)

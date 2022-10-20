@@ -17,7 +17,6 @@
 #' @slot pct_subset_from_total numeric. 
 #'
 #' @return a gate class object
-#' @export
 #'
 #' @examples
 #' 
@@ -71,7 +70,6 @@ methods::setClass("Gate", slots = list(
 #' @importFrom methods new
 #'
 #' @return Gate class object
-#' @export
 #'
 #' @examples
 #' # create Gate object
@@ -120,7 +118,6 @@ Gate <- function(counter=NA_integer_, assay_name = NA_character_, input_cells = 
 #' @importFrom methods slot
 #' 
 #' @return data from slot in gate object
-#' @export
 #'
 #' @examples
 #' 
@@ -156,7 +153,6 @@ GetData <- function(gate_obj, slot_name) {
 #' @importFrom methods slot
 #'
 #' @return Gate object with new name of subset cells in name_subset_cells slot
-#' @export
 #'
 #' @examples
 #' 

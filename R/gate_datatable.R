@@ -5,7 +5,6 @@
 #' @import magrittr
 #' 
 #' @return an interactive data table
-#' @export
 #'
 #' @examples
 #' 

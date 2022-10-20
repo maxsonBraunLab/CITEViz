@@ -10,7 +10,6 @@
 #' @importFrom grDevices colorRampPalette
 #'
 #' @return A color palette in the form of a character vector of hex color codes.
-#' @export
 #'
 #' @examples 
 #' # passing an integer directly into function

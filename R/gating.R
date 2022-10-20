@@ -100,7 +100,6 @@ get_reactive_gate_list <- function(gating_reactiveValues) {
 #' Create gating dataframe
 #' 
 #' @return Empty gate dataframe for app purposes
-#' @export
 #' 
 #' @examples
 #' 
@@ -139,7 +138,6 @@ create_gating_df <- function() {
 #'
 #' @importFrom tibble add_row
 #' @return updated gating dataframe 
-#' @export
 #'
 #' @examples
 #' 
