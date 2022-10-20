@@ -25,9 +25,7 @@ Imports:
     magrittr,
     methods,
     plotly,
-    RCurl,
     rlang,
-    Seurat,
     SeuratObject,
     shiny (>= 1.6.0),
     SingleCellExperiment,
@@ -41,6 +39,8 @@ Suggests:
     knitr,
     BiocStyle,
     rmarkdown,
+    RCurl,
+    Seurat,
     spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
