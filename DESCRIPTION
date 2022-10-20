@@ -32,6 +32,7 @@ Imports:
     stats,
     SummarizedExperiment,
     tibble,
+    tidyselect (>= 1.2.0),
     tools
 Encoding: UTF-8
 RoxygenNote: 7.2.1

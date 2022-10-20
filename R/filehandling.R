@@ -68,6 +68,7 @@ altExps_inherit_class <- function(sce_object, class_name) {
 #' @param assay_name A string specifying the name of an assay (e.g., "ADT", "RNA", etc.) from a Seurat-processed CITE-seq experiment.
 #'
 #' @import magrittr
+#' @importFrom tidyselect where
 #' @importFrom SeuratObject Assays Reductions GetAssayData
 #' @importFrom dplyr select
 #'
@@ -105,6 +106,7 @@ get_choices_from_seurat <- function(category, seurat_object, input_file_df, assa
 #' @param assay_name A string specifying the name of an assay (e.g., "ADT", "RNA", etc.) from a Seurat-processed CITE-seq experiment.
 #'
 #' @import magrittr
+#' @importFrom tidyselect where
 #' @importFrom dplyr select
 #' @importFrom SingleCellExperiment altExp altExpNames applySCE colData mainExpName reducedDimNames
 #'
