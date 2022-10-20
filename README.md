@@ -2,7 +2,6 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/rcmdcheck.yaml/badge.svg)](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/rcmdcheck.yaml)
-[![BiocCheck](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/maxsonBraunLab/CITEViz/actions/workflows/check-bioc.yml)
 <!-- badges: end -->
 
 <img src="vignettes/citeviz-logo-light-cropped.png" alt="drawing" width="200"/>
