@@ -1,51 +1,51 @@
 ---
 title: "CITEViz: Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
 author:
-  - name: Garth Kong
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
-  - name: Thai Nguyen
-    affiliation:
-      "Bioinformatics and Genomics Masters Program, University of Oregon"
-  - name: Wesley Rosales
-    affiliation:
-      "Bioinformatics and Genomics Masters Program, University of Oregon"
-  - name: Anjali Panikar
-    affiliation:
-      "Bioinformatics and Genomics Masters Program, University of Oregon"
-  - name: John Cheney
-    affiliation:
-      "Bioinformatics and Genomics Masters Program, University of Oregon"
-  - name: Brittany Curtiss
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
-  - name: Sarah Carratt
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
-  - name: Theodore Braun
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
-  - name: Julia Maxson
-    affiliation:
-      "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Garth Kong
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Thai Nguyen
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Wesley Rosales
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Anjali Panikar
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: John Cheney
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Brittany Curtiss
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Sarah Carratt
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Theodore Braun
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Julia Maxson
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
 
 package: CITEViz 0.99.6
 output:
     BiocStyle::html_document:
-      toc: true
-      toc_depth: 2
+        toc: true
+        toc_depth: 2
 
 vignette: >
-  %\VignetteIndexEntry{'Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+    %\VignetteIndexEntry{'Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
 ---
 
 
 ```{r setup, include = FALSE, echo=FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 BiocStyle::markdown()
 ```
@@ -76,9 +76,7 @@ BiocManager::install("CITEViz")
 
 CITEViz accepts files in the **RDS (.rds) format**. The preferred RDS file should include a [Seurat](https://satijalab.org/seurat/) object or a [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) object. If a list of a single `Seurat` object is used, only the object labeled "integrated" will be used. 
 
-The input `Seurat` or `SingleCellExperiment` object must contain cell embeddings data for **at least one dimensional reduction method** (e.g. PCA, UMAP, tSNE, etc.). If the object contains data for more than one reduction, each reduction must have a unique name. 
-
-If inputting a `SingleCellExperiment` object, the main experiment and any alternative experiments in the `SingleCellExperiment` object must contain assay count data stored as **"logcounts"** (log-transformed, normalized counts) or **"normcounts"** (normalized counts). Please refer to the [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) reference manual on Bioconductor for help on how to determine the types of count data present in your SCE object. By default, CITEViz will use the logcounts for plotting expression data. If logcounts are not available, then CITEViz will use normcounts. If using a `SingleCellExperiment` object that was generated from Seurat-processed data or converted from a `Seurat` object, then the logcounts in the `SingleCellExperiment` object are analogous to the counts in the "data" slot for a given assay in a `Seurat` object.
+The input `Seurat` or `SingleCellExperiment` object must contain cell embeddings data for **at least one dimensional reduction method** (e.g. PCA, UMAP, tSNE, etc.). If the object contains data for more than one reduction, each reduction must have a unique name. For a `SingleCellExperiment` object, the main experiment and any alternative experiments in the `SingleCellExperiment` object must contain assay count data stored as **"logcounts"** (log-transformed, normalized counts) or **"normcounts"** (normalized counts). Please refer to the [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) reference manual on Bioconductor for help on how to determine the types of count data present in your SCE object. By default, CITEViz will use the logcounts for plotting expression data. If logcounts are not available, then CITEViz will use normcounts. If using a `SingleCellExperiment` object that was generated from Seurat-processed data or converted from a `Seurat` object, then the logcounts in the `SingleCellExperiment` object are analogous to the counts in the "data" slot for a given assay in a `Seurat` object.
 
 ### Sample Data
 
@@ -193,14 +191,14 @@ knitr::include_graphics("gating_dropdown_menus.png")
 ```
 
 2. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, or reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
-3. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
-4. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
+3. **Label the selected cells:** To input   a name for a subset of cells to be gated, use the text-input field of the sidebar pa- nel prior to clicking the gate button. 
+4. **Click the gate button:** After gating a    ubset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
 
 ### Additional Features
 
 * Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
 * To permanently delete all gating information in the data table, click the "Clear All Data" button.
-* To rename the selected cell subset after gating, double-click in the corresponding Subset_Name area of the data table, type a new name, then press the Tab key or click outside of the table.
+* To   rename the selected cell subset after gating, double-click in the corresponding Subse-   t_Name area of the data ta-  type a ne  w name, then press the Tab key or cl           utside of the table.      
 
 ```{r, echo = FALSE, out.width = "100%", fig.align="center"}
 knitr::include_graphics("gate_datatable_renaming.png")
