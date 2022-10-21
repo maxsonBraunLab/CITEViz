@@ -8,6 +8,7 @@
 #' @param num_colors number of colors
 #'
 #' @importFrom grDevices colorRampPalette
+#' @noRd
 #'
 #' @return A color palette in the form of a character vector of hex color codes.
 get_palette <- function(num_colors = 3) {

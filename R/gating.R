@@ -101,7 +101,7 @@ get_reactive_gate_list <- function(gating_reactiveValues) {
 }
 
 #' Create gating dataframe
-#'
+#' @noRd
 #' @return Empty gate dataframe for app purposes
 #'
 create_gating_df <- function() {
@@ -134,6 +134,7 @@ create_gating_df <- function() {
 #' @param temp_gating_df empty gating dataframe built from create_gating_df function
 #'
 #' @importFrom tibble add_row
+#' @noRd
 #' @return updated gating dataframe
 #'
 update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_df) {

@@ -3,19 +3,19 @@
 \docType{class}
 \name{Gate-class}
 \alias{Gate-class}
-\title{Gate class for gate objects}
+\title{CITEViz Gate Class}
 \value{
 a gate class object
 }
 \description{
 The Gate class is the core data structure of CITEViz to store
 gating information. Gates are initiated upon the first click of the "Gate"
-button and turned into a reactive value to facilitate interactivity with 
+button and turned into a reactive value to facilitate interactivity with
 R-Shiny. The Gate class holds the following information:
 
 * counter <integer>: keep track of gate number
 * assay_name <character>: keep track of which assay (RNA, ADT, etc) the gate data is coming from
-* input_cells <list>: a list of cell barcodes going into the gate 
+* input_cells <list>: a list of cell barcodes going into the gate
 e.g. if a gate isn't initialized yet, this variable contains all the cells.
 * input_coords <data.frame>: the coordinates of the input cells
 * subset_cells <list>: a list of output cells
@@ -33,34 +33,34 @@ e.g. if a gate isn't initialized yet, this variable contains all the cells.
 \section{Slots}{
 
 \describe{
-\item{\code{counter}}{integer.}
+\item{\code{counter}}{<integer>: keep track of gate number}
 
-\item{\code{assay_name}}{character.}
+\item{\code{assay_name}}{<character>: keep track of which assay (RNA, ADT, etc) the gate data is coming from}
 
-\item{\code{input_cells}}{list.}
+\item{\code{input_cells}}{<list>: a list of cell barcodes going into the gate e.g. if a gate isn't initialized yet, this variable contains all the cells.}
 
-\item{\code{input_coords}}{data.frame.}
+\item{\code{input_coords}}{<data.frame>: the coordinates of the input cells}
 
-\item{\code{subset_cells}}{list.}
+\item{\code{subset_cells}}{<list>: a list of output cells}
 
-\item{\code{subset_coords}}{data.frame.}
+\item{\code{subset_coords}}{<data.frame>: the coordinates of the output cells}
 
-\item{\code{x_axis}}{character.}
+\item{\code{x_axis}}{<character>: the feature used to plot the x-axis}
 
-\item{\code{y_axis}}{character.}
+\item{\code{y_axis}}{<character>: the feature used to plot the y-axis}
 
-\item{\code{gate_coords}}{list.}
+\item{\code{gate_coords}}{<list>: the coordinates of the gate boundaries drawn by plotly}
 
-\item{\code{name_subset_cells}}{character.}
+\item{\code{name_subset_cells}}{<character>: the label of the set of output cells inputted by the user}
 
-\item{\code{num_input_cells}}{integer.}
+\item{\code{num_input_cells}}{<integer>: number of input cells}
 
-\item{\code{num_subset_cells}}{integer.}
+\item{\code{num_subset_cells}}{<integer>: number of output cells}
 
-\item{\code{total_num_cells_in_sample}}{integer.}
+\item{\code{total_num_cells_in_sample}}{<integer>: total number of cell in a sample}
 
-\item{\code{pct_subset_from_previous}}{numeric.}
+\item{\code{pct_subset_from_previous}}{<numeric>: proportion of output cell WRT previous gate}
 
-\item{\code{pct_subset_from_total}}{numeric.}
+\item{\code{pct_subset_from_total}}{<numeric>: proportion of output cell WRT total cells}
 }}
 

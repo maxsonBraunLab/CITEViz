@@ -4,6 +4,7 @@
 #'
 #' @import magrittr
 #'
+#' @noRd
 #' @return an interactive data table
 #'
 create_gating_dt <- function(temp_reactive_gating_df) {

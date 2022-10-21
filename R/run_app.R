@@ -11,10 +11,9 @@
 #' @return Initialization of CITEViz app
 #'
 #' @examples
-#' \dontrun{
+#' if(interactive()) {
 #' run_app()
 #' }
-#'
 run_app <- function(onStart = NULL,
     options = list(),
     enableBookmarking = NULL,

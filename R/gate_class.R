@@ -1,13 +1,13 @@
-#' Gate class for gate objects
+#' CITEViz Gate Class
 #'
 #' @description The Gate class is the core data structure of CITEViz to store
 #' gating information. Gates are initiated upon the first click of the "Gate"
-#' button and turned into a reactive value to facilitate interactivity with 
+#' button and turned into a reactive value to facilitate interactivity with
 #' R-Shiny. The Gate class holds the following information:
-#' 
+#'
 #' * counter <integer>: keep track of gate number
 #' * assay_name <character>: keep track of which assay (RNA, ADT, etc) the gate data is coming from
-#' * input_cells <list>: a list of cell barcodes going into the gate 
+#' * input_cells <list>: a list of cell barcodes going into the gate
 #' e.g. if a gate isn't initialized yet, this variable contains all the cells.
 #' * input_coords <data.frame>: the coordinates of the input cells
 #' * subset_cells <list>: a list of output cells
@@ -21,25 +21,25 @@
 #' * total_num_cells_in_sample <integer>: total number of cell in a sample
 #' * pct_subset_from_previous <numeric>: proportion of output cell WRT previous gate
 #' * pct_subset_from_total <numeric>: proportion of output cell WRT total cells
-#' 
-#' @slot counter integer.
-#' @slot assay_name character.
-#' @slot input_cells list.
-#' @slot input_coords data.frame.
-#' @slot subset_cells list.
-#' @slot subset_coords data.frame.
-#' @slot x_axis character.
-#' @slot y_axis character.
-#' @slot gate_coords list.
-#' @slot name_subset_cells character.
-#' @slot num_input_cells integer.
-#' @slot num_subset_cells integer.
-#' @slot total_num_cells_in_sample integer.
-#' @slot pct_subset_from_previous numeric.
-#' @slot pct_subset_from_total numeric.
+#'
+#' @slot counter <integer>: keep track of gate number
+#' @slot assay_name <character>: keep track of which assay (RNA, ADT, etc) the gate data is coming from
+#' @slot input_cells <list>: a list of cell barcodes going into the gate e.g. if a gate isn't initialized yet, this variable contains all the cells.
+#' @slot input_coords <data.frame>: the coordinates of the input cells
+#' @slot subset_cells <list>: a list of output cells
+#' @slot subset_coords <data.frame>: the coordinates of the output cells
+#' @slot x_axis <character>: the feature used to plot the x-axis
+#' @slot y_axis <character>: the feature used to plot the y-axis
+#' @slot gate_coords <list>: the coordinates of the gate boundaries drawn by plotly
+#' @slot name_subset_cells <character>: the label of the set of output cells inputted by the user
+#' @slot num_input_cells <integer>: number of input cells
+#' @slot num_subset_cells <integer>: number of output cells
+#' @slot total_num_cells_in_sample <integer>: total number of cell in a sample
+#' @slot pct_subset_from_previous <numeric>: proportion of output cell WRT previous gate
+#' @slot pct_subset_from_total <numeric>: proportion of output cell WRT total cells
 #'
 #' @return a gate class object
-#' @export
+#' @docType class
 #'
 methods::setClass("Gate", slots = list(
     counter = "integer",
@@ -87,7 +87,7 @@ methods::setClass("Gate", slots = list(
 #' @param pct_subset_from_total numeric. percentage of cells selected from cells in Seurat object
 #'
 #' @importFrom methods new
-#'
+#' @noRd
 #' @return Gate class object
 #'
 Gate <- function(counter = NA_integer_, assay_name = NA_character_, input_cells = list(), input_coords = data.frame(),
@@ -120,6 +120,7 @@ Gate <- function(counter = NA_integer_, assay_name = NA_character_, input_cells 
 #'
 #' @importFrom methods slot
 #'
+#' @noRd
 #' @return data from slot in gate object
 #'
 GetData <- function(gate_obj, slot_name) {
@@ -132,7 +133,7 @@ GetData <- function(gate_obj, slot_name) {
 #' @param new_name character. New name of cell subset
 #'
 #' @importFrom methods slot
-#'
+#' @noRd
 #' @return Gate object with new name of subset cells in name_subset_cells slot
 #'
 SetSubsetName <- function(gate_obj, new_name) {
