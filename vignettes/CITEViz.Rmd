@@ -128,7 +128,7 @@ knitr::include_graphics("file_upload_box.png")
 
 CITEViz uses interactive data visualization and exploration packages such as [Plotly](https://plotly-r.com/) and [DT](https://rstudio.github.io/DT/). `Plotly` plots can be exported as PNG files, and `DT` datatables can be copied, printed, or exported as files for downstream analysis. 
 
-After gating for cell populations of interest (see [Gating][Gating] section of this vignette), the metadata for each gate is saved in an internal Gate object. These metadata include cell barcodes that can facilitate downstream analysis such as differential gene expression (see [Downstream Analysis][Downstream Analysis] section of this vignette). To download this gating data as a list of gates in RDS format, the user can click the "List (.rds)" button at the bottom of the gating page.
+After gating for cell populations of interest (see [Gating][Gating] section of this vignette), the metadata for each gate is saved in an internal Gate object. These metadata include cell barcodes that can facilitate downstream analysis such as differential gene expression. To download this gating data as a list of gates in RDS format, the user can click the "List (.rds)" button at the bottom of the gating page.
 
 
 # Quality Control
