@@ -16,6 +16,3 @@ dataframe for use in coexpression legend
 \description{
 Create 2D color dataframe for gene/ADT coexpression
 }
-\examples{
-get_color_matrix_df(10)
-}

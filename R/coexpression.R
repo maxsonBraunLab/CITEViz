@@ -15,36 +15,6 @@
 #' @param quad22 integer
 #'
 #' @return numeric vector for color values used in coexpression plot
-#'
-#' @examples
-#' ngrid <- 16
-#' color_matrix_df <- expand.grid(x = 0:ngrid, y = 0:ngrid)
-#' # numeric vector of RGB values for red quadrant of 2d color matrix
-#' color10 <- c(255, 0, 0)
-#' # numeric vector of RGB values for blue quadrant of 2d color matrix
-#' color01 <- c(0, 0, 255)
-#' # numeric vector of RGB values for light gray quadrant of 2d color matrix
-#' color00 <- c(217, 217, 217)
-#' # numeric vector of RGB values for pink/violet quadrant of 2d color matrix
-#' color11 <- c(255, 0, 255)
-#'
-#' color_matrix_df$red_values <- get_bilinear_val(
-#'     color_matrix_df$x,
-#'     color_matrix_df$y,
-#'     ngrid, color00[1], color10[1], color01[1], color11[1]
-#' )
-#'
-#' color_matrix_df$green_values <- get_bilinear_val(
-#'     color_matrix_df$x,
-#'     color_matrix_df$y,
-#'     ngrid, color00[2], color10[2], color01[2], color11[2]
-#' )
-#'
-#' color_matrix_df$blue_values <- get_bilinear_val(
-#'     color_matrix_df$x,
-#'     color_matrix_df$y,
-#'     ngrid, color00[3], color10[3], color01[3], color11[3]
-#' )
 get_bilinear_val <- function(x, y, ngrid, quad11, quad21, quad12, quad22) {
     temp_val <- quad11 * (ngrid - x) * (ngrid - y) + 
         quad21 * x * (ngrid - y) + 
@@ -63,9 +33,6 @@ get_bilinear_val <- function(x, y, ngrid, quad11, quad21, quad12, quad22) {
 #' @importFrom grDevices rgb
 #'
 #' @return dataframe for use in coexpression legend
-#'
-#' @examples
-#' get_color_matrix_df(10)
 get_color_matrix_df <- function(ngrid = 16) {
     color_matrix_df <- expand.grid(x = 0:ngrid, y = 0:ngrid)
     color10 <- c(255, 0, 0) # RGB of red quadrant of 2d color matrix

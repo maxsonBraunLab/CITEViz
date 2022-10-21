@@ -41,7 +41,7 @@ Gate(
 
 \item{gate_coords}{list. coordinates of drawn gate}
 
-\item{name_subset_cells}{character. user ipute of selected cell subset name}
+\item{name_subset_cells}{character. user input of selected cell subset name}
 
 \item{num_input_cells}{integer. number of total cells on plot}
 
@@ -58,24 +58,4 @@ Gate class object
 }
 \description{
 All parameters are slots within the gate object
-}
-\examples{
-# create Gate object
-example_gate <- Gate(
-    counter = as.integer(1),
-    assay_name = "example",
-    input_cells = list(c("a", "b", "c")),
-    input_coords = data.frame(x = c(1, 2, 3), y = c(4, 5, 6)),
-    subset_cells = list(c("a", "b")),
-    subset_coords = data.frame(x = c(1, 2), y = c(4, 5)),
-    x_axis = "ADT-A",
-    y_axis = "ADT-B",
-    gate_coords = list(x = c(1, 2, 3, 4), y = c(5, 6, 7, 8)),
-    name_subset_cells = "example_cells_A",
-    num_input_cells = as.integer(1000),
-    num_subset_cells = as.integer(500),
-    total_num_cells_in_sample = as.integer(1000),
-    pct_subset_from_previous = 50,
-    pct_subset_from_total = 50
-)
 }

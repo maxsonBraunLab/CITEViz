@@ -18,11 +18,3 @@ interpolate the base color palette so that exact number of colors in custom pale
 takes in an integer argument for number of colors to generate in palette (default is 3)
 returns a character vector of color hex codes for the desired number of colors
 }
-\examples{
-# passing an integer directly into function
-get_palette(8)
-
-# passing a variable holding an integer value into function
-number_of_colors <- 10
-get_palette(number_of_colors)
-}

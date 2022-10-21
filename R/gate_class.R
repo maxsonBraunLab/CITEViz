@@ -1,5 +1,27 @@
 #' Gate class for gate objects
 #'
+#' @description The Gate class is the core data structure of CITEViz to store
+#' gating information. Gates are initiated upon the first click of the "Gate"
+#' button and turned into a reactive value to facilitate interactivity with 
+#' R-Shiny. The Gate class holds the following information:
+#' 
+#' * counter <integer>: keep track of gate number
+#' * assay_name <character>: keep track of which assay (RNA, ADT, etc) the gate data is coming from
+#' * input_cells <list>: a list of cell barcodes going into the gate 
+#' e.g. if a gate isn't initialized yet, this variable contains all the cells.
+#' * input_coords <data.frame>: the coordinates of the input cells
+#' * subset_cells <list>: a list of output cells
+#' * subset_coords <data.frame>: the coordinates of the output cells
+#' * x_axis <character>: the feature used to plot the x-axis
+#' * y_axis <character>: the feature used to plot the y-axis
+#' * gate_coords <list>: the coordinates of the gate boundaries drawn by plotly
+#' * name_subset_cells <character>: the label of the set of output cells inputted by the user
+#' * num_input_cells <integer>: number of input cells
+#' * num_subset_cells <integer>: number of output cells
+#' * total_num_cells_in_sample <integer>: total number of cell in a sample
+#' * pct_subset_from_previous <numeric>: proportion of output cell WRT previous gate
+#' * pct_subset_from_total <numeric>: proportion of output cell WRT total cells
+#' 
 #' @slot counter integer.
 #' @slot assay_name character.
 #' @slot input_cells list.
@@ -17,14 +39,11 @@
 #' @slot pct_subset_from_total numeric.
 #'
 #' @return a gate class object
-#'
-#' @examples
-#'
-#' # See examples of Gate function
+#' @export
 #'
 methods::setClass("Gate", slots = list(
-    counter = "integer", # to keep track of gate number in the case of multiple gating steps
-    assay_name = "character", # to keep track of which assay (RNA, ADT, etc) the gate data is coming from
+    counter = "integer",
+    assay_name = "character",
 
     ## cells and coordinates, seurat data
     input_cells = "list",
@@ -42,7 +61,7 @@ methods::setClass("Gate", slots = list(
     num_input_cells = "integer",
     num_subset_cells = "integer",
     total_num_cells_in_sample = "integer",
-    pct_subset_from_previous = "numeric", # percent of cells in the current gate that were subsetted from previous gate (100 * num_subset_cells/num_input_cells)
+    pct_subset_from_previous = "numeric",
     pct_subset_from_total = "numeric" # percent of cells in the current gate that were subsetted from the original total number of cells in the sample
 ))
 
@@ -60,7 +79,7 @@ methods::setClass("Gate", slots = list(
 #' @param x_axis character. Feature on x-axis
 #' @param y_axis character. Feature on y-axis
 #' @param gate_coords list. coordinates of drawn gate
-#' @param name_subset_cells character. user ipute of selected cell subset name
+#' @param name_subset_cells character. user input of selected cell subset name
 #' @param num_input_cells integer. number of total cells on plot
 #' @param num_subset_cells integer. number of cells selected
 #' @param total_num_cells_in_sample integer. number of total cells in seurat object
@@ -71,25 +90,6 @@ methods::setClass("Gate", slots = list(
 #'
 #' @return Gate class object
 #'
-#' @examples
-#' # create Gate object
-#' example_gate <- Gate(
-#'     counter = as.integer(1),
-#'     assay_name = "example",
-#'     input_cells = list(c("a", "b", "c")),
-#'     input_coords = data.frame(x = c(1, 2, 3), y = c(4, 5, 6)),
-#'     subset_cells = list(c("a", "b")),
-#'     subset_coords = data.frame(x = c(1, 2), y = c(4, 5)),
-#'     x_axis = "ADT-A",
-#'     y_axis = "ADT-B",
-#'     gate_coords = list(x = c(1, 2, 3, 4), y = c(5, 6, 7, 8)),
-#'     name_subset_cells = "example_cells_A",
-#'     num_input_cells = as.integer(1000),
-#'     num_subset_cells = as.integer(500),
-#'     total_num_cells_in_sample = as.integer(1000),
-#'     pct_subset_from_previous = 50,
-#'     pct_subset_from_total = 50
-#' )
 Gate <- function(counter = NA_integer_, assay_name = NA_character_, input_cells = list(), input_coords = data.frame(),
     subset_cells = list(), subset_coords = data.frame(), x_axis = NA_character_, y_axis = NA_character_,
     gate_coords = list(), name_subset_cells = NA_character_, num_input_cells = NA_integer_, num_subset_cells = NA_integer_,
@@ -122,30 +122,6 @@ Gate <- function(counter = NA_integer_, assay_name = NA_character_, input_cells 
 #'
 #' @return data from slot in gate object
 #'
-#' @examples
-#'
-#' # An internal function that operates as such
-#' example_gate <- Gate(
-#'     counter = as.integer(1),
-#'     assay_name = "example",
-#'     input_cells = list(c("a", "b", "c")),
-#'     input_coords = data.frame(x = c(1, 2, 3), y = c(4, 5, 6)),
-#'     subset_cells = list(c("a", "b")),
-#'     subset_coords = data.frame(x = c(1, 2), y = c(4, 5)),
-#'     x_axis = "ADT-A",
-#'     y_axis = "ADT-B",
-#'     gate_coords = list(x = c(1, 2, 3, 4), y = c(5, 6, 7, 8)),
-#'     name_subset_cells = "example_cells_A",
-#'     num_input_cells = as.integer(1000),
-#'     num_subset_cells = as.integer(500),
-#'     total_num_cells_in_sample = as.integer(1000),
-#'     pct_subset_from_previous = 50,
-#'     pct_subset_from_total = 50
-#' )
-#'
-#' # Retrieve coordinates of gate
-#' GetData(example_gate, "gate_coords")
-#'
 GetData <- function(gate_obj, slot_name) {
     return(methods::slot(gate_obj, slot_name))
 }
@@ -159,29 +135,6 @@ GetData <- function(gate_obj, slot_name) {
 #'
 #' @return Gate object with new name of subset cells in name_subset_cells slot
 #'
-#' @examples
-#'
-#' # An internal function to change the name of the cell selection
-#' example_gate <- Gate(
-#'     counter = as.integer(1),
-#'     assay_name = "example",
-#'     input_cells = list(c("a", "b", "c")),
-#'     input_coords = data.frame(x = c(1, 2, 3), y = c(4, 5, 6)),
-#'     subset_cells = list(c("a", "b")),
-#'     subset_coords = data.frame(x = c(1, 2), y = c(4, 5)),
-#'     x_axis = "ADT-A",
-#'     y_axis = "ADT-B",
-#'     gate_coords = list(x = c(1, 2, 3, 4), y = c(5, 6, 7, 8)),
-#'     name_subset_cells = "example_cells_A",
-#'     num_input_cells = as.integer(1000),
-#'     num_subset_cells = as.integer(500),
-#'     total_num_cells_in_sample = as.integer(1000),
-#'     pct_subset_from_previous = 50,
-#'     pct_subset_from_total = 50
-#' )
-#'
-#' # Change cell subset name name from "example_cells_A" to "custom_name"
-#' example_gate <- SetSubsetName(example_gate, "custom_name")
 SetSubsetName <- function(gate_obj, new_name) {
     methods::slot(gate_obj, "name_subset_cells") <- new_name
     return(gate_obj)

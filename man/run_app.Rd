@@ -43,6 +43,8 @@ Initialization of CITEViz app
 Run the Shiny Application
 }
 \examples{
+\dontrun{
 run_app()
+}
 
 }

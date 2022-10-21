@@ -11,7 +11,9 @@
 #' @return Initialization of CITEViz app
 #'
 #' @examples
+#' \dontrun{
 #' run_app()
+#' }
 #'
 run_app <- function(onStart = NULL,
     options = list(),
