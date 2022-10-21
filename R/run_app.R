@@ -11,8 +11,8 @@
 #' @return Initialization of CITEViz app
 #'
 #' @examples
-#' if(interactive()) {
-#' run_app()
+#' if (interactive()) {
+#'     run_app()
 #' }
 run_app <- function(onStart = NULL,
     options = list(),

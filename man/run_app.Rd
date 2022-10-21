@@ -43,7 +43,7 @@ Initialization of CITEViz app
 Run the Shiny Application
 }
 \examples{
-if(interactive()) {
-run_app()
+if (interactive()) {
+    run_app()
 }
 }
