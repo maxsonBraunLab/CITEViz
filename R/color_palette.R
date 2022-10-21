@@ -8,16 +8,9 @@
 #' @param num_colors number of colors
 #'
 #' @importFrom grDevices colorRampPalette
+#' @noRd
 #'
 #' @return A color palette in the form of a character vector of hex color codes.
-#'
-#' @examples
-#' # passing an integer directly into function
-#' get_palette(8)
-#'
-#' # passing a variable holding an integer value into function
-#' number_of_colors <- 10
-#' get_palette(number_of_colors)
 get_palette <- function(num_colors = 3) {
     base_palette <- grDevices::colorRampPalette(colors = c(
         "turquoise3",

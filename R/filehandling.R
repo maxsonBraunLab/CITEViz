@@ -258,13 +258,13 @@ get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = 
         } else {
             experiment_obj <- SingleCellExperiment::altExp(
                 x = sce_object, e = assay_name
-            )}
+            )
+        }
         count_datatypes_list <- SummarizedExperiment::assayNames(experiment_obj)
         if (!("logcounts" %in% count_datatypes_list) & ("normcounts" %in% count_datatypes_list)) {
             count_datatype_to_get <- "normcounts"
         }
-        data <- t(as.data.frame(SummarizedExperiment::assay(x = experiment_obj, i = count_datatype_to_get)
-        )[assay_data_to_get, ])
+        data <- t(as.data.frame(SummarizedExperiment::assay(x = experiment_obj, i = count_datatype_to_get))[assay_data_to_get, ])
     } else if (category == "reductions" & !is.null(reduction_name)) {
         main_exp_reductions <- SingleCellExperiment::reducedDimNames(sce_object)
         # match the reduction name exactly when searching if it's within a list
@@ -272,7 +272,9 @@ get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = 
         if (TRUE %in% reduction_finder_results) {
             all_data <- SingleCellExperiment::reducedDim(sce_object,
                 type = reduction_name,
-                withDimnames = FALSE)}
+                withDimnames = FALSE
+            )
+        }
         # else if the alt experiments inherit from SCE class and, thus, contain reduction embeddings data that is stored somewhere other than in the main experiment of the parent SCE object
         else if (altExps_inherit_class(sce_object, "SingleCellExperiment")) {
             # find which alternate experiment a reduction can be found under
@@ -280,16 +282,22 @@ get_data_from_sce <- function(category, sce_object, input_file_df, assay_name = 
             assay_name <- lapply(alt_exp_names_list,
                 FUN = find_reduction_in_altSCE,
                 sce_object = sce_object,
-                reduction_name = reduction_name) %>% unlist()
+                reduction_name = reduction_name
+            ) %>% unlist()
             alt_exp_obj <- SingleCellExperiment::altExp(
-                x = sce_object, e = assay_name)
+                x = sce_object, e = assay_name
+            )
             all_data <- SingleCellExperiment::reducedDim(alt_exp_obj,
                 type = reduction_name,
-                withDimnames = FALSE)
+                withDimnames = FALSE
+            )
         }
         num_components <- ncol(all_data)
-        if (num_components < 3) {data <- all_data}
-            else {data <- all_data[, seq(1, 3)]}
+        if (num_components < 3) {
+            data <- all_data
+        } else {
+            data <- all_data[, seq(1, 3)]
+        }
     }
     return(as.data.frame(data))
 }

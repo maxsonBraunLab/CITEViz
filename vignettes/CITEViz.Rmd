@@ -1,4 +1,254 @@
 ---
+title: "CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
+author:
+    - name: Garth Kong
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Thai Nguyen
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Wesley Rosales
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Anjali Panikar
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: John Cheney
+    - affiliation:
+        "Bioinformatics and Genomics Masters Program, University of Oregon"
+    - name: Brittany Curtiss
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Sarah Carratt
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Theodore Braun
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+    - name: Julia Maxson
+    - affiliation:
+        "Knight Cancer Institute, Oregon Health and Science University"
+
+package: CITEViz 0.99.8
+output:
+    BiocStyle::html_document:
+        toc: true
+        toc_depth: 2
+
+vignette: >
+    %\VignetteIndexEntry{'CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include = FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+BiocStyle::markdown()
+```
+
+# Introduction
+
+```{r, echo = FALSE, out.width = "35%", out.height = "35%", fig.align = "left"}
+knitr::include_graphics("citeviz-logo-light-cropped.png")
+```
+
+CITEViz is an R-Shiny program that allows users to classify cell clusters in CITE-Seq data by iteratively filtering the surface protein expression similar to flow cytometry. The most unique feature of CITEViz is the ability to physically gate cells, and the selected cells are immediately highlighted in dimension reduction space (e.g. UMAP, tSNE, PCA). This workflow provides rapid feedback to the users to assess cell cluster identity. Without CITEViz, the alternative workflow is to manually define and "jitter" gate boundaries (define four cutoff points), obtain the selected cell barcodes, re-plot the cells using a new set of antibody features, and re-filter the cells ad infinitum. By drawing physical gates to filter cells like in flow cytometry, CITEViz allows rapid exploration of cell clusters in CITE-Seq datasets.
+
+The motivation to develop CITEViz was to bring bench and computational biologists together to analyze CITE-Seq data. In our experience, CITEViz helps leverage the flow cytometry background of bench scientists to quickly and reliably classify cell clusters, which can then be further analyzed by computational scientists. To serve an audience of bench and computational biologists who are familiar with R the programming language, we submitted CITEViz to the BioConductor repository.
+
+## Installation
+
+Make sure you have R version **4.2.0** or later installed. We recommend installing CITEViz through the RStudio IDE using the following commands:
+
+```{r installation, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("CITEViz")
+```
+
+
+## Data Input Format
+
+CITEViz accepts files in the **RDS (.rds) format**. The preferred RDS file should include a [Seurat](https://satijalab.org/seurat/) object or a [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) object. If a list of a single `Seurat` object is used, only the object labeled "integrated" will be used. 
+
+The input `Seurat` or `SingleCellExperiment` object must contain cell embeddings data for **at least one dimensional reduction method** (e.g. PCA, UMAP, tSNE, etc.). If the object contains data for more than one reduction, each reduction must have a unique name. For a `SingleCellExperiment` object, the main experiment and any alternative experiments in the `SingleCellExperiment` object must contain assay count data stored as **"logcounts"** (log-transformed, normalized counts) or **"normcounts"** (normalized counts). Please refer to the [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) reference manual on Bioconductor for help on how to determine the types of count data present in your SCE object. By default, CITEViz will use the logcounts for plotting expression data. If logcounts are not available, then CITEViz will use normcounts. If using a `SingleCellExperiment` object that was generated from Seurat-processed data or converted from a `Seurat` object, then the logcounts in the `SingleCellExperiment` object are analogous to the counts in the "data" slot for a given assay in a `Seurat` object.
+
+### Sample Data
+
+In this vignette, we used a downsampled version of the PBMC dataset from [Hao et. al. 2021](https://doi.org/10.1016/j.cell.2021.04.048). The sample PBMC dataset for this vignette can be downloaded as a 10K cell subset from Google Drive [here](https://drive.google.com/drive/folders/1rdXWVMkAshsEM9C-xtixLMsRO4AK3Lgf) (`small_pbmc.rds`), or downloaded as a 2.5K cell subset from the Bioconductor [ExperimentHub](https://bioconductor.org/packages/release/bioc/html/ExperimentHub.html), as shown below.
+
+```{r ExperimentHub, eval=FALSE}
+library(ExperimentHub)
+
+# create EH instance and query it
+eh <- ExperimentHub()
+query_results <- query(eh, "CITEVizTestData")
+
+# get sample PBMC CITE-Seq dataset in one of two possible formats
+file_seurat <- query_results[["EH7739"]] # in Seurat format
+file_sce <- query_results[["EH7740"]] # in SingleCellExperiment format
+
+# Export dataset to an external RDS file in your current working directory
+
+# Export data as a Seurat object:
+saveRDS(file_seurat, "CITEVizTestData_Seurat.rds")
+
+# Export data as a SingleCellExperiment object:
+saveRDS(file_sce, "CITEVizTestData_SingleCellExperiment.rds")
+```
+
+
+## Running CITEViz
+
+To run CITEViz, use the following commands:
+
+```{r running, results = 'hide'}
+# load package
+library(CITEViz)
+
+# run CITEViz
+run_app()
+```
+
+### Uploading Data into CITEViz
+
+After calling `run_app()` to start CITEViz, a file can be uploaded using the file upload box at the top of any page in CITEViz. After clicking the file upload box, a file explorer window containing files in the user's local filesystem will open. The user can select an RDS file containing CITE-seq data to upload, and the same dataset will be retained for exploration across all tabs. 
+
+```{r, echo = FALSE, out.width = "85%", fig.align="center"}
+knitr::include_graphics("file_upload_box.png")
+```
+
+
+### Exporting Data from CITEViz
+
+CITEViz uses interactive data visualization and exploration packages such as [Plotly](https://plotly-r.com/) and [DT](https://rstudio.github.io/DT/). `Plotly` plots can be exported as PNG files, and `DT` datatables can be copied, printed, or exported as files for downstream analysis. 
+
+After gating for cell populations of interest (see [Gating][Gating] section of this vignette), the metadata for each gate is saved in an internal Gate object. These metadata include cell barcodes that can facilitate downstream analysis such as differential gene expression (see [Downstream Analysis][Downstream Analysis] section of this vignette). To download this gating data as a list of gates in RDS format, the user can click the "List (.rds)" button at the bottom of the gating page.
+
+
+# Quality Control
+
+The first step of analysis is to assess the quality of sequencing data. Here we provide QC plots that display data for common metrics such as gene or antibody-derived tag (ADT) counts per assay, number of unique ADTs, and mitochondrial expression, which can be visualized by any categorical metadata in the user’s `Seurat` or `SingleCellExperiment` object. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value.
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("qc-unique-adt.png")
+```
+
+# Clustering 
+
+The Clustering page allows the user to view cell clusters in two- and three-dimensional space. These clusters can be colored by any categorical metadata, and the user can select dimensionality reductions (e.g., UMAP, PCA, etc.) to view from a dropdown menu. 
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("clustering_page.png")
+```
+
+When the user’s cursor hovers over the 2D reduction plot, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can zoom, pan, download, and reset a plot by selecting an option. The user can also use the box or lasso selection tool to select specific cells in a plot. The metadata for selected cells appears in the scrollable, interactive data table below the plots, and the user can print or copy this data to their clipboard.
+
+```{r, echo = FALSE, out.width = "70%", fig.align="center"}
+knitr::include_graphics("clustering_plotly_toolbox.png")
+```
+
+
+# Feature Expression
+
+CITEViz supports RNA and ADT feature expression visualizations in both one-dimensional and two-dimensional formats. On the feature expression tabs of CITEViz, cell clusters are displayed in a dimensional reduction plot. These cell clusters can be colored by expression levels of selected RNA and/or ADT features. Similar to the clustering page, the user can select the type of dimensional reduction to view.
+
+
+## One-Dimensional (1D) Feature Expression
+
+In 1D feature expression, cells in a dimensional reduction plot are colored by expression levels for one RNA or ADT feature. The user can select a specific RNA or ADT feature from a dropdown menu.
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("feature_expression_CD8.png")
+```
+
+## Two-Dimensional (2D) Feature Expression
+
+Co-expression of features greatly facilitates a holistic view of single-cell multi-omic datasets. In 2D feature expression, cells in a dimensional reduction plot are colored by expression levels for two gene and/or ADT features simultaneously. The user can select specific gene and/or ADT features from dropdown menus. CITEViz can visualize co-expression of features from the same assay (i.e. two genes or two ADTs), as shown below, or two features from different assays (i.e. one gene and one ADT).
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("feature_expression_CD14_CD16.png")
+```
+
+
+# Gating 
+
+## Forward Gating
+
+A key feature of CITEViz is that users can iteratively gate (subset) cells using antibody markers, and the selected cells are immediately highlighted in the dimensional reduction space (e.g. UMAP, PCA, tSNE, etc.). Users can subset cells using one or more gates to explore specific cell populations similar to flow cytometry.
+
+### General Workflow
+
+1. **Select plot settings:** From dropdown menus in the sidebar panel, the user can select an assay (e.g. ADT) and two assay features (e.g. CD4, CD8) for which to plot normalized expression levels. The user can also select a reduction (e.g. UMAP) for which to plot dimensional reduction embeddings, and can color the cells in the reduction plot by a discrete metadata category (e.g. celltype).
+
+```{r, echo = FALSE, out.width = "50%", fig.align="center"}
+knitr::include_graphics("gating_dropdown_menus.png")
+```
+
+2. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, or reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
+3. **Label the selected cells:** To input   a name for a subset of cells to be gated, use the text-input field of the sidebar pa- nel prior to clicking the gate button. 
+4. **Click the gate button:** After gating a    ubset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
+
+### Additional Features
+
+* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+* To permanently delete all gating information in the data table, click the "Clear All Data" button.
+* To   rename the selected cell subset after gating, double-click in the corresponding Subse-   t_Name area of the data ta-  type a ne  w name, then press the Tab key or cl           utside of the table.      
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("gate_datatable_renaming.png")
+```
+
+* To reset the feature scatter plot and view the entire input cell population, click the "Reset Scatter" button.
+* To view detailed gating data, users can download this data in a variety of formats listed at the bottom of the gating page.
+* To reset the colors of the cells in the reduction plot, double-click anywhere in the feature scatter plot.
+
+
+### Example
+
+In the following example, we demonstrate a 2-layer gate to isolate cells with specific levels of CD11b-1 and CD45-1 (mixture of myeloid and lymphoid cells) from the whole cell population, followed by the isolation of CD8+ CD4- cells from this first subset to view the CD8+ T-cell subpopulation:
+
+1. Select cells with relatively low levels of CD11b-1 and CD45-1.
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("gating_CD8_T_Cells.png")
+```
+
+2. From the cells in the first gate, select cells with low levels of CD4 and high levels of CD8.
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("gating_CD8_T_Cells2.png")
+```
+
+
+## Back-Gating
+
+Users can back-gate on a selection of cells in a reduction plot and highlight them in feature space. On the back-gating page, users can highlight cells in feature space from a “labels-first” or “top-down” workflow. For example, users can select a range of cells from the reduction plot (e.g. UMAP, PCA etc.) and locate them in the feature scatter plot for more extensive data exploration. 
+
+### General Workflow
+
+Plot settings, cell population selection and naming methods are analogous to the gating page. To reset the colors of the cells in the feature scatter plot, double-click anywhere in the reduction plot.
+
+### Example
+
+In the following example, we back-gate on a selection of B-cells in the WNN.UMAP reduction plot. These selected cells are then highlighted in black in the feature scatter plot.
+
+```{r, echo = FALSE, out.width = "100%", fig.align="center"}
+knitr::include_graphics("backgate-b-cells.png")
+```
+
+# Session Info
+
+```{r session}
+sessionInfo()
+```
+=======
+---
 title: "CITEViz: Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
 author:
     - name: Garth Kong
