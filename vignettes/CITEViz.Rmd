@@ -1,5 +1,5 @@
 ---
-title: "CITEViz: Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
+title: "CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
 author:
     - name: Garth Kong
     - affiliation:
@@ -36,7 +36,7 @@ output:
         toc_depth: 2
 
 vignette: >
-    %\VignetteIndexEntry{'Classify Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
+    %\VignetteIndexEntry{'CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
