@@ -1,42 +1,42 @@
 ---
-title: "CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
+title: "CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny"
 author:
-    - name: Garth Kong
-    - affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Thai Nguyen
-    - affiliation:
+    - name: "Garth Kong "
+      affiliation:
+        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
+    - name: "Thai Nguyen "
+      affiliation:
+        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
+    - name: "Wesley Rosales "
+      affiliation:
+        "Earle A. Chiles Research Institute"
+    - name: "Anjali Panikar "
+      affiliation:
         "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Wesley Rosales
-    - affiliation:
+    - name: "John Cheney "
+      affiliation:
         "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Anjali Panikar
-    - affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: John Cheney
-    - affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Brittany Curtiss
-    - affiliation:
+    - name: "Brittany Curtiss "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Sarah Carratt
-    - affiliation:
+    - name: "Sarah Carratt "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Theodore Braun
-    - affiliation:
+    - name: "Theodore Braun "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Julia Maxson
-    - affiliation:
+    - name: "Julia Maxson "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
 
-package: CITEViz 0.99.8
+package: CITEViz 0.99.9
 output:
     BiocStyle::html_document:
         toc: true
         toc_depth: 2
 
 vignette: >
-    %\VignetteIndexEntry{'CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
+    %\VignetteIndexEntry{'CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny'}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -191,14 +191,14 @@ knitr::include_graphics("gating_dropdown_menus.png")
 ```
 
 2. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, or reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
-3. **Label the selected cells:** To input   a name for a subset of cells to be gated, use the text-input field of the sidebar pa- nel prior to clicking the gate button. 
-4. **Click the gate button:** After gating a    ubset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
+3. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
+4. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
 
 ### Additional Features
 
-* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating.
 * To permanently delete all gating information in the data table, click the "Clear All Data" button.
-* To   rename the selected cell subset after gating, double-click in the corresponding Subse-   t_Name area of the data ta-  type a ne  w name, then press the Tab key or cl           utside of the table.      
+* To rename the selected cell subset after gating, double-click the a gate (row) in the table below the plots and change the text accordingly.
 
 ```{r, echo = FALSE, out.width = "100%", fig.align="center"}
 knitr::include_graphics("gate_datatable_renaming.png")
