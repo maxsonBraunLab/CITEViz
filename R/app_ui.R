@@ -100,9 +100,9 @@ app_ui <- function(request) {
 
             # ---------- UI QA tab ----------
             tabPanel(
-                "Quality Assurance",
-                h3(strong("Quality Assurance"), style = "margin-top: 0;"),
-                p("This page contains plots for quality assurance (QA) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                "Quality Control",
+                h3(strong("Quality Control"), style = "margin-top: 0;"),
+                p("This page contains plots for quality control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
 
                 # container for sidebar panel and main panel
                 sidebarLayout(
