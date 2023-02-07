@@ -440,7 +440,8 @@ app_server <- function(input, output, session) {
                     title = toupper(reduc),
                     xaxis = list(title = cell_col[1]),
                     yaxis = list(title = cell_col[2]),
-                    dragmode = "select"
+                    dragmode = "select",
+                    legend = list(itemsizing = "constant")
                 ) %>%
                     plotly::event_register("plotly_selected")
             })
