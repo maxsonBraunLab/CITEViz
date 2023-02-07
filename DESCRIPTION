@@ -41,10 +41,11 @@ Suggests:
     BiocStyle,
     rmarkdown,
     RCurl,
-    Seurat,
     spelling,
+    Seurat,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Language: en-US
 VignetteBuilder: knitr
+BugReports: https://github.com/maxsonBraunLab/CITEViz/issues
 biocViews: SingleCell, ShinyApps, FlowCytometry, QualityControl, GeneExpression

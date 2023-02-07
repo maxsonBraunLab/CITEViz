@@ -1,42 +1,42 @@
 ---
-title: "CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow"
+title: "CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny"
 author:
-    - name: Garth Kong
-    - affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Thai Nguyen
-    - affiliation:
+    - name: "Garth Kong "
+      affiliation:
+        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
+    - name: "Thai Nguyen "
+      affiliation:
+        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
+    - name: "Wesley Rosales "
+      affiliation:
+        "Earle A. Chiles Research Institute"
+    - name: "Anjali Panikar "
+      affiliation:
         "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Wesley Rosales
-    - affiliation:
+    - name: "John Cheney "
+      affiliation:
         "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Anjali Panikar
-    - affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: John Cheney
-    - affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: Brittany Curtiss
-    - affiliation:
+    - name: "Brittany Curtiss "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Sarah Carratt
-    - affiliation:
+    - name: "Sarah Carratt "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Theodore Braun
-    - affiliation:
+    - name: "Theodore Braun "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
-    - name: Julia Maxson
-    - affiliation:
+    - name: "Julia Maxson "
+      affiliation:
         "Knight Cancer Institute, Oregon Health and Science University"
 
-package: CITEViz 0.99.8
+package: CITEViz 0.99.9
 output:
     BiocStyle::html_document:
         toc: true
         toc_depth: 2
 
 vignette: >
-    %\VignetteIndexEntry{'CITEViz: Classifying Cell Clusters in CITE-Seq Data using the Flow Cytometry Gating Workflow'}
+    %\VignetteIndexEntry{'CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny'}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -57,6 +57,8 @@ knitr::include_graphics("citeviz-logo-light-cropped.png")
 ```
 
 CITEViz is an R-Shiny program that allows users to classify cell clusters in CITE-Seq data by iteratively filtering the surface protein expression similar to flow cytometry. The most unique feature of CITEViz is the ability to physically gate cells, and the selected cells are immediately highlighted in dimension reduction space (e.g. UMAP, tSNE, PCA). This workflow provides rapid feedback to the users to assess cell cluster identity. Without CITEViz, the alternative workflow is to manually define and "jitter" gate boundaries (define four cutoff points), obtain the selected cell barcodes, re-plot the cells using a new set of antibody features, and re-filter the cells ad infinitum. By drawing physical gates to filter cells like in flow cytometry, CITEViz allows rapid exploration of cell clusters in CITE-Seq datasets.
+
+The Interactive SummarizedExperiment Explorer (iSEE) is a Bioconductor package that shares some functionality with CITEViz. iSEE allows users to interactively plot SingleCellExperiment data (RNA-Seq, scRNA-Seq, CyTOF, etc.) with limited preprocessing steps and gating functionality. CITEViz is intended for users who want to apply a flow cytometry-like gating workflow to their CITE-Seq data. CITEViz is intended to be used towards the end of of their CITE-Seq analysis (including quality control, feature selection, dimension reduction) performed using Seurat. Both tools can accept data in SingleCellExperiment format and visualize basic quality control information.
 
 The motivation to develop CITEViz was to bring bench and computational biologists together to analyze CITE-Seq data. In our experience, CITEViz helps leverage the flow cytometry background of bench scientists to quickly and reliably classify cell clusters, which can then be further analyzed by computational scientists. To serve an audience of bench and computational biologists who are familiar with R the programming language, we submitted CITEViz to the BioConductor repository.
 
@@ -96,10 +98,10 @@ file_sce <- query_results[["EH7740"]] # in SingleCellExperiment format
 # Export dataset to an external RDS file in your current working directory
 
 # Export data as a Seurat object:
-saveRDS(file_seurat, "CITEVizTestData_Seurat.rds")
+saveRDS(file_seurat, "pbmc-cite-seq-2500-seurat.rds")
 
 # Export data as a SingleCellExperiment object:
-saveRDS(file_sce, "CITEVizTestData_SingleCellExperiment.rds")
+saveRDS(file_sce, "pbmc-cite-seq-2500-sce.rds")
 ```
 
 
@@ -193,10 +195,12 @@ knitr::include_graphics("gating_dropdown_menus.png")
 2. **Select cells:** When the user’s cursor hovers over each plot on the gating page, a [Plotly](https://plotly-r.com/) toolbox with labeled options will appear. From this toolbox, the user can choose a cell selection tool, zoom, pan, download, or reset a plot by selecting an option. The user can use the box or lasso selection tool to select specific cells in the feature scatter plot. When cells in the feature scatter plot are selected, the corresponding cells in the reduction plot will be highlighted.
 3. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
 4. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
+3. **Label the selected cells:** To input a name for a subset of cells to be gated, use the text-input field of the sidebar panel prior to clicking the gate button. 
+4. **Click the gate button:** After gating a subset of cells, information about the newly-created gate will be displayed in a scrollable, interactive data table below the plots.
 
 ### Additional Features
 
-* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating. 
+* Users can click on previous gates from the data table to view the feature scatter plot of that cell population. Using this feature, users can also revert back to a previously created gate for further subsetting and gating.
 * To permanently delete all gating information in the data table, click the "Clear All Data" button.
 * To rename the selected cell subset after gating, double-click in the corresponding area of the data, then press the Tab key or click outside of the table. 
 
