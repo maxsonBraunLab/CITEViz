@@ -264,12 +264,9 @@ app_server <- function(input, output, session) {
                 params <- switch(input$QA,
                     "RNA Count Per Cell" = c("nCount_RNA", "Distribution of Counts per Cell", "Number of Counts"),
                     "Gene Count Per Cell" = c("nFeature_RNA", "Distribution of Genes Detected per Cell", "Number of Unique Genes"),
-                    "Percent Mitochondria" = c("percentMito", "Distribution of Mito GE per Cell", "Mitochondrial Ratio"),
                     "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell", "Number of Counts"),
                     "Unique ADTs Per Cell" = c("nFeature_ADT", "Distribution of CITE-seq Antibodies per Cell", "Number of Unique Antibodies")
                 )
-
-                # instead of switch and hardcoded values, try colnames() of the input data so user can select whatever cols are in their data
 
                 metadata_df <- get_data(
                     category = "metadata",
@@ -423,30 +420,28 @@ app_server <- function(input, output, session) {
 
                 # show plot
                 plotly::plot_ly(cell_data,
-                    x = ~ cell_data[, 1], y = ~ cell_data[, 2],
-                    customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
+                    x = ~ cell_data[, 1],
+                    y = ~ cell_data[, 2],
+                    customdata = rownames(cell_data),
                     color = stats::as.formula(paste0("~metadata_df$", color)),
                     colors = custom_palette,
                     type = "scatter",
                     mode = "markers",
                     marker = list(size = 3, width = 2),
-                    source = "A"
+                    source = "A",
+                    width = "400px"
                 ) %>%
-                    plotly::config(
-                        toImageButtonOptions = list(
-                            format = "png",
-                            scale = 10
-                        ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                    ) %>%
-                    # Layout changes the aesthetic of the plot
-                    plotly::layout(
-                        title = toupper(reduc),
-                        xaxis = list(title = cell_col[1]),
-                        yaxis = list(title = cell_col[2]),
-                        dragmode = "select"
-                    ) %>%
-                    # Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
-
+                plotly::config(
+                    toImageButtonOptions = list(
+                        format = "png",
+                        scale = 10)
+                ) %>%
+                plotly::layout(
+                    title = toupper(reduc),
+                    xaxis = list(title = cell_col[1]),
+                    yaxis = list(title = cell_col[2]),
+                    dragmode = "select"
+                ) %>%
                     plotly::event_register("plotly_selected")
             })
 
@@ -489,32 +484,37 @@ app_server <- function(input, output, session) {
                 # create list containing all column names of cell_data
                 cell_col <- colnames(cell_data)
 
-                # show plot
-                plotly::plot_ly(cell_data,
-                    x = ~ cell_data[, 1], y = ~ cell_data[, 2], z = ~ cell_data[, 3],
-                    customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
+                if (ncol(cell_data) < 3) {
+                    return(plotly_empty(type="scatter", mode = "markers"))
+                } else {
+
+                plotly::plot_ly(
+                    cell_data,
+                    x = ~ cell_data[, 1],
+                    y = ~ cell_data[, 2],
+                    z = ~ cell_data[, 3],
+                    customdata = rownames(cell_data),
                     color = stats::as.formula(paste0("~metadata_df$", color)),
                     colors = custom_palette,
                     type = "scatter3d",
                     mode = "markers",
                     marker = list(size = 2, width = 1)
                 ) %>%
-                    plotly::config(
-                        toImageButtonOptions = list(
-                            format = "png",
-                            scale = 10
-                        ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                    ) %>%
-                    # Layout changes the aesthetic of the plot
-                    plotly::layout(
-                        title = toupper(paste(reduc, "(3D)")),
-                        scene = list(
-                            xaxis = list(title = cell_col[1]),
-                            yaxis = list(title = cell_col[2]),
-                            zaxis = list(title = cell_col[3])
-                        ),
+                plotly::config(
+                    toImageButtonOptions = list(
+                        format = "png",
+                        scale = 10)
+                ) %>%
+                plotly::layout(
+                    title = toupper(paste(reduc, "(3D)")),
+                    scene = list(
+                        xaxis = list(title = cell_col[1]),
+                        yaxis = list(title = cell_col[2]),
+                        zaxis = list(title = cell_col[3]),
                         dragmode = "orbit"
-                    ) # Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+                        )
+                    )
+                }
             })
 
             # ----- render clustering plots -----
@@ -663,11 +663,10 @@ app_server <- function(input, output, session) {
                     # create list containing all column names of cell_data
                     cell_col <- colnames(cell_data)
 
-                    # show plot
                     plotly::plot_ly(cell_data,
-                        x = ~ cell_data[, 1], y = ~ cell_data[, 2],
-                        customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
-                        # colors = custom_palette,
+                        x = ~ cell_data[, 1],
+                        y = ~ cell_data[, 2],
+                        customdata = rownames(cell_data),
                         type = "scatter",
                         mode = "markers",
                         marker = list(
@@ -682,21 +681,19 @@ app_server <- function(input, output, session) {
                         ),
                         source = "expression_1d_plot"
                     ) %>%
-                        plotly::config(
-                            toImageButtonOptions = list(
-                                format = "png",
-                                scale = 10
-                            ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                        ) %>%
-                        # Layout changes the aesthetic of the plot
-                        plotly::layout(
-                            title = toupper(reduc),
-                            xaxis = list(title = cell_col[1]),
-                            yaxis = list(title = cell_col[2]),
-                            dragmode = "select"
-                        ) %>% # Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
-
-                        plotly::event_register("plotly_selected")
+                    plotly::config(
+                        toImageButtonOptions = list(
+                            format = "png",
+                            scale = 10
+                        )
+                    ) %>%
+                    plotly::layout(
+                        title = toupper(reduc),
+                        xaxis = list(title = cell_col[1]),
+                        yaxis = list(title = cell_col[2]),
+                        dragmode = "select"
+                    ) %>%
+                    plotly::event_register("plotly_selected")
                 }
             )
 
@@ -932,39 +929,45 @@ app_server <- function(input, output, session) {
                     # use range() instead of max() to account for negative count data (flawed input data?)???
                     # and use count_data + abs(min(count_data)) instead of just count_data in the numerator so account for color mapping of negative counts???
                     coexpression_df <- data.frame(
-                        x_value = round(ngrid * count_data_x / max(count_data_x)),
-                        y_value = round(ngrid * count_data_y / max(count_data_y))
+                        x = round(ngrid * count_data_x / max(count_data_x)),
+                        y = round(ngrid * count_data_y / max(count_data_y))
                     )
+
                     coexpression_umap_df <- cbind(coexpression_df, cell_data) # combine umap reduction data with expression data
                     mapped_df <- dplyr::left_join(coexpression_umap_df, color_matrix_df) # map hex color codes to interpolated gene expression values in merged data and create a new data frame
 
+                    m = list(
+                        r = 120
+                    )
+                    
                     # create UMAP that colors by expression levels
                     plotly::plot_ly(mapped_df,
                         source = "expression_2d_plot",
-                        x = ~ cell_data[, 1], y = ~ cell_data[, 2],
-                        customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
+                        x = ~ cell_data[, 1],
+                        y = ~ cell_data[, 2],
+                        customdata = rownames(cell_data),
                         type = "scatter",
                         mode = "markers",
+                        width = "400px",
                         marker = list(
                             size = 3,
                             color = ~ mapped_df$hex_color_mix
                         )
                     ) %>%
-                        plotly::config(
-                            toImageButtonOptions = list(
-                                format = "png",
-                                scale = 10
-                            ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                        ) %>%
-                        # Layout changes the aesthetic of the plot
-                        plotly::layout(
-                            showlegend = FALSE,
-                            title = toupper(reduc),
-                            xaxis = list(title = cell_col[1]),
-                            yaxis = list(title = cell_col[2]),
-                            dragmode = "select"
-                        ) %>% # Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
-
+                    plotly::config(
+                        toImageButtonOptions = list(
+                            format = "png",
+                            scale = 10
+                        )
+                    ) %>%
+                    plotly::layout(
+                        showlegend = FALSE,
+                        title = toupper(reduc),
+                        xaxis = list(title = cell_col[1]),
+                        yaxis = list(title = cell_col[2]),
+                        dragmode = "select",
+                        margin = m
+                    ) %>%
                         plotly::event_register("plotly_selected")
                 }
             )

@@ -2,3 +2,5 @@
 .Rroj.user
 /doc/
 /Meta/
+.Rbuildignore
+.Rproj.user

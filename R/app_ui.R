@@ -17,14 +17,13 @@ app_ui <- function(request) {
         # Your application UI logic
         navbarPage(
             id = "navbar_pg",
-            title = div(icon("earlybirds", lib = "font-awesome"), "CITEViz"),
+            # title = div(icon("earlybirds", lib = "font-awesome"), "CITEViz"),
+            title = "CITEViz",
             collapsible = TRUE,
             fluid = TRUE,
             theme = bslib::bs_theme(bootswatch = "flatly"),
             header = tags$header(
                 div(
-                    # to remove
-                    # style = "margin-left: 0; padding-left: 1rem; padding-right: 1rem;",
                     fileInput(
                         inputId = "file_input",
                         placeholder = "Upload an RDS (.rds) file",
@@ -34,45 +33,21 @@ app_ui <- function(request) {
                     )
                 ),
                 div(
-                    # to remove
-                    # style = "padding-left: 1rem; padding-right: 1rem;",
                     textOutput(outputId = "file_validation_status")
                 )
             ),
             footer = tags$footer(
                 a(icon("github"), href = "https://github.com/maxsonBraunLab/CITEViz"), "| Made with", icon("heart"), "at UO + OHSU"
-                # to remove
-                # style = "
-                # background-image: linear-gradient(to right, #004F6E, #8D1D58);
-                # color: white;
-                # opacity: 0.97;
-                # font-size: 85%;
-                # width: 100%;
-                # text-align: center;
-                # padding: 0.4rem 0 0.4rem 0;
-                # position: fixed;
-                # bottom: 0;
-                # z-index: 1000;"
             ),
 
 
             # ---------- UI Landing/welcome tab ----------
             tabPanel("Getting Started",
-                # css style below can't easily be put into separate css file due to id of tab container being generated uniquely each time app is run
                 style = "padding-left: 1.5rem; padding-right: 1.5rem; margin-left: auto; margin-right: auto; max-width: 1040px",
 
                 # if user doesn't have javascript on their browser, display a message box near top of page
                 tags$noscript(
                     div(
-                        # to remove
-                        # style = "
-                        #     border: 2px solid gray;
-                        #     border-radius: 5px;
-                        #     background-color: whitesmoke;
-                        #     margin-top: 0.1rem;
-                        #     margin-bottom: 1.2rem;
-                        #     padding: 1rem 1rem 0 1rem;",
-
                         p("This app uses JavaScript. For the full user experience, please enable JavaScript in your browser.")
                     )
                 ),
@@ -103,6 +78,9 @@ app_ui <- function(request) {
                 "Quality Control",
                 h3(strong("Quality Control"), style = "margin-top: 0;"),
                 p("This page contains plots for quality control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                "Quality Control",
+                h3(strong("Quality Control"), style = "margin-top: 0;"),
+                p("This page contains plots for quality Control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
 
                 # container for sidebar panel and main panel
                 sidebarLayout(
@@ -113,7 +91,6 @@ app_ui <- function(request) {
                             choices = c(
                                 "RNA Count Per Cell",
                                 "Gene Count Per Cell",
-                                "Percent Mitochondria",
                                 "ADT Count Per Cell",
                                 "Unique ADTs Per Cell"
                             )
@@ -231,8 +208,11 @@ app_ui <- function(request) {
                             style = "padding-top: 0.6rem; padding-bottom: 12rem;",
                             fluidRow(
                                 column(
-                                    8,
+                                    6,
                                     plotly::plotlyOutput(outputId = "exploration_reduct_1d")
+                                ),
+                                column(
+                                    6
                                 )
                             ),
                             br(), # html line break
@@ -275,18 +255,21 @@ app_ui <- function(request) {
 
                         mainPanel(
                             width = 9,
-                            style = "padding-top: 0.6rem; padding-bottom: 12rem;",
+                            # style = "padding-top: 0.6rem; padding-bottom: 12rem;",
                             fluidRow(
                                 column(
-                                    8,
-                                    plotly::plotlyOutput(outputId = "exploration_reduct_2d")
+                                    6,
+                                    plotly::plotlyOutput(outputId = "exploration_reduct_2d", width = "400px")
                                 ),
                                 column(
-                                    4,
+                                    3,
                                     plotOutput(
                                         outputId = "color_legend_2d",
-                                        width = "225px", height = "225px"
+                                        width = "250px", height = "250px"
                                     )
+                                ),
+                                column(
+                                    3
                                 )
                             ),
                             br(), # html line break
