@@ -75,6 +75,7 @@ get_color_matrix_df <- function(ngrid = 16) {
 #' @return legend for app coexpression plot in the form of a ggplot object.
 #' @noRd
 create_2d_color_legend <- function(input, input_data_type, rds_object, input_file_df) {
+
     # require these UI input items to render
     shiny::req(input$file_input, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
 
@@ -129,5 +130,6 @@ create_2d_color_legend <- function(input, input_data_type, rds_object, input_fil
                 paste0("low\n", round(min(count_data_y), digits = 2)),
                 paste0("high\n", round(max(count_data_y), digits = 2))
             )
-        )
+        ) +
+        ggplot2::theme(text = element_text(size = 16))
 }
