@@ -1348,8 +1348,9 @@ app_server <- function(input, output, session) {
                 }
 
                 plotly::plot_ly(cell_data,
-                    x = ~ cell_data[, 1], y = ~ cell_data[, 2],
-                    customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
+                    x = ~ cell_data[, 1],
+                    y = ~ cell_data[, 2],
+                    customdata = rownames(cell_data),
                     color = stats::as.formula(paste0("~", plotly_color_list[1])), # color by selected metadata in object
                     colors = stats::as.formula(paste0("~", plotly_color_list[2])),
                     type = "scatter",
@@ -1360,13 +1361,13 @@ app_server <- function(input, output, session) {
                         toImageButtonOptions = list(
                             format = "png",
                             scale = 10
-                        ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+                        )
                     ) %>%
-                    # Layout changes the aesthetic of the plot
                     plotly::layout(
                         title = toupper(reduc),
                         xaxis = list(title = cell_col[1]),
-                        yaxis = list(title = cell_col[2])
+                        yaxis = list(title = cell_col[2]),
+                        legend = list(itemsizing = "constant")
                     )
             })
 
@@ -1750,8 +1751,9 @@ app_server <- function(input, output, session) {
                 cell_col <- colnames(cell_data)
 
                 plotly::plot_ly(cell_data,
-                    x = ~ cell_data[, 1], y = ~ cell_data[, 2],
-                    customdata = rownames(cell_data), # customdata is printed in cell selection and used to find metadata
+                    x = ~ cell_data[, 1],
+                    y = ~ cell_data[, 2],
+                    customdata = rownames(cell_data),
                     color = stats::as.formula(paste0("~", plotly_color_list[1])), # color by selected metadata in object
                     colors = stats::as.formula(paste0("~", plotly_color_list[2])),
                     type = "scatter",
@@ -1763,14 +1765,14 @@ app_server <- function(input, output, session) {
                         toImageButtonOptions = list(
                             format = "png",
                             scale = 10
-                        ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+                        )
                     ) %>%
-                    # Layout changes the aesthetic of the plot
                     plotly::layout(
                         title = toupper(reduc),
                         xaxis = list(title = cell_col[1]),
                         yaxis = list(title = cell_col[2]),
-                        dragmode = "select"
+                        dragmode = "select",
+                        legend = list(itemsizing = "constant")
                     ) %>%
                     plotly::event_register("plotly_selected")
             })
