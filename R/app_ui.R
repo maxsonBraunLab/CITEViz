@@ -73,21 +73,18 @@ app_ui <- function(request) {
             ), # end of tabPanel
 
 
-            # ---------- UI QA tab ----------
+            # ---------- UI QC tab ----------
             tabPanel(
                 "Quality Control",
                 h3(strong("Quality Control"), style = "margin-top: 0;"),
-                p("This page contains plots for quality control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
-                "Quality Control",
-                h3(strong("Quality Control"), style = "margin-top: 0;"),
-                p("This page contains plots for quality Control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QA plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
+                p("This page contains plots for quality control (QC) of data that has been outputted by a CITE-seq data analysis pipeline. Dotted lines in each QC plot represent the values at which 50%, 75%, and 95% of the data falls at or below that value. Please see the \"How to Use\" guide on the Getting Started page for additional help on how to use this page."),
 
                 # container for sidebar panel and main panel
                 sidebarLayout(
                     sidebarPanel(
                         width = 3,
-                        selectInput("QA",
-                            label = "Select QA data to show",
+                        selectInput("QC",
+                            label = "Select QC data to show",
                             choices = c(
                                 "RNA Count Per Cell",
                                 "Gene Count Per Cell",
@@ -95,8 +92,8 @@ app_ui <- function(request) {
                                 "Unique ADTs Per Cell"
                             )
                         ),
-                        selectInput("color_qa",
-                            label = "Color QA data by:",
+                        selectInput("color_qc",
+                            label = "Color QC data by:",
                             choices = c("")
                         )
                     ), # end of sidebarPanel

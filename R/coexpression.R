@@ -159,7 +159,7 @@ coexpression_plot <- function(input, input_data_type, rds_object) {
     req(input$file_input, input$Assay_x_axis, input$Assay_y_axis, input$x_axis_feature, input$y_axis_feature)
 
     # reduction choice as a string
-    reduction = input$reduction_expr_2d
+    reduction <- input$reduction_expr_2d
 
     # selected metadata to color clusters by
     color_x <- input$x_axis_feature

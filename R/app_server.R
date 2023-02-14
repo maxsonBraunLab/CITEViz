@@ -53,8 +53,9 @@ app_server <- function(input, output, session) {
         myso <- reactiveVal(NULL) # initialize Seurat/SingleCellExperiment/other RDS object here so it is accessible to everything else in server side
         valid_file_input_flag <- reactiveVal() # set this flag so if invalid files are uploaded, the rest of the app doesn't render and throw errors due to invalid file input
 
-        # keep track of type of input data (Seurat object, SingleCellExperiment object, etc.)
-        # 1 = Seurat object, 2 = SingleCellExperiment object, etc.
+        # input_data_type keeps track input data structure (Seurat object, SingleCellExperiment object, etc.)
+        # 1 = Seurat object
+        # 2 = SingleCellExperiment object
         input_data_type <- reactiveVal()
 
         duplicate_reductions_flag <- reactiveVal() # if an inputted Seurat/SingleCellExperiment/etc object contains more than one reduction with the exact same name, then this flag is set to TRUE. Else this flag is set to FALSE. This prevents duplicate reduction names from causing ambiguity in correct data retrieval and app crashing.
@@ -150,8 +151,8 @@ app_server <- function(input, output, session) {
         )
 
 
-        # ---------- ***** QA ***** ----------
-        # QA plots generated from Maxson-Braun lab's CITE-seq data preprocessing pipeline
+        # ---------- ***** QC ***** ----------
+        # QC plots generated from Maxson-Braun lab's CITE-seq data preprocessing pipeline
 
         observe({
 
@@ -163,7 +164,7 @@ app_server <- function(input, output, session) {
 
             updateSelectInput(
                 session = session,
-                inputId = "color_qa",
+                inputId = "color_qc",
                 choices = get_choices(
                     "metadata",
                     input_data_type(),
@@ -182,144 +183,13 @@ app_server <- function(input, output, session) {
             # reactive distribution plot
             # reactive function will rerun this expression every time distribution_plot is called, which should be only when QA or color_qa choice is changed
             distribution_plot <- reactive({
-                req(
-                    input$file_input, input$QA, input$color_qa,
-                    valid_file_input_flag() == TRUE,
-                    duplicate_reductions_flag() == FALSE
-                )
-                color <- input$color_qa
-
-                # This assigns the params variable a list of strings that act a varying parameters depending on input of QA
-                params <- switch(input$QA,
-                    "RNA Count Per Cell" = c("nCount_RNA", "Distribution of Counts per Cell", "Number of Counts"),
-                    "Gene Count Per Cell" = c("nFeature_RNA", "Distribution of Genes Detected per Cell", "Number of Unique Genes"),
-                    "Percent Mitochondria" = c("percentMito", "Distribution of Mito GE per Cell", "Mitochondrial Ratio"),
-                    "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell", "Number of Counts"),
-                    "Unique ADTs Per Cell" = c("nFeature_ADT", "Distribution of CITE-seq Antibodies per Cell", "Number of Unique Antibodies")
-                )
-
-                metadata_df <- get_data(
-                    category = "metadata",
-                    input_data_type = input_data_type(),
-                    rds_object = myso(),
-                    input_file_df = input_file_df,
-                    assay_name = NULL,
-                    reduction_name = NULL
-                )
-
-                # creates list of x-coordinates for quantiles of data.
-                quant <- stats::quantile(
-                    x = metadata_df[, params[1]],
-                    probs = c(0.5, 0.75, 0.95),
-                    na.rm = TRUE
-                )
-
-                # interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-                custom_palette <- get_palette(length(unique(metadata_df[[color]])))
-
-                # generate base plot template with features that all QA distribution plots will have
-                base_distrib_plot <- metadata_df %>%
-                    ggplot2::ggplot(aes(x = !!as.name(params[1]), fill = !!as.name(color), color = !!as.name(color))) +
-                    ggplot2::labs(fill = color, color = color) +
-                    ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
-                    ggplot2::ggtitle(params[2]) +
-                    ggplot2::xlab(params[3]) +
-                    ggplot2::geom_vline(xintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
-                    ggplot2::scale_color_manual(values = custom_palette) +
-                    ggplot2::scale_fill_manual(values = custom_palette)
-
-                # initialize QA distribution plot before if/else statements below so that the plot object can be accessed outside of the if/else statements
-                final_distrib_plot <- base_distrib_plot
-
-                # create density/bar plot for selected input. If integrated object is uploaded, then the original identity of the cells will separate into graphs per sample
-                if (input$QA %in% "ADT Count Per Cell") {
-                    final_distrib_plot <- base_distrib_plot + ggplot2::scale_x_log10() + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
-                } else if (input$QA %in% "Unique ADTs Per Cell") {
-                    final_distrib_plot <- base_distrib_plot + ggplot2::geom_bar(alpha = 0.5, position = "dodge") + ggplot2::ylab("Frequency")
-                } else {
-                    final_distrib_plot <- base_distrib_plot + ggplot2::geom_density(alpha = 0.25) + ggplot2::ylab("Density")
-                }
-
-                # show distribution plot
-                final_distrib_plot %>%
-                    plotly::ggplotly() %>%
-                    plotly::config(
-                        toImageButtonOptions = list(format = "png", scale = 10) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                    ) %>%
-                    plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE)
+                qc_dist_plot(input, input_data_type(), myso())
             })
 
 
-            # ----- QA box plot -----
-            # reactive box plot
+            # ----- QC box plot -----
             box_plot <- reactive({
-                req(
-                    input$file_input, input$QA, input$color_qa,
-                    valid_file_input_flag() == TRUE,
-                    duplicate_reductions_flag() == FALSE
-                )
-                color <- input$color_qa
-
-                # This assigns the params variable a list of strings that act a varying parameters depending on input of QA
-                params <- switch(input$QA,
-                    "RNA Count Per Cell" = c("nCount_RNA", "Distribution of Counts per Cell", "Number of Counts"),
-                    "Gene Count Per Cell" = c("nFeature_RNA", "Distribution of Genes Detected per Cell", "Number of Unique Genes"),
-                    "ADT Count Per Cell" = c("nCount_ADT", "ADT Counts per Cell", "Number of Counts"),
-                    "Unique ADTs Per Cell" = c("nFeature_ADT", "Distribution of CITE-seq Antibodies per Cell", "Number of Unique Antibodies")
-                )
-
-                metadata_df <- get_data(
-                    category = "metadata",
-                    input_data_type = input_data_type(),
-                    rds_object = myso(),
-                    input_file_df = input_file_df,
-                    assay_name = NULL,
-                    reduction_name = NULL
-                )
-
-                # creates list of x-coordinates for quantiles of data.
-                quant <- stats::quantile(
-                    x = metadata_df[, params[1]],
-                    probs = c(0.5, 0.75, 0.95),
-                    na.rm = TRUE
-                )
-
-                # interpolate the base color palette so that exact number of colors in custom palette is same as number of unique values for selected metadata category
-                custom_palette <- get_palette(length(unique(metadata_df[[color]])))
-
-                # generate base plot template with features that all QA boxplots will have
-                base_box_plot <- metadata_df %>%
-                    ggplot2::ggplot(aes(x = !!as.name(color), y = !!as.name(params[1]), fill = !!as.name(color), color = !!as.name(color))) +
-                    ggplot2::labs(fill = color, color = color) +
-                    ggplot2::geom_boxplot(alpha = 0.5, width = 0.5) +
-                    ggplot2::theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-                    ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
-                    ggplot2::ggtitle(params[2]) +
-                    ggplot2::xlab("Sample") +
-                    ggplot2::ylab(params[3]) +
-                    ggplot2::geom_violin(alpha = 0.2) +
-                    ggplot2::geom_hline(yintercept = quant, size = 0.5, alpha = 0.5, linetype = "dashed", color = "grey30") +
-                    ggplot2::scale_color_manual(values = custom_palette) +
-                    ggplot2::scale_fill_manual(values = custom_palette)
-
-                # initialize QA box plot before if/else statements below so that the plot object can be accessed outside of the if/else statements
-                final_box_plot <- base_box_plot
-
-                # create box plot for selected input. If integrated object is uploaded, then the original identity of the cells will separate into boxes per sample
-                if (input$QA %in% "ADT Count Per Cell") {
-                    final_box_plot <- base_box_plot + ggplot2::scale_y_log10()
-                }
-
-                # show box plot
-                final_box_plot %>%
-                    plotly::ggplotly() %>%
-                    plotly::config(
-                        toImageButtonOptions = list(
-                            format = "png",
-                            scale = 10
-                        ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
-                    ) %>%
-                    plotly::layout(title = list(font = list(size = 14)), hovermode = FALSE)
+                qc_box_plot(input, input_data_type(), myso())
             })
 
             # ----- render QA plots -----
@@ -884,7 +754,7 @@ app_server <- function(input, output, session) {
                     valid_file_input_flag() == TRUE,
                     duplicate_reductions_flag() == FALSE
                 )
-                create_2d_color_legend(
+                create_2d_color_legend( 
                     input = input,
                     input_data_type = input_data_type(),
                     rds_object = myso(),

@@ -33,7 +33,6 @@ jobs:
 
       # This lets us augment with additional dependencies
       - name: Install system dependencies
-        if: runner.os == 'Linux'
         run: |
           remotes::install_cran('Seurat')
         shell: Rscript {0}
