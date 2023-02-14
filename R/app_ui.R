@@ -150,11 +150,11 @@ app_ui <- function(request) {
                         fluidRow(
                             column(
                                 6,
-                                plotlyOutput(outputId = "output_2dplot_1")
+                                plotlyOutput(outputId = "output_2dplot_1", width = "400px")
                             ),
                             column(
                                 6,
-                                plotlyOutput(outputId = "output_3dplot_1")
+                                plotlyOutput(outputId = "output_3dplot_1", width = "400px")
                             )
                         ),
                         br(), # html line break

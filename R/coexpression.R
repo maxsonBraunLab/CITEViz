@@ -216,7 +216,7 @@ coexpression_plot <- function(input, input_data_type, rds_object) {
     coexpression_umap_df <- cbind(coexpression_df, cell_data) # combine umap reduction data with expression data
     mapped_df <- left_join(coexpression_umap_df, color_matrix_df, by = c("x", "y")) # map hex color codes to interpolated gene expression values in merged data and create a new data frame
 
-    m = list(
+    m <- list(
         r = 120
     )
 

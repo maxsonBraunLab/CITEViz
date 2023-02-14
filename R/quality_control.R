@@ -1,7 +1,10 @@
 #' Quality Control: Distribution Plot
 #'
 #' Visualize common QC metrics in CITE-Seq using density plots.
-#'
+#' @param input Shiny internal parameter object containing UI user input values
+#' @param input_data_type An integer value indicating if the user-uploaded input files are RDS files holding Seurat objects or SingleCellExperiment objects (1 = Seurat object, 2 = SingleCellExperiment object, etc.)
+#' @param rds_object An RDS object containing metadata, assays, and reductions for a CITE-seq experiment. Can be NULL if the user uploaded an alternate supported file instead of an RDS file.
+#' 
 #' @importFrom shiny req
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes labs theme ggtitle xlab ylab geom_vline scale_color_manual scale_fill_manual scale_x_log10 geom_bar geom_density
@@ -83,7 +86,10 @@ qc_dist_plot <- function(input, input_data_type, rds_object) {
 #' Quality Control: Box Plot
 #'
 #' Visualize common QC metrics in CITE-Seq using box plots.
-#'
+#' @param input Shiny internal parameter object containing UI user input values
+#' @param input_data_type An integer value indicating if the user-uploaded input files are RDS files holding Seurat objects or SingleCellExperiment objects (1 = Seurat object, 2 = SingleCellExperiment object, etc.)
+#' @param rds_object An RDS object containing metadata, assays, and reductions for a CITE-seq experiment. Can be NULL if the user uploaded an alternate supported file instead of an RDS file.
+#' 
 #' @importFrom shiny req
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes labs theme ggtitle xlab ylab geom_vline scale_color_manual scale_fill_manual scale_x_log10 scale_y_log10 geom_bar geom_density
