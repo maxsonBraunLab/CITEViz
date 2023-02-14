@@ -21,7 +21,7 @@ app_ui <- function(request) {
             title = "CITEViz",
             collapsible = TRUE,
             fluid = TRUE,
-            theme = bslib::bs_theme(bootswatch = "flatly"),
+            theme = bs_theme(bootswatch = "flatly"),
             header = tags$header(
                 div(
                     fileInput(
@@ -105,8 +105,8 @@ app_ui <- function(request) {
                         style = "padding-top: 0.6rem;",
                         width = 9,
                         fluidRow(
-                            column(6, plotly::plotlyOutput("distrib_plot")),
-                            column(6, plotly::plotlyOutput("box_plot"))
+                            column(6, plotlyOutput("distrib_plot")),
+                            column(6, plotlyOutput("box_plot"))
                         ),
                         br(), # html line break
                         br(),
@@ -114,8 +114,6 @@ app_ui <- function(request) {
                     ) # end of mainPanel
                 ) # end of sidebarLayout
             ), # end of tabPanel
-
-
 
             # ---------- UI Clustering tab ----------
             tabPanel(
@@ -155,11 +153,11 @@ app_ui <- function(request) {
                         fluidRow(
                             column(
                                 6,
-                                plotly::plotlyOutput(outputId = "output_2dplot_1")
+                                plotlyOutput(outputId = "output_2dplot_1")
                             ),
                             column(
                                 6,
-                                plotly::plotlyOutput(outputId = "output_3dplot_1")
+                                plotlyOutput(outputId = "output_3dplot_1")
                             )
                         ),
                         br(), # html line break
@@ -168,7 +166,7 @@ app_ui <- function(request) {
                         fluidRow(
                             column(
                                 12,
-                                DT::DTOutput("cluster_pg_selected")
+                                DTOutput("cluster_pg_selected")
                             ) # print metadata of selected cells
                         ),
                         br(), # html line break
@@ -209,7 +207,7 @@ app_ui <- function(request) {
                             fluidRow(
                                 column(
                                     6,
-                                    plotly::plotlyOutput(outputId = "exploration_reduct_1d")
+                                    plotlyOutput(outputId = "exploration_reduct_1d")
                                 ),
                                 column(
                                     6
@@ -221,7 +219,7 @@ app_ui <- function(request) {
                             fluidRow(
                                 column(
                                     12,
-                                    DT::DTOutput("expression_pg_selected")
+                                    DTOutput("expression_pg_selected")
                                 ) # print metadata of selected cells
                             ),
                             br(), # html line break
@@ -259,29 +257,18 @@ app_ui <- function(request) {
                             fluidRow(
                                 column(
                                     6,
-                                    plotly::plotlyOutput(outputId = "exploration_reduct_2d", width = "400px")
+                                    plotlyOutput(outputId = "exploration_reduct_2d", width = "400px")
                                 ),
                                 column(
-                                    3,
-                                    plotOutput(
+                                    6,
+                                    plotlyOutput(
                                         outputId = "color_legend_2d",
-                                        width = "250px", height = "250px"
+                                        width = "300px", height = "300px"
                                     )
                                 ),
-                                column(
-                                    3
-                                )
                             ),
-                            br(), # html line break
-
-                            # show plot selection coordinates here
-                            fluidRow(
-                                column(
-                                    12,
-                                    DT::DTOutput("coexpression_pg_selected")
-                                ) # print metadata of selected cells
-                            ),
-                            br(), # html line break
+                            br(),
+                            br(),
                             br(),
                             br()
                         ) # end of mainPanel
@@ -337,11 +324,11 @@ app_ui <- function(request) {
                             fluidRow(
                                 column(
                                     7,
-                                    plotly::plotlyOutput(outputId = "featurescatter_2d")
+                                    plotlyOutput(outputId = "featurescatter_2d")
                                 ),
                                 column(
                                     5,
-                                    plotly::plotlyOutput(outputId = "gating_reduc_2d")
+                                    plotlyOutput(outputId = "gating_reduc_2d")
                                 )
                             ),
                             br(), # html line break
@@ -351,7 +338,7 @@ app_ui <- function(request) {
                                 column(
                                     12,
                                     actionButton(inputId = "clear_all_gates", label = "Clear All Data"),
-                                    DT::DTOutput("gating_pg_table")
+                                    DTOutput("gating_pg_table")
                                 ) # print gating data of selected cells
                             ),
                             br(), # html line break
@@ -416,11 +403,11 @@ app_ui <- function(request) {
                             fluidRow(
                                 column(
                                     6,
-                                    plotly::plotlyOutput(outputId = "gating_reduc_2d_bg")
+                                    plotlyOutput(outputId = "gating_reduc_2d_bg")
                                 ),
                                 column(
                                     6,
-                                    plotly::plotlyOutput(outputId = "featurescatter_2d_bg")
+                                    plotlyOutput(outputId = "featurescatter_2d_bg")
                                 )
                             ),
                             br(), # html line break
@@ -430,7 +417,7 @@ app_ui <- function(request) {
                                 column(
                                     12,
                                     actionButton(inputId = "clear_all_gates_bg", label = "Clear All Data"),
-                                    DT::DTOutput("gating_pg_table_bg")
+                                    DTOutput("gating_pg_table_bg")
                                 ) # print gating data of selected cells
                             ),
                             br(), # html line break

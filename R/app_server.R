@@ -486,7 +486,7 @@ app_server <- function(input, output, session) {
                 cell_col <- colnames(cell_data)
 
                 if (ncol(cell_data) < 3) {
-                    return(plotly_empty(type="scatter", mode = "markers"))
+                    return(plotly::plotly_empty(type="scatter", mode = "markers"))
                 } else {
 
                 plotly::plot_ly(
@@ -768,7 +768,9 @@ app_server <- function(input, output, session) {
 
         observe({
 
-            # require valid_file_input_flag to be TRUE in order to run rest of section in observe wrapper so that app doesn't crash if invalid file(s) are inputted
+            # require valid_file_input_flag to be TRUE in order to run the
+            # rest of section in observe wrapper so that app doesn't crash
+            # if invalid file(s) are inputted
             req(
                 valid_file_input_flag() == TRUE,
                 duplicate_reductions_flag() == FALSE
@@ -862,7 +864,7 @@ app_server <- function(input, output, session) {
 
             # ----- 2D gene/ADT coexpression reactive reduction graph -----
 
-            expr_reduc_plot_2d <- eventReactive(
+            coexpr_reduc_plot <- eventReactive(
                 list(
                     # list of input events that can trigger reactive plot
                     input$file_input,
@@ -871,111 +873,13 @@ app_server <- function(input, output, session) {
                     input$y_axis_feature
                 ),
                 {
-                    req(
-                        input$file_input, input$reduction_expr_2d,
-                        input$x_axis_feature, input$y_axis_feature,
-                        valid_file_input_flag() == TRUE,
-                        duplicate_reductions_flag() == FALSE
-                    )
-
-                    # create string for reduction to plot
-                    reduc <- input$reduction_expr_2d
-
-                    # selected features to color clusters by
-                    color_x <- input$x_axis_feature
-                    color_y <- input$y_axis_feature
-
-                    count_data_x <- get_data(
-                        category = "assays",
-                        input_data_type = input_data_type(),
-                        rds_object = myso(),
-                        input_file_df = input_file_df,
-                        assay_name = input$Assay_x_axis,
-                        reduction_name = NULL,
-                        assay_data_to_get = color_x
-                    )
-                    # extract only the count values as a vector from the original count data dataframe
-                    count_data_x <- count_data_x[[color_x]]
-
-                    count_data_y <- get_data(
-                        category = "assays",
-                        input_data_type = input_data_type(),
-                        rds_object = myso(),
-                        input_file_df = input_file_df,
-                        assay_name = input$Assay_y_axis,
-                        reduction_name = NULL,
-                        assay_data_to_get = color_y
-                    )
-
-                    # extract only the count values as a vector from the original count data dataframe
-                    count_data_y <- count_data_y[[color_y]]
-
-                    # create dataframe from reduction selected
-                    cell_data <- get_data(
-                        category = "reductions",
-                        input_data_type = input_data_type(),
-                        rds_object = myso(),
-                        input_file_df = input_file_df,
-                        assay_name = NULL,
-                        reduction_name = reduc
-                    )
-
-                    # create list containing all column names of cell_data
-                    cell_col <- colnames(cell_data)
-
-                    # map gene expression values to 2d color grid
-                    ngrid <- 16
-                    color_matrix_df <- get_color_matrix_df(ngrid)
-
-                    # use range() instead of max() to account for negative count data (flawed input data?)???
-                    # and use count_data + abs(min(count_data)) instead of just count_data in the numerator so account for color mapping of negative counts???
-                    coexpression_df <- data.frame(
-                        x = round(ngrid * count_data_x / max(count_data_x)),
-                        y = round(ngrid * count_data_y / max(count_data_y))
-                    )
-
-                    coexpression_umap_df <- cbind(coexpression_df, cell_data) # combine umap reduction data with expression data
-                    mapped_df <- dplyr::left_join(coexpression_umap_df, color_matrix_df) # map hex color codes to interpolated gene expression values in merged data and create a new data frame
-
-                    m = list(
-                        r = 120
-                    )
-                    
-                    # create UMAP that colors by expression levels
-                    plotly::plot_ly(mapped_df,
-                        source = "expression_2d_plot",
-                        x = ~ cell_data[, 1],
-                        y = ~ cell_data[, 2],
-                        customdata = rownames(cell_data),
-                        type = "scatter",
-                        mode = "markers",
-                        width = "400px",
-                        marker = list(
-                            size = 3,
-                            color = ~ mapped_df$hex_color_mix
-                        )
-                    ) %>%
-                    plotly::config(
-                        toImageButtonOptions = list(
-                            format = "png",
-                            scale = 10
-                        )
-                    ) %>%
-                    plotly::layout(
-                        showlegend = FALSE,
-                        title = toupper(reduc),
-                        xaxis = list(title = cell_col[1]),
-                        yaxis = list(title = cell_col[2]),
-                        dragmode = "select",
-                        margin = m
-                    ) %>%
-                        plotly::event_register("plotly_selected")
+                    coexpression_plot(input, input_data_type(), myso())
                 }
             )
 
 
             # ----- render reactive reduction plots -----
-            output$color_legend_2d <- renderPlot({
+            output$color_legend_2d <- renderPlotly({
                 req(
                     valid_file_input_flag() == TRUE,
                     duplicate_reductions_flag() == FALSE
@@ -988,82 +892,9 @@ app_server <- function(input, output, session) {
                 )
             })
             output$exploration_reduct_2d <- renderPlotly({
-                expr_reduc_plot_2d()
+                coexpr_reduc_plot()
             })
 
-
-            # ----- datatable of expression for cells selected in plotly -----
-            # `server = FALSE` helps make it so that user can copy entire datatable to clipboard, not just the rows that are currently visible on screen
-            output$coexpression_pg_selected <- DT::renderDT(server = FALSE, {
-                req(
-                    input$file_input, input$Assay_x_axis, input$Assay_y_axis,
-                    input$x_axis_feature, input$y_axis_feature,
-                    valid_file_input_flag() == TRUE,
-                    duplicate_reductions_flag() == FALSE
-                )
-
-                # selected metadata to color clusters by
-                color_x <- input$x_axis_feature
-                color_y <- input$y_axis_feature
-
-                count_data_x <- get_data(
-                    category = "assays",
-                    input_data_type = input_data_type(),
-                    rds_object = myso(),
-                    input_file_df = input_file_df,
-                    assay_name = input$Assay_x_axis,
-                    reduction_name = NULL,
-                    assay_data_to_get = color_x
-                )
-
-                count_data_y <- get_data(
-                    category = "assays",
-                    input_data_type = input_data_type(),
-                    rds_object = myso(),
-                    input_file_df = input_file_df,
-                    assay_name = input$Assay_y_axis,
-                    reduction_name = NULL,
-                    assay_data_to_get = color_y
-                )
-
-                num_cells_expressing_x <- count_data_x %>%
-                    dplyr::filter((!!as.name(color_x)) > 0) %>%
-                    nrow()
-
-                num_cells_expressing_y <- count_data_y %>%
-                    dplyr::filter((!!as.name(color_y)) > 0) %>%
-                    nrow()
-
-                # get total num of cells in sample
-                num_cells_total_x <- nrow(count_data_x)
-                num_cells_total_y <- nrow(count_data_y)
-
-                # convert count_data for selected cells into a dataframe
-                selected_counts_df <- data.frame(
-                    Feature1 = color_x,
-                    Feature2 = color_y,
-                    Num_Cells_Expressing_Feat1 = num_cells_expressing_x,
-                    Num_Cells_Expressing_Feat2 = num_cells_expressing_y,
-                    Percent_of_Total_Sample_Feat1 = 100 * num_cells_expressing_x / num_cells_total_x,
-                    Percent_of_Total_Sample_Feat2 = 100 * num_cells_expressing_y / num_cells_total_y
-                )
-
-                selected_counts_dt <- DT::datatable(selected_counts_df,
-                    rownames = TRUE,
-                    selection = "none", # make it so no rows can be selected (bc we currently have no need to select rows)
-                    extensions = c("Buttons", "Scroller", "FixedColumns"),
-                    options = list(
-                        deferRender = TRUE,
-                        scroller = TRUE,
-                        scrollY = 400,
-                        scrollX = TRUE,
-                        dom = "lfrtipB",
-                        buttons = c("copy", "print"),
-                        fixedColumns = list(leftColumns = 1)
-                    )
-                )
-                if (is.null(selected_counts_dt)) "Brushed points appear here (double-click to clear)" else selected_counts_dt
-            })
         }) # belongs to OBSERVE WRAPPER for co-expression tab
 
 
