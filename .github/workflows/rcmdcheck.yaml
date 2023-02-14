@@ -34,14 +34,10 @@ jobs:
       # This lets us augment with additional dependencies
       - name: Install system dependencies
         if: runner.os == 'Linux'
-        env:
-          RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
-          Rscript -e "remotes::install_github('r-hub/sysreqs')"
-          Rscript -e "remotes::install_cran('Seurat')"
-          sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
-          sudo -s eval "$sysreqs"
-          
+          remotes::install_cran('Seurat')
+        shell: Rscript {0}
+      
       - name: Install dependencies
         run: |
           options(repos = c(CRAN = "https://cran.r-project.org"))
