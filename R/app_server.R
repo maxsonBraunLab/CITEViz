@@ -838,17 +838,17 @@ app_server <- function(input, output, session) {
                 updateSelectInput(
                     session = session,
                     inputId = "Assay",
-                    selected = GetData(gate_list()[[selected_gate()]], "assay_name")
+                    selected = get_gate_data(gate_list()[[selected_gate()]], "assay_name")
                 )
                 updateSelectInput(
                     session = session,
                     inputId = "x_feature",
-                    selected = GetData(gate_list()[[selected_gate()]], "x_axis")
+                    selected = get_gate_data(gate_list()[[selected_gate()]], "x_axis")
                 )
                 updateSelectInput(
                     session = session,
                     inputId = "y_feature",
-                    selected = GetData(gate_list()[[selected_gate()]], "y_axis")
+                    selected = get_gate_data(gate_list()[[selected_gate()]], "y_axis")
                 )
             })
 
@@ -1048,7 +1048,7 @@ app_server <- function(input, output, session) {
                     if (is.null(input$gating_pg_table_bg_rows_selected)) {
                         selected_cell_barcodes <- event_data("plotly_selected", source = "D")$customdata
                     } else {
-                        selected_cell_barcodes <- GetData(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
+                        selected_cell_barcodes <- get_gate_data(gate_list_bg()[[selected_gate_bg()]], "subset_cells")[[1]]
                     }
 
                     plot_ly(count_data,
@@ -1245,17 +1245,17 @@ app_server <- function(input, output, session) {
                 updateSelectInput(
                     session = session,
                     inputId = "Assay_bg",
-                    selected = GetData(gate_list_bg()[[selected_gate_bg()]], "assay_name")
+                    selected = get_gate_data(gate_list_bg()[[selected_gate_bg()]], "assay_name")
                 )
                 updateSelectInput(
                     session = session,
                     inputId = "x_feature_bg",
-                    selected = GetData(gate_list_bg()[[selected_gate_bg()]], "x_axis")
+                    selected = get_gate_data(gate_list_bg()[[selected_gate_bg()]], "x_axis")
                 )
                 updateSelectInput(
                     session = session,
                     inputId = "y_feature_bg",
-                    selected = GetData(gate_list_bg()[[selected_gate_bg()]], "y_axis")
+                    selected = get_gate_data(gate_list_bg()[[selected_gate_bg()]], "y_axis")
                 )
             })
 

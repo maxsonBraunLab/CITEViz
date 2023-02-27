@@ -37,11 +37,15 @@
 #' @slot total_num_cells_in_sample <integer>: total number of cell in a sample
 #' @slot pct_subset_from_previous <numeric>: proportion of output cell WRT previous gate
 #' @slot pct_subset_from_total <numeric>: proportion of output cell WRT total cells
+#' 
+#' @importFrom methods setClass
 #'
 #' @return a gate class object
 #' @docType class
 #'
-methods::setClass("Gate", slots = list(
+setClass(
+    "Gate",
+    slots = list(
     counter = "integer",
     assay_name = "character",
 
@@ -62,8 +66,9 @@ methods::setClass("Gate", slots = list(
     num_subset_cells = "integer",
     total_num_cells_in_sample = "integer",
     pct_subset_from_previous = "numeric",
-    pct_subset_from_total = "numeric" # percent of cells in the current gate that were subsetted from the original total number of cells in the sample
-))
+    pct_subset_from_total = "numeric"
+    )
+)
 
 
 #' Constructor for Gate objects
@@ -136,8 +141,8 @@ Gate <- function(
 #' @noRd
 #' @return data from slot in gate object
 #'
-GetData <- function(gate_obj, slot_name) {
-    return(methods::slot(gate_obj, slot_name))
+get_gate_data <- function(gate_obj, slot_name) {
+    return(slot(gate_obj, slot_name))
 }
 
 #' Set Cell Subset Name

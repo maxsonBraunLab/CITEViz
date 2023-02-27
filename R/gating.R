@@ -137,28 +137,32 @@ create_gating_df <- function() {
 #' @noRd
 #' @return updated gating dataframe
 #'
-update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_df) {
+update_gating_df <- function(
+    gate_name_string,
+    reactive_gate_list,
+    temp_gating_df
+) {
     gate_obj <- reactive_gate_list[[gate_name_string]]
     if (!is.null(gate_obj)) {
         temp_gating_df <- tibble::add_row(temp_gating_df,
             Gate_ID = gate_name_string,
-            Assay_Name = GetData(gate_obj, "assay_name"),
-            X_Axis = GetData(gate_obj, "x_axis"),
-            Y_Axis = GetData(gate_obj, "y_axis"),
-            Subset_Name = GetData(gate_obj, "name_subset_cells"),
-            Num_Input_Cells = GetData(gate_obj, "num_input_cells"),
-            Num_Subset_Cells = GetData(gate_obj, "num_subset_cells"),
-            Total_Cells_in_Sample = GetData(gate_obj, "total_num_cells_in_sample"),
-            Percent_Subsetted_From_Previous = GetData(gate_obj, "pct_subset_from_previous"),
-            Percent_Subsetted_From_Total = GetData(gate_obj, "pct_subset_from_total"),
-            Input_Cells = GetData(gate_obj, "input_cells"),
-            Input_X_Coordinates = list(GetData(gate_obj, "input_coords")$x),
-            Input_Y_Coordinates = list(GetData(gate_obj, "input_coords")$y),
-            Subset_Cells = GetData(gate_obj, "subset_cells"),
-            Subset_X_Coordinates = list(GetData(gate_obj, "subset_coords")$x),
-            Subset_Y_Coordinates = list(GetData(gate_obj, "subset_coords")$y),
-            Gate_X_Coordinates = list(GetData(gate_obj, "gate_coords")$x),
-            Gate_Y_Coordinates = list(GetData(gate_obj, "gate_coords")$y)
+            Assay_Name = get_gate_data(gate_obj, "assay_name"),
+            X_Axis = get_gate_data(gate_obj, "x_axis"),
+            Y_Axis = get_gate_data(gate_obj, "y_axis"),
+            Subset_Name = get_gate_data(gate_obj, "name_subset_cells"),
+            Num_Input_Cells = get_gate_data(gate_obj, "num_input_cells"),
+            Num_Subset_Cells = get_gate_data(gate_obj, "num_subset_cells"),
+            Total_Cells_in_Sample = get_gate_data(gate_obj, "total_num_cells_in_sample"),
+            Percent_Subsetted_From_Previous = get_gate_data(gate_obj, "pct_subset_from_previous"),
+            Percent_Subsetted_From_Total = get_gate_data(gate_obj, "pct_subset_from_total"),
+            Input_Cells = get_gate_data(gate_obj, "input_cells"),
+            Input_X_Coordinates = list(get_gate_data(gate_obj, "input_coords")$x),
+            Input_Y_Coordinates = list(get_gate_data(gate_obj, "input_coords")$y),
+            Subset_Cells = get_gate_data(gate_obj, "subset_cells"),
+            Subset_X_Coordinates = list(get_gate_data(gate_obj, "subset_coords")$x),
+            Subset_Y_Coordinates = list(get_gate_data(gate_obj, "subset_coords")$y),
+            Gate_X_Coordinates = list(get_gate_data(gate_obj, "gate_coords")$x),
+            Gate_Y_Coordinates = list(get_gate_data(gate_obj, "gate_coords")$y)
         )
     }
     return(temp_gating_df)
@@ -262,7 +266,7 @@ gate_scatterplot <- function(
             count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
 
         } else if (!is.null(input$gating_pg_table_rows_selected)) {
-            selected_cell_barcodes <- GetData(gate_list[[selected_gate]], "subset_cells")[[1]]
+            selected_cell_barcodes <- get_gate_data(gate_list[[selected_gate]], "subset_cells")[[1]]
             count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
         }
 
@@ -375,7 +379,7 @@ gate_reduction <- function(
     # define selected cells by either user
     # input or based on a previous gate accessed by a click
     if (!is.null(input$gating_pg_table_rows_selected)) {
-        selected_cells <- GetData(gate_list[[selected_gate]], "subset_cells")[[1]]
+        selected_cells <- get_gate_data(gate_list[[selected_gate]], "subset_cells")[[1]]
     } else {
         selected_cells <- event_data("plotly_selected", source = "C")$customdata
     }
