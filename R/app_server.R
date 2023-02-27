@@ -368,73 +368,14 @@ app_server <- function(input, output, session) {
                     input$feature_1d
                 ),
                 {
+
                     req(
-                        input$file_input, input$reduction_expr_1d,
-                        input$Assay_1d, input$feature_1d,
                         valid_file_input_flag() == TRUE,
                         duplicate_reductions_flag() == FALSE
                     )
 
-                    # create string for reduction to plot
-                    reduc <- input$reduction_expr_1d
+                    expression_plot(input, input_data_type(), myso())
 
-                    # selected feature to color clusters by
-                    color_x <- input$feature_1d
-
-                    count_data <- get_data(
-                        category = "assays",
-                        input_data_type = input_data_type(),
-                        rds_object = myso(),
-                        input_file_df = input_file_df,
-                        assay_name = input$Assay_1d,
-                        reduction_name = NULL,
-                        assay_data_to_get = color_x
-                    )
-
-                    # create dataframe from reduction selected
-                    cell_data <- get_data(
-                        category = "reductions",
-                        input_data_type = input_data_type(),
-                        rds_object = myso(),
-                        input_file_df = input_file_df,
-                        assay_name = NULL,
-                        reduction_name = reduc
-                    )
-
-                    # create list containing all column names of cell_data
-                    cell_col <- colnames(cell_data)
-
-                    plotly::plot_ly(cell_data,
-                        x = ~ cell_data[, 1],
-                        y = ~ cell_data[, 2],
-                        customdata = rownames(cell_data),
-                        type = "scatter",
-                        mode = "markers",
-                        marker = list(
-                            size = 3,
-                            color = ~ count_data[, color_x],
-                            colorbar = list(
-                                title = color_x,
-                                len = 0.5
-                            ),
-                            colorscale = "Viridis",
-                            reversescale = TRUE
-                        ),
-                        source = "expression_1d_plot"
-                    ) %>%
-                    plotly::config(
-                        toImageButtonOptions = list(
-                            format = "png",
-                            scale = 10
-                        )
-                    ) %>%
-                    plotly::layout(
-                        title = toupper(reduc),
-                        xaxis = list(title = cell_col[1]),
-                        yaxis = list(title = cell_col[2]),
-                        dragmode = "select"
-                    ) %>%
-                    plotly::event_register("plotly_selected")
                 }
             )
 
@@ -508,9 +449,6 @@ app_server <- function(input, output, session) {
 
         observe({
 
-            # require valid_file_input_flag to be TRUE in order to run the
-            # rest of section in observe wrapper so that app doesn't crash
-            # if invalid file(s) are inputted
             req(
                 valid_file_input_flag() == TRUE,
                 duplicate_reductions_flag() == FALSE
