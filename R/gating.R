@@ -1,4 +1,4 @@
-#' #create gate objects from user input selections
+#' Create gate objects from user input selections
 #'
 #' @param input Reactive container for ui inputs
 #' @param is_forward_gating Boolean for if the gating is forward or back gating
@@ -85,22 +85,22 @@ create_gate_from_input <- function(input, is_forward_gating = TRUE, assay_count_
 
 #' Convert Shiny reactiveValues object to reactive gate list
 #'
-#' @param gating_reactiveValues Shiny reactiveValues object holding all reactive gate objects
+#' @param gating_reactive_values Shiny reactiveValues object holding all reactive gate objects
 #'
 #' @return reactive gate list for app purposes
 #'
 #' @noRd
 #'
-get_reactive_gate_list <- function(gating_reactiveValues) {
+get_reactive_gate_list <- function(gating_reactive_values) {
     reactive_gate_list <- reactive({
-        unordered_list <- reactiveValuesToList(gating_reactiveValues)
+        unordered_list <- reactiveValuesToList(gating_reactive_values)
         ordered_list <- unordered_list[order(names(unordered_list))]
         ordered_list
     })
     return(reactive_gate_list)
 }
 
-#' Create gating dataframe
+#' Collect all gating information into a dataframe
 #' @noRd
 #' @return Empty gate dataframe for app purposes
 #'
@@ -176,4 +176,240 @@ update_gating_df <- function(gate_name_string, reactive_gate_list, temp_gating_d
 set_gates_to_null <- function(gate_name_string, local_gate_reactive_values) {
     local_gate_reactive_values[[gate_name_string]] <- NULL
     return(local_gate_reactive_values[[gate_name_string]])
+}
+
+#' Normal Gate Scatterplot
+#' 
+#' @param input
+#' @param input_data_type
+#' @param rds_object
+#' @param last_buttons_clicked
+#' @param gate_list
+#' 
+#' @importFrom plotly plot_ly event_register layout add_histogram2dcontour add_markers config event_data
+#' 
+#' @return scatterplot for normal gating
+#' 
+#' @noRd
+gate_scatterplot <- function(
+    input,
+    input_data_type,
+    rds_object,
+    last_buttons_clicked,
+    gate_list,
+    selected_gate
+) {
+
+    # Give some documentation here on the last buttons clicked method.
+
+    # code to execute when one of the above input events occurs
+    req(
+        input$x_feature,
+        input$y_feature
+    )
+
+    count_data <- get_data(
+        category = "assays",
+        input_data_type = input_data_type,
+        rds_object = rds_object,
+        input_file_df = input_file_df,
+        assay_name = input$Assay,
+        reduction_name = NULL,
+        assay_data_to_get = c(input$x_feature, input$y_feature)
+    )
+
+    # generate dataframe for custom colorscale for contour plot, where each hex color code is mapped to a specific z-value between 0 and 1 (inclusive)
+    # colorscale needs to be in this format for Plotly's add_histogram2dcontour(colorscale = ...) parameter
+    gating_color_scale <- data.frame(
+        z = c(0.0, 0.20, 0.40, 0.60, 0.80, 1.0),
+        col = c("#FFFFFF", "#4564FE", "#76EFFF", "#FFF900", "#FFA300", "#FF1818")
+    )
+
+    # initialize a base_scatterplot variable before if/else statements below so that the plot object can be accessed outside of the if/else statements
+    base_scatterplot <- NULL
+
+    # generate a base scatterplot based on user input
+    # needs some more documentation on its behavior here
+    if ((last_buttons_clicked$last == "NA" | last_buttons_clicked$last == "reset_button" | last_buttons_clicked$last == "clear_all_gates_button") & is.null(input$gating_pg_table_rows_selected)) {
+
+        base_scatterplot <- plot_ly(
+            data = count_data,
+            x = ~ count_data[, input$x_feature],
+            y = ~ count_data[, input$y_feature],
+            customdata = rownames(count_data),
+            mode = "markers",
+            source = "C") %>%
+        add_histogram2dcontour(
+            showscale = FALSE,
+            ncontours = 10,
+            colorscale = gating_color_scale,
+            contours = list(coloring = "heatmap")) %>%
+        add_markers(
+            x = count_data[, input$x_feature],
+            y = count_data[, input$y_feature],
+            marker = list(size = 2),
+            color = I("black"),
+            alpha = 0.6
+        )
+
+    } else {
+
+        selected_cell_barcodes <- NULL
+        count_data_subset <- NULL
+
+        if (last_buttons_clicked$last == "gate_button" & is.null(input$gating_pg_table_rows_selected)) {
+            selected_cell_barcodes <- event_data("plotly_selected", source = "C")$customdata
+            count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
+
+        } else if (!is.null(input$gating_pg_table_rows_selected)) {
+            selected_cell_barcodes <- GetData(gate_list[[selected_gate]], "subset_cells")[[1]]
+            count_data_subset <- count_data[rownames(count_data) %in% selected_cell_barcodes, ]
+        }
+
+        base_scatterplot <- plot_ly(
+            data = count_data_subset,
+            x = ~ count_data_subset[, input$x_feature],
+            y = ~ count_data_subset[, input$y_feature],
+            customdata = rownames(count_data_subset),
+            mode = "markers",
+            source = "C") %>%
+        add_histogram2dcontour(
+            showscale = FALSE, ncontours = 10, colorscale = gating_color_scale,
+            contours = list(coloring = "heatmap")) %>%
+        add_markers(
+            x = count_data_subset[, input$x_feature],
+            y = count_data_subset[, input$y_feature],
+            marker = list(size = 2.5),
+            color = I("black"),
+            alpha = 0.6
+        )
+    }
+
+    # add configuration and layout options to base scatterplot, register selection events
+    p <- base_scatterplot %>%
+        config(
+            toImageButtonOptions = list(
+                format = "png",
+                scale = 10
+            ) # scale title/legend/axis labels by this factor so that they are high-resolution when downloaded
+        ) %>%
+        # Layout changes the aesthetic of the plot
+        layout(
+            title = "Normalized Feature Scatter Plot",
+            xaxis = list(title = input$x_feature),
+            yaxis = list(title = input$y_feature),
+            showlegend = FALSE,
+            dragmode = "select"
+        ) %>% # Determines the mode of drag interactions. "select" and "lasso" apply only to scatter traces with markers or text. "orbit" and "turntable" apply only to 3D scenes.
+        event_register("plotly_selected")
+
+    return(p)
+
+}
+
+#' Normal Gate Scatterplot
+#' 
+#' @param input
+#' @param input_data_type
+#' @param rds_object
+#' @param last_buttons_clicked
+#' @param gate_list
+#' @param selected_gate
+#' 
+#' @importFrom plotly plot_ly event_register layout add_histogram2dcontour
+#' @importFrom plotly add_markers config event_data
+#' 
+#' @return scatterplot for normal gating
+#' 
+#' @noRd
+gate_reduction <- function(
+    input,
+    input_data_type,
+    rds_object,
+    last_buttons_clicked,
+    gate_list,
+    selected_gate
+) {
+
+    req(
+        input$file_input,
+        input$gating_color_dimred,
+        input$gating_reduction,
+    )
+
+    # create string for reduction to plot
+    reduc <- input$gating_reduction
+
+    # selected metadata to color clusters by
+    color <- input$gating_color_dimred
+
+    # gather metadata
+    metadata_df <- get_data(
+        category = "metadata",
+        input_data_type = input_data_type,
+        rds_object = rds_object,
+        input_file_df = input_file_df,
+        assay_name = NULL,
+        reduction_name = NULL
+    )
+
+    # interpolate the base color palette
+    custom_palette <- get_palette(length(unique(metadata_df[[color]])))
+
+    # create dataframe from reduction selected
+    cell_data <- get_data(
+        category = "reductions",
+        input_data_type = input_data_type,
+        rds_object = rds_object,
+        input_file_df = input_file_df,
+        assay_name = NULL,
+        reduction_name = reduc
+    )
+
+    # create list containing all column names of cell_data
+    cell_col <- colnames(cell_data)
+
+    # initialize selected_cells
+    selected_cells <- NULL
+
+    # define selected cells by either user
+    # input or based on a previous gate accessed by a click
+    if (!is.null(input$gating_pg_table_rows_selected)) {
+        selected_cells <- GetData(gate_list[[selected_gate]], "subset_cells")[[1]]
+    } else {
+        selected_cells <- event_data("plotly_selected", source = "C")$customdata
+    }
+
+    # color the reduction plot by user metadata (prior to any gates)
+    # or black-and-white to highlight selected cells after gates are made
+    if (is.null(selected_cells)) {
+        plotly_color_list <- c(paste0("metadata_df$", color), "custom_palette")
+    } else {
+        plotly_color_list <- c("rownames(cell_data) %in% selected_cells", 'c("grey", "black")')
+    }
+
+    # plot gating dimension reduction plot
+    p <- plot_ly(
+        data = cell_data,
+        x = ~ cell_data[, 1],
+        y = ~ cell_data[, 2],
+        customdata = rownames(cell_data),
+        color = stats::as.formula(paste0("~", plotly_color_list[1])), # color by selected metadata in object
+        colors = stats::as.formula(paste0("~", plotly_color_list[2])),
+        type = "scatter",
+        mode = "markers",
+        marker = list(size = 3, width = 2)) %>%
+    config(
+        toImageButtonOptions = list(
+            format = "png",
+            scale = 10)) %>%
+    layout(
+        title = toupper(reduc),
+        xaxis = list(title = cell_col[1]),
+        yaxis = list(title = cell_col[2]),
+        legend = list(itemsizing = "constant")
+    )
+
+    return(p)
+
 }

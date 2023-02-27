@@ -90,11 +90,24 @@ methods::setClass("Gate", slots = list(
 #' @noRd
 #' @return Gate class object
 #'
-Gate <- function(counter = NA_integer_, assay_name = NA_character_, input_cells = list(), input_coords = data.frame(),
-    subset_cells = list(), subset_coords = data.frame(), x_axis = NA_character_, y_axis = NA_character_,
-    gate_coords = list(), name_subset_cells = NA_character_, num_input_cells = NA_integer_, num_subset_cells = NA_integer_,
-    total_num_cells_in_sample = NA_integer_, pct_subset_from_previous = NA_real_, pct_subset_from_total = NA_real_) {
-    methods::new("Gate",
+Gate <- function(
+    counter = NA_integer_,
+    assay_name = NA_character_,
+    input_cells = list(),
+    input_coords = data.frame(),
+    subset_cells = list(),
+    subset_coords = data.frame(),
+    x_axis = NA_character_,
+    y_axis = NA_character_,
+    gate_coords = list(),
+    name_subset_cells = NA_character_,
+    num_input_cells = NA_integer_,
+    num_subset_cells = NA_integer_,
+    total_num_cells_in_sample = NA_integer_,
+    pct_subset_from_previous = NA_real_,
+    pct_subset_from_total = NA_real_
+) {
+    new("Gate",
         counter = counter,
         assay_name = assay_name,
         input_cells = input_cells,

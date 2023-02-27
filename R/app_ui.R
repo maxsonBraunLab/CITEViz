@@ -293,12 +293,12 @@ app_ui <- function(request) {
                             uiOutput("Assay"),
                             uiOutput("x_feature"),
                             uiOutput("y_feature"),
-                            selectInput("reduction_g",
+                            selectInput("gating_reduction",
                                 label = "Select reduction data to plot",
                                 choices = c(""),
                                 selected = ""
                             ),
-                            selectInput("color2",
+                            selectInput("gating_color_dimred",
                                 label = "Color cells in reduction plot by:",
                                 choices = c(""),
                                 selected = ""
