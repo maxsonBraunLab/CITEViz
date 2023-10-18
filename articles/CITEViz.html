@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny • CITEViz</title>
+<title>CITEViz: Gate Cells in Seurat-Processed CITE-Seq Data • CITEViz</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny">
+<script src="../pkgdown.js"></script><meta property="og:title" content="CITEViz: Gate Cells in Seurat-Processed CITE-Seq Data">
 <meta property="og:description" content="CITEViz">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -66,58 +66,14 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>CITEViz: Interactively Classify Cell Populations
-in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny</h1>
-                        <h4 data-toc-skip class="author">Garth Kong</h4>
-            <address class="author_afil">
-      Division of Oncologic Science, Knight Cancer Institute, Oregon
-Health and Science
-University<br><h4 data-toc-skip class="author">Thai
-Nguyen</h4>
-            <address class="author_afil">
-      Division of Oncologic Science, Knight Cancer Institute, Oregon
-Health and Science
-University<br><h4 data-toc-skip class="author">Wesley
-Rosales</h4>
-            <address class="author_afil">
-      Earle A. Chiles Research
-Institute<br><h4 data-toc-skip class="author">Anjali
-Panikar</h4>
-            <address class="author_afil">
-      Bioinformatics and Genomics Masters Program, University of
-Oregon<br><h4 data-toc-skip class="author">John
-Cheney</h4>
-            <address class="author_afil">
-      Bioinformatics and Genomics Masters Program, University of
-Oregon<br><h4 data-toc-skip class="author">Brittany
-Curtiss</h4>
-            <address class="author_afil">
-      Knight Cancer Institute, Oregon Health and Science
-University<br><h4 data-toc-skip class="author">Sarah
-Carratt</h4>
-            <address class="author_afil">
-      Knight Cancer Institute, Oregon Health and Science
-University<br><h4 data-toc-skip class="author">Theodore
-Braun</h4>
-            <address class="author_afil">
-      Knight Cancer Institute, Oregon Health and Science
-University<br><h4 data-toc-skip class="author">Julia
-Maxson</h4>
-            <address class="author_afil">
-      Knight Cancer Institute, Oregon Health and Science
-University<br><small class="dont-index">Source: <a href="https://github.com/maxsonBraunLab/CITEViz/blob/HEAD/vignettes/CITEViz.Rmd" class="external-link"><code>vignettes/CITEViz.Rmd</code></a></small>
+      <h1 data-toc-skip>CITEViz: Gate Cells in Seurat-Processed CITE-Seq
+Data</h1>
+            
+      
+      <small class="dont-index">Source: <a href="https://github.com/maxsonBraunLab/CITEViz/blob/HEAD/vignettes/CITEViz.Rmd" class="external-link"><code>vignettes/CITEViz.Rmd</code></a></small>
       <div class="hidden name"><code>CITEViz.Rmd</code></div>
 
-    </address>
-</address>
-</address>
-</address>
-</address>
-</address>
-</address>
-</address>
-</address>
-</div>
+    </div>
 
     
     
@@ -472,56 +428,56 @@ in black in the feature scatter plot.</p>
 <span><span class="co">#&gt; [1] CITEViz_0.1      BiocStyle_2.28.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;   [1] tidyselect_1.2.0            viridisLite_0.4.2          </span></span>
-<span><span class="co">#&gt;   [3] golem_0.4.1                 dplyr_1.1.3                </span></span>
-<span><span class="co">#&gt;   [5] bitops_1.0-7                lazyeval_0.2.2             </span></span>
-<span><span class="co">#&gt;   [7] fastmap_1.1.1               SingleCellExperiment_1.22.0</span></span>
-<span><span class="co">#&gt;   [9] RCurl_1.98-1.12             promises_1.2.1             </span></span>
-<span><span class="co">#&gt;  [11] digest_0.6.33               mime_0.12                  </span></span>
-<span><span class="co">#&gt;  [13] lifecycle_1.0.3             ellipsis_0.3.2             </span></span>
-<span><span class="co">#&gt;  [15] SeuratObject_4.1.4          magrittr_2.0.3             </span></span>
-<span><span class="co">#&gt;  [17] compiler_4.3.1              config_0.3.2               </span></span>
-<span><span class="co">#&gt;  [19] rlang_1.1.1                 sass_0.4.7                 </span></span>
-<span><span class="co">#&gt;  [21] tools_4.3.1                 utf8_1.2.3                 </span></span>
-<span><span class="co">#&gt;  [23] yaml_2.3.7                  data.table_1.14.8          </span></span>
-<span><span class="co">#&gt;  [25] knitr_1.44                  S4Arrays_1.0.6             </span></span>
-<span><span class="co">#&gt;  [27] htmlwidgets_1.6.2           sp_2.1-1                   </span></span>
-<span><span class="co">#&gt;  [29] DelayedArray_0.26.7         abind_1.4-5                </span></span>
-<span><span class="co">#&gt;  [31] purrr_1.0.2                 BiocGenerics_0.46.0        </span></span>
-<span><span class="co">#&gt;  [33] desc_1.4.2                  grid_4.3.1                 </span></span>
-<span><span class="co">#&gt;  [35] stats4_4.3.1                fansi_1.0.5                </span></span>
-<span><span class="co">#&gt;  [37] xtable_1.8-4                colorspace_2.1-0           </span></span>
-<span><span class="co">#&gt;  [39] future_1.33.0               progressr_0.14.0           </span></span>
-<span><span class="co">#&gt;  [41] ggplot2_3.4.4               globals_0.16.2             </span></span>
-<span><span class="co">#&gt;  [43] scales_1.2.1                SummarizedExperiment_1.30.2</span></span>
-<span><span class="co">#&gt;  [45] cli_3.6.1                   crayon_1.5.2               </span></span>
-<span><span class="co">#&gt;  [47] rmarkdown_2.25              ragg_1.2.6                 </span></span>
-<span><span class="co">#&gt;  [49] generics_0.1.3              future.apply_1.11.0        </span></span>
-<span><span class="co">#&gt;  [51] httr_1.4.7                  cachem_1.0.8               </span></span>
-<span><span class="co">#&gt;  [53] stringr_1.5.0               zlibbioc_1.46.0            </span></span>
-<span><span class="co">#&gt;  [55] parallel_4.3.1              BiocManager_1.30.22        </span></span>
-<span><span class="co">#&gt;  [57] XVector_0.40.0              matrixStats_1.0.0          </span></span>
-<span><span class="co">#&gt;  [59] vctrs_0.6.4                 Matrix_1.6-1.1             </span></span>
-<span><span class="co">#&gt;  [61] jsonlite_1.8.7              bookdown_0.36              </span></span>
-<span><span class="co">#&gt;  [63] IRanges_2.34.1              S4Vectors_0.38.2           </span></span>
-<span><span class="co">#&gt;  [65] listenv_0.9.0               systemfonts_1.0.5          </span></span>
-<span><span class="co">#&gt;  [67] attempt_0.3.1               plotly_4.10.2              </span></span>
-<span><span class="co">#&gt;  [69] tidyr_1.3.0                 jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt;  [71] glue_1.6.2                  parallelly_1.36.0          </span></span>
-<span><span class="co">#&gt;  [73] pkgdown_2.0.7               codetools_0.2-19           </span></span>
-<span><span class="co">#&gt;  [75] DT_0.30                     stringi_1.7.12             </span></span>
-<span><span class="co">#&gt;  [77] gtable_0.3.4                later_1.3.1                </span></span>
-<span><span class="co">#&gt;  [79] GenomeInfoDb_1.36.4         GenomicRanges_1.52.1       </span></span>
-<span><span class="co">#&gt;  [81] munsell_0.5.0               tibble_3.2.1               </span></span>
-<span><span class="co">#&gt;  [83] pillar_1.9.0                htmltools_0.5.6.1          </span></span>
-<span><span class="co">#&gt;  [85] GenomeInfoDbData_1.2.10     R6_2.5.1                   </span></span>
-<span><span class="co">#&gt;  [87] textshaping_0.3.7           rprojroot_2.0.3            </span></span>
-<span><span class="co">#&gt;  [89] Biobase_2.60.0              evaluate_0.22              </span></span>
-<span><span class="co">#&gt;  [91] shiny_1.7.5.1               lattice_0.21-8             </span></span>
-<span><span class="co">#&gt;  [93] memoise_2.0.1               httpuv_1.6.11              </span></span>
-<span><span class="co">#&gt;  [95] bslib_0.5.1                 Rcpp_1.0.11                </span></span>
-<span><span class="co">#&gt;  [97] xfun_0.40                   fs_1.6.3                   </span></span>
-<span><span class="co">#&gt;  [99] MatrixGenerics_1.12.3       pkgconfig_2.0.3</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] tidyselect_1.2.0            viridisLite_0.4.2          </span></span>
+<span><span class="co">#&gt;  [3] golem_0.4.1                 dplyr_1.1.3                </span></span>
+<span><span class="co">#&gt;  [5] bitops_1.0-7                lazyeval_0.2.2             </span></span>
+<span><span class="co">#&gt;  [7] fastmap_1.1.1               SingleCellExperiment_1.22.0</span></span>
+<span><span class="co">#&gt;  [9] RCurl_1.98-1.12             promises_1.2.1             </span></span>
+<span><span class="co">#&gt; [11] digest_0.6.33               mime_0.12                  </span></span>
+<span><span class="co">#&gt; [13] lifecycle_1.0.3             ellipsis_0.3.2             </span></span>
+<span><span class="co">#&gt; [15] SeuratObject_4.1.4          magrittr_2.0.3             </span></span>
+<span><span class="co">#&gt; [17] compiler_4.3.1              config_0.3.2               </span></span>
+<span><span class="co">#&gt; [19] rlang_1.1.1                 sass_0.4.7                 </span></span>
+<span><span class="co">#&gt; [21] tools_4.3.1                 utf8_1.2.3                 </span></span>
+<span><span class="co">#&gt; [23] yaml_2.3.7                  data.table_1.14.8          </span></span>
+<span><span class="co">#&gt; [25] knitr_1.44                  S4Arrays_1.0.6             </span></span>
+<span><span class="co">#&gt; [27] htmlwidgets_1.6.2           sp_2.1-1                   </span></span>
+<span><span class="co">#&gt; [29] DelayedArray_0.26.7         abind_1.4-5                </span></span>
+<span><span class="co">#&gt; [31] purrr_1.0.2                 BiocGenerics_0.46.0        </span></span>
+<span><span class="co">#&gt; [33] desc_1.4.2                  grid_4.3.1                 </span></span>
+<span><span class="co">#&gt; [35] stats4_4.3.1                fansi_1.0.5                </span></span>
+<span><span class="co">#&gt; [37] xtable_1.8-4                colorspace_2.1-0           </span></span>
+<span><span class="co">#&gt; [39] future_1.33.0               progressr_0.14.0           </span></span>
+<span><span class="co">#&gt; [41] ggplot2_3.4.4               globals_0.16.2             </span></span>
+<span><span class="co">#&gt; [43] scales_1.2.1                SummarizedExperiment_1.30.2</span></span>
+<span><span class="co">#&gt; [45] cli_3.6.1                   crayon_1.5.2               </span></span>
+<span><span class="co">#&gt; [47] rmarkdown_2.25              ragg_1.2.6                 </span></span>
+<span><span class="co">#&gt; [49] generics_0.1.3              future.apply_1.11.0        </span></span>
+<span><span class="co">#&gt; [51] httr_1.4.7                  cachem_1.0.8               </span></span>
+<span><span class="co">#&gt; [53] stringr_1.5.0               zlibbioc_1.46.0            </span></span>
+<span><span class="co">#&gt; [55] parallel_4.3.1              BiocManager_1.30.22        </span></span>
+<span><span class="co">#&gt; [57] XVector_0.40.0              matrixStats_1.0.0          </span></span>
+<span><span class="co">#&gt; [59] vctrs_0.6.4                 Matrix_1.6-1.1             </span></span>
+<span><span class="co">#&gt; [61] jsonlite_1.8.7              IRanges_2.34.1             </span></span>
+<span><span class="co">#&gt; [63] S4Vectors_0.38.2            listenv_0.9.0              </span></span>
+<span><span class="co">#&gt; [65] systemfonts_1.0.5           attempt_0.3.1              </span></span>
+<span><span class="co">#&gt; [67] plotly_4.10.2               tidyr_1.3.0                </span></span>
+<span><span class="co">#&gt; [69] jquerylib_0.1.4             glue_1.6.2                 </span></span>
+<span><span class="co">#&gt; [71] parallelly_1.36.0           pkgdown_2.0.7              </span></span>
+<span><span class="co">#&gt; [73] codetools_0.2-19            DT_0.30                    </span></span>
+<span><span class="co">#&gt; [75] stringi_1.7.12              gtable_0.3.4               </span></span>
+<span><span class="co">#&gt; [77] later_1.3.1                 GenomeInfoDb_1.36.4        </span></span>
+<span><span class="co">#&gt; [79] GenomicRanges_1.52.1        munsell_0.5.0              </span></span>
+<span><span class="co">#&gt; [81] tibble_3.2.1                pillar_1.9.0               </span></span>
+<span><span class="co">#&gt; [83] htmltools_0.5.6.1           GenomeInfoDbData_1.2.10    </span></span>
+<span><span class="co">#&gt; [85] R6_2.5.1                    textshaping_0.3.7          </span></span>
+<span><span class="co">#&gt; [87] rprojroot_2.0.3             evaluate_0.22              </span></span>
+<span><span class="co">#&gt; [89] shiny_1.7.5.1               lattice_0.21-8             </span></span>
+<span><span class="co">#&gt; [91] Biobase_2.60.0              memoise_2.0.1              </span></span>
+<span><span class="co">#&gt; [93] httpuv_1.6.11               bslib_0.5.1                </span></span>
+<span><span class="co">#&gt; [95] Rcpp_1.0.11                 xfun_0.40                  </span></span>
+<span><span class="co">#&gt; [97] fs_1.6.3                    MatrixGenerics_1.12.3      </span></span>
+<span><span class="co">#&gt; [99] pkgconfig_2.0.3</span></span></code></pre></div>
 </div>
   </div>
 
