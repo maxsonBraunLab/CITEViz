@@ -68,9 +68,9 @@
 <div class="section level1">
 <div class="page-header"><h1 id="citeviz">CITEViz<a class="anchor" aria-label="anchor" href="#citeviz"></a>
 </h1></div>
+<p><img src="articles/citeviz-logo-light-cropped.png" alt="drawing" width="200"></p>
 <!-- badges: start -->
 
-<p><img src="articles/citeviz-logo-light-cropped.png" alt="drawing" width="200"></p>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
@@ -79,69 +79,23 @@
 <div class="section level2">
 <h2 id="about-citeviz">About CITEViz<a class="anchor" aria-label="anchor" href="#about-citeviz"></a>
 </h2>
-<p>CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow-cytometry gating workflow. With CITEViz, users can investigate CITE-Seq specific quality control (QC) metrics, view multi-omic co-expression feature plots, and classify cell clusters by iteratively gating on the abundance of cell surface markers. CITEViz was developed to make multi-modal single-cell analysis accessible to a wide variety of biologists, with the aim to discover new insights into their data and to facilitate novel hypothesis generation. If you use our package, please cite our paper: <a href="https://www.biorxiv.org/content/10.1101/2022.05.15.491411v1" class="external-link">CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq</a></p>
+<p>CITEViz is a single-cell visualization platform with a custom module that replicates the interactive flow-cytometry gating workflow. With CITEViz, users can investigate CITE-Seq specific quality control (QC) metrics, view multi-omic co-expression feature plots, and classify cell clusters by iteratively gating on the abundance of cell surface markers. CITEViz was developed to make multi-modal single-cell analysis accessible to a wide variety of biologists, with the aim to discover new insights into their data and to facilitate novel hypothesis generation.</p>
 </div>
 <div class="section level2">
-<h2 id="installation--usage">Installation &amp; Usage<a class="anchor" aria-label="anchor" href="#installation--usage"></a>
+<h2 id="intended-audience">Intended Audience<a class="anchor" aria-label="anchor" href="#intended-audience"></a>
 </h2>
-<p>We recommend installing CITEViz through the RStudio IDE using the following commands:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"maxsonBraunLab/CITEViz"</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">CITEViz</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>CITEViz installation is currently facilitated with devtools, and the development team is working hard to submit the package to Bioconductor 3.16 with a release schedule of October 2022.</p>
-<div class="section level3">
-<h3 id="feature-1-forward-gates">Feature 1: Forward-Gates<a class="anchor" aria-label="anchor" href="#feature-1-forward-gates"></a>
-</h3>
-<p>Arguably the most important feature for CITEViz, users can gate on a set of features (ADT, RNA, etc.) to subset cells in the dimensional reduction space (e.g. UMAP, PCA, tSNE). Users can use one or multiple layers of gates to enrich for specific cell populations justl like flow cytometry. In the following example, we demonstrate a 2-layer gate to get CD11b-1 CD45-1 cells (mixture of myeloid and lymphoid cells) and CD8+ CD4- cells to get CD8 T cells:</p>
-<ol style="list-style-type: decimal">
-<li>Select cells with relatively low levels of CD11b-1 and CD45-1.</li>
-</ol>
-<div class="figure">
-<img src="articles/gating_CD8_T_Cells.png" alt=""><p class="caption">forward-gate1</p>
-</div>
-<ol start="2" style="list-style-type: decimal">
-<li>From the cells in the first gate, select cells with low levels of CD4 and high levels of CD8.</li>
-</ol>
-<div class="figure">
-<img src="articles/gating_CD8_T_Cells2.png" alt=""><p class="caption">forward-gate2</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="feature-2-back-gates">Feature 2: Back-Gates<a class="anchor" aria-label="anchor" href="#feature-2-back-gates"></a>
-</h3>
-<p>Unique to CITEViz, users can ‘back-gate’ on a selection of cells, and highlight them in feature space. We believe this feature can highlight cells in feature space from a “labels-first” or “top-down” workflow. In the following example, we back-gate on a selection of B-cells:</p>
-<div class="figure">
-<img src="articles/backgate-b-cells.png" alt=""><p class="caption">back-gate</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="feature-3-quality-control">Feature 3: Quality Control<a class="anchor" aria-label="anchor" href="#feature-3-quality-control"></a>
-</h3>
-<p>A set of quality control metrics can be assessed in CITEViz, split by any categorical metadata in the input Seurat object. This feature helps users identify potential faulty samples or batch effect. In the following example, CITEViz clearly displayed a difference in the Number of Unique ADTs between patient donors P1-P4 and P5-P8.</p>
-<div class="figure">
-<img src="articles/qc-unique-adt.png" alt=""><p class="caption">quality-control</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="feature-4-feature-co-expression">Feature 4: Feature (co-)Expression<a class="anchor" aria-label="anchor" href="#feature-4-feature-co-expression"></a>
-</h3>
-<p>Co-Expression of features greatly facilitates a holistic view of single-cell multi-omic datasets. For example, this co-expression plot of CD14 and CD16 protein expression show cell population heterogeneity in monocytes in the left cluster. Most monocytes have high CD14 cells and moderate CD16, except for a specific population at the bottom dip that have high CD16 and low CD14.</p>
-<div class="figure">
-<img src="articles/co-expression.png" alt=""><p class="caption">co-expression</p>
-</div>
-</div>
+<p>CITEViz is intended to be used by biologists familiar with flow cytometry and who can either 1) perform basic single-cell analysis or 2) collaborate in a team with a computational scientists. The input data format for CITEViz is a pre-processed Seurat object, which requires a basic level of coding skills in R and the ability to follow public Seurat vignettes. Since the essential feature of CITEViz is its iterative filtering process, it is not intended for any data preprocessing or normalization. In our experience, we found CITEViz to be a uniquely collaborative tool that leverages the strength of both bench and computational scientists to explore and analyze data together.</p>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Andreatta M, Berenstein AJ, Carmona SJ. scGate: marker-based purification of cell types from heterogeneous single-cell RNA-seq datasets. :3.</p>
-<p>Hao Y, Hao S, Andersen-Nissen E, Mauck WM, Zheng S, Butler A, Lee MJ, Wilk AJ, Darby C, Zager M, et al. 2021. Integrated analysis of multimodal single-cell data. Cell. 184(13):3573-3587.e29. <a href="doi:10.1016/j.cell.2021.04.048" class="uri">doi:10.1016/j.cell.2021.04.048</a>.</p>
-<p>Jagla B, Libri V, Chica C, Rouilly V, Mella S, Puceat M, Hasan M. 2021. SCHNAPPs - Single Cell sHiNy APPlication(s). Journal of Immunological Methods. 499:113176. <a href="doi:10.1016/j.jim.2021.113176" class="uri">doi:10.1016/j.jim.2021.113176</a>.</p>
-<p>Macosko EZ, Basu A, Satija R, Nemesh J, Shekhar K, Goldman M, Tirosh I, Bialas AR, Kamitaki N, Martersteck EM, et al. 2015. Highly Parallel Genome-wide Expression Profiling of Individual Cells Using Nanoliter Droplets. Cell. 161(5):1202–1214. <a href="doi:10.1016/j.cell.2015.05.002" class="uri">doi:10.1016/j.cell.2015.05.002</a>.</p>
-<p>Ouyang JF, Kamaraj US, Cao EY, Rackham OJL. 2021. ShinyCell: simple and sharable visualization of single-cell gene expression data. Mathelier A, editor. Bioinformatics. 37(19):3374–3376. <a href="doi:10.1093/bioinformatics/btab209" class="uri">doi:10.1093/bioinformatics/btab209</a>.</p>
-<p>Pont F, Tosolini M, Gao Q, Perrier M, Madrid-Mencía M, Huang TS, Neuvial P, Ayyoub M, Nazor K, Fournié J-J. 2020. Single-Cell Virtual Cytometer allows user-friendly and versatile analysis and visualization of multimodal single cell RNAseq datasets. NAR Genomics and Bioinformatics. 2(2):lqaa025. <a href="doi:10.1093/nargab/lqaa025" class="uri">doi:10.1093/nargab/lqaa025</a>.</p>
-<p>Stoeckius M, Hafemeister C, Stephenson W, Houck-Loomis B, Chattopadhyay PK, Swerdlow H, Satija R, Smibert P. 2017. Simultaneous epitope and transcriptome measurement in single cells. Nat Methods. 14(9):865–868. <a href="doi:10.1038/nmeth.4380" class="uri">doi:10.1038/nmeth.4380</a>.</p>
+<p>If you have used our package for your publications, please cite our paper: <a href="https://www.biorxiv.org/content/10.1101/2022.05.15.491411v1" class="external-link">CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq</a></p>
+</div>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
+<p>Please use the following link to start gating on Seurat-processed CITE-Seq data:</p>
+<p><a href="https://maxsonbraunlab.github.io/CITEViz/" class="external-link uri">https://maxsonbraunlab.github.io/CITEViz/</a></p>
 </div>
 </div>
   </div>
