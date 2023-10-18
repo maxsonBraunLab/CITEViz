@@ -1,44 +1,7 @@
 ---
-title: "CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny"
-author:
-    - name: "Garth Kong "
-      affiliation:
-        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
-    - name: "Thai Nguyen "
-      affiliation:
-        "Division of Oncologic Science, Knight Cancer Institute, Oregon Health and Science University"
-    - name: "Wesley Rosales "
-      affiliation:
-        "Earle A. Chiles Research Institute"
-    - name: "Anjali Panikar "
-      affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: "John Cheney "
-      affiliation:
-        "Bioinformatics and Genomics Masters Program, University of Oregon"
-    - name: "Brittany Curtiss "
-      affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
-    - name: "Sarah Carratt "
-      affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
-    - name: "Theodore Braun "
-      affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
-    - name: "Julia Maxson "
-      affiliation:
-        "Knight Cancer Institute, Oregon Health and Science University"
+title: "CITEViz: Gate Cells in Seurat-Processed CITE-Seq Data"
+package: CITEViz 0.1
 
-package: CITEViz 0.99.9
-output:
-    BiocStyle::html_document:
-        toc: true
-        toc_depth: 2
-
-vignette: >
-    %\VignetteIndexEntry{'CITEViz: Interactively Classify Cell Populations in CITE-Seq via a Flow Cytometry-like Gating Workflow using R-Shiny'}
-    %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteEncoding{UTF-8}
 ---
 
 
