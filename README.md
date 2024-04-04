@@ -19,7 +19,7 @@ CITEViz is intended to be used by biologists familiar with flow cytometry and wh
 
 ## Citation
 
-If you have used our package for your publications, please cite our paper: [CITE-Viz: Replicating the Interactive Flow Cytometry Workflow in CITE-Seq](https://www.biorxiv.org/content/10.1101/2022.05.15.491411v1)
+If you have used our package for your publications, please cite our paper: [CITEViz: interactively classify cell populations in CITE-Seq via a flow cytometry-like gating workflow using R-Shiny](https://doi.org/10.1186/s12859-024-05762-1)
 
 ## Usage
 
