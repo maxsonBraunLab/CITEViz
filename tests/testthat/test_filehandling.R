@@ -63,12 +63,18 @@ counts <- matrix(rpois(30, lambda = 20),
     nrow = 3, ncol = 10,
     dimnames = list(gene_list, LETTERS[1:10])
 )
+
 test_so <- Seurat::CreateSeuratObject(counts = counts, assay = "RNA")
 test_adt <- Seurat::CreateAssayObject(counts = matrix(rpois(30, lambda = 20),
     nrow = 3, ncol = 10,
     dimnames = list(adt_list, LETTERS[1:10])
 ))
 test_so[["ADT"]] <- test_adt
+
+# the simulated RNA assay needs a "data" slot, which is created when Seurat normalizes counts
+Seurat::DefaultAssay(test_so) <- "RNA"
+test_so <- Seurat::NormalizeData(test_so)
+
 test_so[["pca"]] <- Seurat::CreateDimReducObject(
     embeddings = matrix(rpois(20, lambda = 5),
         ncol = 2, nrow = 10,

@@ -338,7 +338,7 @@ gate_reduction <- function(
     req(
         input$file_input,
         input$gating_color_dimred,
-        input$gating_reduction,
+        input$gating_reduction
     )
 
     # create string for reduction to plot
